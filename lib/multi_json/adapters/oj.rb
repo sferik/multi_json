@@ -1,5 +1,5 @@
 require "oj"
-require "multi_json/adapter"
+require_relative "../adapter"
 
 module MultiJson
   module Adapters

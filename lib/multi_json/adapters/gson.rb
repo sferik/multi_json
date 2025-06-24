@@ -1,6 +1,6 @@
 require "gson"
 require "stringio"
-require "multi_json/adapter"
+require_relative "../adapter"
 
 module MultiJson
   module Adapters
