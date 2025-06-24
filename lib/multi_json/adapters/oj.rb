@@ -1,4 +1,3 @@
-require "set"
 require "oj"
 require "multi_json/adapter"
 
