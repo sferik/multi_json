@@ -29,12 +29,12 @@ module MultiJson
     private
 
     def get_options(options, *)
-      return handle_callable_options(options, *) if options_responds_to_call?(options)
+      return handle_callable_options(options, *) if options_callable?(options)
 
       handle_hashable_options(options)
     end
 
-    def options_responds_to_call?(options)
+    def options_callable?(options)
       options.respond_to?(:call)
     end
 
