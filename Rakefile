@@ -19,6 +19,7 @@ namespace :adapters do
   end
 end
 
+desc "Run the full test suite"
 task spec: %w[
   base_spec
   adapters:oj
@@ -30,5 +31,8 @@ task spec: %w[
   adapters:jr_jackson
 ]
 
+desc "Run the default task"
 task default: :spec
+
+desc "Alias for spec"
 task test: :spec
