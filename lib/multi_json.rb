@@ -163,7 +163,7 @@ module MultiJson
   def load_adapter_from_string_name(name)
     name = ALIASES.fetch(name, name)
     require "multi_json/adapters/#{name.downcase}"
-    klass_name = name.to_s.split("_").map(&:capitalize) * ""
+    klass_name = name.to_s.split("_").map!(&:capitalize).join
     MultiJson::Adapters.const_get(klass_name)
   end
 end
