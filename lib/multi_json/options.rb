@@ -10,12 +10,12 @@ module MultiJson
       @dump_options = options
     end
 
-    def load_options(*args)
-      (defined?(@load_options) && get_options(@load_options, *args)) || default_load_options
+    def load_options(*)
+      (defined?(@load_options) && get_options(@load_options, *)) || default_load_options
     end
 
-    def dump_options(*args)
-      (defined?(@dump_options) && get_options(@dump_options, *args)) || default_dump_options
+    def dump_options(*)
+      (defined?(@dump_options) && get_options(@dump_options, *)) || default_dump_options
     end
 
     def default_load_options
@@ -28,8 +28,8 @@ module MultiJson
 
     private
 
-    def get_options(options, *args)
-      return handle_callable_options(options, *args) if options_responds_to_call?(options)
+    def get_options(options, *)
+      return handle_callable_options(options, *) if options_responds_to_call?(options)
 
       handle_hashable_options(options)
     end
@@ -38,8 +38,8 @@ module MultiJson
       options.respond_to?(:call)
     end
 
-    def handle_callable_options(options, *args)
-      options.arity.zero? ? options[] : options[*args]
+    def handle_callable_options(options, *)
+      options.arity.zero? ? options[] : options[*]
     end
 
     def handle_hashable_options(options)
