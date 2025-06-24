@@ -1,11 +1,10 @@
 module MultiJson
   class ParseError < StandardError
-    attr_reader :data, :cause
+    attr_reader :data
 
     def initialize(message = nil, data: nil, cause: nil)
       super(message)
       @data = data
-      @cause = cause
       set_backtrace(cause.backtrace) if cause
     end
 
