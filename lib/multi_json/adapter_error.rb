@@ -1,10 +1,7 @@
 module MultiJson
   class AdapterError < ArgumentError
-    attr_reader :cause
-
     def initialize(message = nil, cause: nil)
       super(message)
-      @cause = cause
       set_backtrace(cause.backtrace) if cause
     end
 
