@@ -1,6 +1,7 @@
 module MultiJson
   module ConvertibleHashKeys
     SIMPLE_OBJECT_CLASSES = [String, Numeric, TrueClass, FalseClass, NilClass].freeze
+    private_constant :SIMPLE_OBJECT_CLASSES
 
     private
 

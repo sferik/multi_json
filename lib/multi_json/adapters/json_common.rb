@@ -11,6 +11,7 @@ module MultiJson
         object_nl: "\n",
         array_nl: "\n"
       }.freeze
+      private_constant :PRETTY_STATE_PROTOTYPE
 
       def load(string, options = {})
         string = string.dup.force_encoding(::Encoding::ASCII_8BIT) if string.respond_to?(:force_encoding)
