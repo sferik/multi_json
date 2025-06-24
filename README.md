@@ -95,7 +95,7 @@ spec.add_dependency 'multi_json', '~> 1.0'
 
 ## Copyright
 
-Copyright (c) 2010-2024 Michael Bleigh, Josh Kalderimis, Erik Berlin,
+Copyright (c) 2010-2025 Michael Bleigh, Josh Kalderimis, Erik Berlin,
 and Pavel Pravosud. See [LICENSE][] for details.
 
 [build]: https://github.com/sferik/multi_json/actions?query=workflow%3ATest+branch%3Amain+event%3Apush
