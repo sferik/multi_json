@@ -17,6 +17,7 @@ module MultiJson
       # (at least for now).
       class ParseError < ::SyntaxError
         WRAPPED_CLASSES = %w[Oj::ParseError JSON::ParserError].to_set.freeze
+        private_constant :WRAPPED_CLASSES
 
         def self.===(exception)
           case exception
@@ -36,6 +37,7 @@ module MultiJson
       OJ_VERSION = ::Oj::VERSION
       OJ_V2 = OJ_VERSION.start_with?("2.")
       OJ_V3 = OJ_VERSION.start_with?("3.")
+      private_constant :OJ_VERSION, :OJ_V2, :OJ_V3
 
       if OJ_V3
         PRETTY_STATE_PROTOTYPE = {
@@ -46,6 +48,7 @@ module MultiJson
           array_nl: "\n",
           ascii_only: false
         }.freeze
+        private_constant :PRETTY_STATE_PROTOTYPE
       end
 
       def dump(object, options = {})
