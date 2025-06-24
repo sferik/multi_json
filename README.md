@@ -1,8 +1,8 @@
 # MultiJSON
 
 [![Gem Version](http://img.shields.io/gem/v/multi_json.svg)][gem]
-[![Build Status](https://github.com/intridea/multi_json/workflows/Test/badge.svg)][build]
-[![Code Climate](https://codeclimate.com/github/intridea/multi_json.svg)][codeclimate]
+[![Build Status](https://github.com/sferik/multi_json/workflows/Test/badge.svg)][build]
+[![Code Climate](https://codeclimate.com/github/sferik/multi_json.svg)][codeclimate]
 
 Lots of Ruby libraries parse JSON and everyone has their favorite JSON coder.
 Instead of choosing a single JSON coder and forcing users of your library to be
@@ -57,7 +57,7 @@ MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 
 ## Supported Ruby Versions
 
-This library aims to support and is [tested against](https://github.com/intridea/multi_json/actions/workflows/ci.yml) the following Ruby
+This library aims to support and is [tested against](https://github.com/sferik/multi_json/actions/workflows/ci.yml) the following Ruby
 implementations:
 
 - Ruby 3.2
@@ -98,9 +98,8 @@ spec.add_dependency 'multi_json', '~> 1.0'
 Copyright (c) 2010-2024 Michael Bleigh, Josh Kalderimis, Erik Berlin,
 and Pavel Pravosud. See [LICENSE][] for details.
 
-<!-- TODO: on main renaming, change this link -->
-[build]: https://github.com/intridea/multi_json/actions?query=workflow%3ATest+branch%3Amaster+event%3Apush
-[codeclimate]: https://codeclimate.com/github/intridea/multi_json
+[build]: https://github.com/sferik/multi_json/actions?query=workflow%3ATest+branch%3Amain+event%3Apush
+[codeclimate]: https://codeclimate.com/github/sferik/multi_json
 [gem]: https://rubygems.org/gems/multi_json
 [gson]: https://github.com/avsej/gson.rb
 [jrjackson]: https://github.com/guyboertje/jrjackson
