@@ -5,6 +5,13 @@ module MultiJson
     class JsonCommon < Adapter
       defaults :load, create_additions: false, quirks_mode: true
 
+      PRETTY_STATE_PROTOTYPE = {
+        indent: "  ",
+        space: " ",
+        object_nl: "\n",
+        array_nl: "\n"
+      }.freeze
+
       def load(string, options = {})
         string = string.dup.force_encoding(::Encoding::ASCII_8BIT) if string.respond_to?(:force_encoding)
 
@@ -13,14 +20,7 @@ module MultiJson
       end
 
       def dump(object, options = {})
-        if options.delete(:pretty)
-          options.merge!({
-            indent: "  ",
-            space: " ",
-            object_nl: "\n",
-            array_nl: "\n"
-          })
-        end
+        options.merge!(PRETTY_STATE_PROTOTYPE) if options.delete(:pretty)
 
         object.to_json(options)
       end
