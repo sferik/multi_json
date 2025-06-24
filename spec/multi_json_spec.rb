@@ -18,6 +18,18 @@ RSpec.describe MultiJson do
       simulate_no_adapters { example.call }
     end
 
+    before do
+      if described_class.instance_variable_defined?(:@default_adapter_warning_shown)
+        described_class.remove_instance_variable(:@default_adapter_warning_shown)
+      end
+    end
+
+    after do
+      if described_class.instance_variable_defined?(:@default_adapter_warning_shown)
+        described_class.remove_instance_variable(:@default_adapter_warning_shown)
+      end
+    end
+
     it "defaults to ok_json if no other json implementions are available" do
       silence_warnings do
         expect(described_class.default_adapter).to eq(:ok_json)
@@ -26,6 +38,12 @@ RSpec.describe MultiJson do
 
     it "prints a warning" do
       expect(Kernel).to receive(:warn).with(/warning/i)
+      described_class.default_adapter
+    end
+
+    it "warns only once" do
+      expect(Kernel).to receive(:warn).once
+      described_class.default_adapter
       described_class.default_adapter
     end
   end

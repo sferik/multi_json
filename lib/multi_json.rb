@@ -43,10 +43,13 @@ module MultiJson
     adapter = loaded_adapter || installable_adapter
     return adapter if adapter
 
-    Kernel.warn(
-      "[WARNING] MultiJson is using the default adapter (ok_json). " \
-      "We recommend loading a different JSON library to improve performance."
-    )
+    unless defined?(@default_adapter_warning_shown) && @default_adapter_warning_shown
+      Kernel.warn(
+        "[WARNING] MultiJson is using the default adapter (ok_json). " \
+        "We recommend loading a different JSON library to improve performance."
+      )
+      @default_adapter_warning_shown = true
+    end
 
     :ok_json
   end
