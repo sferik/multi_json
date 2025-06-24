@@ -39,7 +39,7 @@ module MultiJson
     end
 
     def handle_callable_options(options, *)
-      options.arity.zero? ? options[] : options[*]
+      options.arity.zero? ? options.call : options.call(*)
     end
 
     def handle_hashable_options(options)
