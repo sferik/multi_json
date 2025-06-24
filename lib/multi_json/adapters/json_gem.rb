@@ -1,5 +1,5 @@
 require "json/ext"
-require "multi_json/adapters/json_common"
+require_relative "json_common"
 
 module MultiJson
   module Adapters

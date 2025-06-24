@@ -1,8 +1,8 @@
-require "multi_json/options"
-require "multi_json/version"
-require "multi_json/adapter_error"
-require "multi_json/parse_error"
-require "multi_json/options_cache"
+require_relative "multi_json/options"
+require_relative "multi_json/version"
+require_relative "multi_json/adapter_error"
+require_relative "multi_json/parse_error"
+require_relative "multi_json/options_cache"
 
 module MultiJson
   include Options
