@@ -2,6 +2,13 @@ module MultiJson
   module OptionsCache
     extend self
 
+    # Normally MultiJson is used with a few option sets for both dump/load
+    # methods. When options are generated dynamically though, every call would
+    # cause a cache miss and the cache would grow indefinitely. To prevent
+    # this, we just reset the cache every time the number of keys outgrows
+    # 1000.
+    MAX_CACHE_SIZE = 1000
+
     def reset
       @dump_cache = {}
       @load_cache = {}
@@ -13,13 +20,6 @@ module MultiJson
     end
 
     private
-
-    # Normally MultiJson is used with a few option sets for both dump/load
-    # methods. When options are generated dynamically though, every call would
-    # cause a cache miss and the cache would grow indefinitely. To prevent
-    # this, we just reset the cache every time the number of keys outgrows
-    # 1000.
-    MAX_CACHE_SIZE = 1000
 
     def write(cache, key)
       reset unless cache
