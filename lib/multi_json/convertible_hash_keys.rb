@@ -14,11 +14,11 @@ module MultiJson
       end
     end
 
-    def prepare_hash(hash, &key_modifier)
+    def prepare_hash(hash, &)
       return handle_simple_objects(hash) unless hash.is_a?(Array) || hash.is_a?(Hash)
-      return handle_array(hash, &key_modifier) if hash.is_a?(Array)
+      return handle_array(hash, &) if hash.is_a?(Array)
 
-      handle_hash(hash, &key_modifier)
+      handle_hash(hash, &)
     end
 
     def handle_simple_objects(obj)
