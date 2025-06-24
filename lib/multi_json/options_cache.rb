@@ -8,15 +8,21 @@ module MultiJson
     # this, we just reset the cache every time the number of keys outgrows
     # 1000.
     MAX_CACHE_SIZE = 1000
+    MUTEX = Mutex.new
+    private_constant :MAX_CACHE_SIZE, :MUTEX
 
     def reset
-      @dump_cache = {}
-      @load_cache = {}
+      MUTEX.synchronize do
+        @dump_cache = {}
+        @load_cache = {}
+      end
     end
 
     def fetch(type, key, &)
-      cache = cache_for(type)
-      cache.fetch(key) { write(cache, key, &) }
+      MUTEX.synchronize do
+        cache = cache_for(type)
+        cache.fetch(key) { write(cache, key, &) }
+      end
     end
 
     private
