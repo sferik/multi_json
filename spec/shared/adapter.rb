@@ -15,7 +15,7 @@ shared_examples_for "an adapter" do |adapter|
   describe ".dump" do
     let(:json_pure) do
       Kernel.const_get("MultiJson::Adapters::JsonPure")
-    rescue StandardError
+    rescue
       nil
     end
 
