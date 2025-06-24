@@ -15,15 +15,18 @@ module MultiJson
     end
 
     def fetch(type, key, &)
-      cache = instance_variable_get("@#{type}_cache")
-      unless cache
-        reset
-        cache = instance_variable_get("@#{type}_cache")
-      end
-      cache.key?(key) ? cache[key] : write(cache, key, &)
+      cache = cache_for(type)
+      cache.fetch(key) { write(cache, key, &) }
     end
 
     private
+
+    def cache_for(type)
+      instance_variable_get("@#{type}_cache") || begin
+        reset
+        instance_variable_get("@#{type}_cache")
+      end
+    end
 
     def write(cache, key)
       cache.clear if cache.length >= MAX_CACHE_SIZE
