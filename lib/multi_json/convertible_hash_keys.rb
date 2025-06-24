@@ -14,11 +14,15 @@ module MultiJson
       end
     end
 
-    def prepare_hash(hash, &)
-      return handle_simple_objects(hash) unless hash.is_a?(Array) || hash.is_a?(Hash)
-      return handle_array(hash, &) if hash.is_a?(Array)
-
-      handle_hash(hash, &)
+    def prepare_hash(value, &)
+      case value
+      when Array
+        handle_array(value, &)
+      when Hash
+        handle_hash(value, &)
+      else
+        handle_simple_objects(value)
+      end
     end
 
     def handle_simple_objects(obj)
@@ -39,7 +43,12 @@ module MultiJson
     end
 
     def simple_object?(obj)
-      obj.is_a?(String) || obj.is_a?(Numeric) || obj == true || obj == false || obj.nil?
+      case obj
+      when String, Numeric, TrueClass, FalseClass, NilClass
+        true
+      else
+        false
+      end
     end
   end
 end
