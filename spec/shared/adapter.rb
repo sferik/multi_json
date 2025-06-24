@@ -14,6 +14,7 @@ shared_examples_for "an adapter" do |adapter|
 
   describe ".dump" do
     let(:json_pure) { Kernel.const_get("MultiJson::Adapters::JsonPure") rescue nil }
+
     describe "#dump_options" do
       before { MultiJson.dump_options = MultiJson.adapter.dump_options = {} }
 
