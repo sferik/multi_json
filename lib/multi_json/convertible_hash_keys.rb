@@ -1,5 +1,7 @@
 module MultiJson
   module ConvertibleHashKeys
+    SIMPLE_OBJECT_CLASSES = [String, Numeric, TrueClass, FalseClass, NilClass].freeze
+
     private
 
     def symbolize_keys(hash)
@@ -43,12 +45,7 @@ module MultiJson
     end
 
     def simple_object?(obj)
-      case obj
-      when String, Numeric, TrueClass, FalseClass, NilClass
-        true
-      else
-        false
-      end
+      SIMPLE_OBJECT_CLASSES.any? { |klass| obj.is_a?(klass) }
     end
   end
 end
