@@ -45,7 +45,7 @@ module MultiJson
       end
 
       def options_without_adapter(options)
-        options[:adapter] ? options.reject { |key, _| key == :adapter } : options
+        options[:adapter] ? options.except(:adapter) : options
       end
     end
   end
