@@ -31,15 +31,21 @@ module MultiJson
       end
 
       def cached_dump_options(options)
-        OptionsCache.fetch(:dump, options) do
-          dump_options(options).merge(MultiJson.dump_options(options)).merge!(options)
+        opts = options_without_adapter(options)
+        OptionsCache.fetch(:dump, opts) do
+          dump_options(opts).merge(MultiJson.dump_options(opts)).merge!(opts)
         end
       end
 
       def cached_load_options(options)
-        OptionsCache.fetch(:load, options) do
-          load_options(options).merge(MultiJson.load_options(options)).merge!(options)
+        opts = options_without_adapter(options)
+        OptionsCache.fetch(:load, opts) do
+          load_options(opts).merge(MultiJson.load_options(opts)).merge!(opts)
         end
+      end
+
+      def options_without_adapter(options)
+        options[:adapter] ? options.reject { |key, _| key == :adapter } : options
       end
     end
   end
