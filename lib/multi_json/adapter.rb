@@ -8,11 +8,7 @@ module MultiJson
 
     class << self
       def defaults(action, value)
-        metaclass = class << self; self; end
-
-        metaclass.instance_eval do
-          define_method(:"default_#{action}_options") { value }
-        end
+        define_singleton_method("default_#{action}_options") { value }
       end
 
       def load(string, options = {})
