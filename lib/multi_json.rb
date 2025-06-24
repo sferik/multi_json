@@ -35,7 +35,7 @@ module MultiJson
     json_gem: "json/ext",
     gson: "gson",
     json_pure: "json/pure"
-  }
+  }.freeze
 
   # The default adapter based on what you currently
   # have loaded and installed.

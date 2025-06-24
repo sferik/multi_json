@@ -57,14 +57,15 @@ end
 
 def break_requirements
   requirements = MultiJson::REQUIREMENT_MAP
-  MultiJson::REQUIREMENT_MAP.each do |adapter, library|
-    MultiJson::REQUIREMENT_MAP[adapter] = "foo/#{library}"
-  end
+  replacements = requirements.transform_values { |library| "foo/#{library}" }
 
-  yield
+  RSpec::Mocks.with_temporary_scope do
+    stub_const("MultiJson::REQUIREMENT_MAP", replacements)
+    yield
+  end
 ensure
-  requirements.each do |adapter, library|
-    MultiJson::REQUIREMENT_MAP[adapter] = library
+  RSpec::Mocks.with_temporary_scope do
+    stub_const("MultiJson::REQUIREMENT_MAP", requirements)
   end
 end
 
