@@ -31,16 +31,19 @@ module MultiJson
       end
 
       def cached_dump_options(options)
-        opts = options_without_adapter(options)
-        OptionsCache.fetch(:dump, opts) do
-          dump_options(opts).merge(MultiJson.dump_options(opts)).merge!(opts)
-        end
+        cached_options(:dump, options)
       end
 
       def cached_load_options(options)
+        cached_options(:load, options)
+      end
+
+      def cached_options(type, options)
         opts = options_without_adapter(options)
-        OptionsCache.fetch(:load, opts) do
-          load_options(opts).merge(MultiJson.load_options(opts)).merge!(opts)
+        OptionsCache.fetch(type, opts) do
+          send("#{type}_options", opts)
+            .merge(MultiJson.send("#{type}_options", opts))
+            .merge!(opts)
         end
       end
 
