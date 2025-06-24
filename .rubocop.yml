@@ -9,7 +9,7 @@ plugins:
 
 AllCops:
   Exclude:
-    - "lib/multi_json/vendor/okjson.rb"
+    - "lib/multi_json/vendor/**/*.rb"
   NewCops: enable
   TargetRubyVersion: 3.2
 

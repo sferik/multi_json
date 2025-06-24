@@ -1,0 +1,2 @@
+ignore:
+  - "lib/multi_json/vendor/**/*.rb"
