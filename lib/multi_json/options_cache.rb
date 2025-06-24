@@ -22,10 +22,8 @@ module MultiJson
     private
 
     def cache_for(type)
-      instance_variable_get("@#{type}_cache") || begin
-        reset
-        instance_variable_get("@#{type}_cache")
-      end
+      ivar = "@#{type}_cache"
+      instance_variable_get(ivar) || instance_variable_set(ivar, {})
     end
 
     def write(cache, key)
