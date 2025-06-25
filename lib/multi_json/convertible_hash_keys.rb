@@ -40,8 +40,7 @@ module MultiJson
 
     def handle_hash(original_hash, &key_modifier)
       original_hash.each_with_object({}) do |(key, value), result|
-        modified_key = yield(key)
-        result[modified_key] = prepare_hash(value, &key_modifier)
+        result[key_modifier.call(key)] = prepare_hash(value, &key_modifier)
       end
     end
 
