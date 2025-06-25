@@ -1,5 +1,4 @@
 require "gson"
-require "stringio"
 require_relative "../adapter"
 
 module MultiJson
