@@ -20,12 +20,7 @@ module MultiJson
         private_constant :WRAPPED_CLASSES
 
         def self.===(exception)
-          case exception
-          when ::SyntaxError
-            true
-          else
-            WRAPPED_CLASSES.include?(exception.class.to_s)
-          end
+          exception.is_a?(::SyntaxError) || WRAPPED_CLASSES.include?(exception.class.to_s)
         end
       end
 
