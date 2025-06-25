@@ -18,6 +18,10 @@ shared_examples_for "has options" do |object|
       expect(subject.dump_options).to eq(subject.default_dump_options)
     end
 
+    it "returns frozen default options" do
+      expect(subject.default_dump_options).to be_frozen
+    end
+
     it "allows hashes" do
       subject.dump_options = {foo: "bar"}
       expect(subject.dump_options).to eq(foo: "bar")
@@ -70,6 +74,10 @@ shared_examples_for "has options" do |object|
 
     it "returns default options if not set" do
       expect(subject.load_options).to eq(subject.default_load_options)
+    end
+
+    it "returns frozen default options" do
+      expect(subject.default_load_options).to be_frozen
     end
 
     it "allows hashes" do

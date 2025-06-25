@@ -19,11 +19,11 @@ module MultiJson
     end
 
     def default_load_options
-      @default_load_options ||= {}
+      @default_load_options ||= {}.freeze
     end
 
     def default_dump_options
-      @default_dump_options ||= {}
+      @default_dump_options ||= {}.freeze
     end
 
     private

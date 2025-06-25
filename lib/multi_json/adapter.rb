@@ -11,7 +11,7 @@ module MultiJson
       private_constant :BLANK_RE
 
       def defaults(action, value)
-        define_singleton_method("default_#{action}_options") { value }
+        define_singleton_method("default_#{action}_options") { value.freeze }
       end
 
       def load(string, options = {})
