@@ -163,6 +163,14 @@ RSpec.describe MultiJson do
     expect(described_class.adapter).to eq(MultiJson::Adapters::OkJson)
   end
 
+  it "restores adapter after an exception" do
+    described_class.use :json_gem
+    expect do
+      described_class.with_adapter(:json_pure) { raise StandardError }
+    rescue
+    end.not_to change(described_class, :adapter)
+  end
+
   it "JSON gem does not create symbols on parse" do
     skip "java based implementations" if config.java?
 
