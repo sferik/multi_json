@@ -4,7 +4,8 @@ describe MultiJson::OptionsCache do
   before { described_class.reset }
 
   it "doesn't leak memory" do
-    described_class::MAX_CACHE_SIZE.succ.times do |i|
+    max = described_class.send(:const_get, :MAX_CACHE_SIZE)
+    max.succ.times do |i|
       described_class.fetch(:dump, key: i) do
         {foo: i}
       end
