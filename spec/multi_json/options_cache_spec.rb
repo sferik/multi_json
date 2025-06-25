@@ -18,4 +18,13 @@ describe MultiJson::OptionsCache do
     expect(described_class.instance_variable_get(:@dump_cache).length).to eq(1)
     expect(described_class.instance_variable_get(:@load_cache).length).to eq(1)
   end
+
+  it "stores value in current cache after reset" do
+    described_class.fetch(:load, :foo) do
+      described_class.reset
+      :bar
+    end
+
+    expect(described_class.fetch(:load, :foo) { :baz }).to eq(:bar)
+  end
 end

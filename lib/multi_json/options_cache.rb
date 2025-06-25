@@ -19,22 +19,34 @@ module MultiJson
     end
 
     def fetch(type, key, &)
+      cache = nil
       MUTEX.synchronize do
         cache = cache_for(type)
-        cache.fetch(key) { write(cache, key, &) }
+        return cache[key] if cache.key?(key)
       end
+
+      value = yield
+      MUTEX.synchronize { value = write_cache(cache_for(type), key, value) }
+      value
     end
 
     private
 
     def cache_for(type)
-      ivar = "@#{type}_cache"
-      instance_variable_get(ivar) || instance_variable_set(ivar, {})
+      if type == :dump
+        @dump_cache ||= {}
+      else
+        @load_cache ||= {}
+      end
     end
 
-    def write(cache, key)
-      cache.clear if cache.length >= MAX_CACHE_SIZE
-      cache[key] = yield
+    def write_cache(cache, key, value)
+      if cache.key?(key)
+        cache[key]
+      else
+        cache.clear if cache.length >= MAX_CACHE_SIZE
+        cache[key] = value
+      end
     end
   end
 end
