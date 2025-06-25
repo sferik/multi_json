@@ -14,7 +14,9 @@ module MultiJson
       private_constant :PRETTY_STATE_PROTOTYPE
 
       def load(string, options = {})
-        string = string.dup.force_encoding(::Encoding::ASCII_8BIT) if string.respond_to?(:force_encoding)
+        if string.encoding != Encoding::UTF_8
+          string = string.dup.force_encoding(Encoding::UTF_8)
+        end
 
         options[:symbolize_names] = true if options.delete(:symbolize_keys)
         ::JSON.parse(string, options)
