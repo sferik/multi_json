@@ -7,6 +7,9 @@ module MultiJson
     include Singleton
 
     class << self
+      BLANK_RE = /\A\s*\z/.freeze
+      private_constant :BLANK_RE
+
       def defaults(action, value)
         define_singleton_method("default_#{action}_options") { value }
       end
@@ -25,7 +28,7 @@ module MultiJson
       private
 
       def blank?(input)
-        input.nil? || /\A\s*\z/.match?(input)
+        input.nil? || BLANK_RE.match?(input)
       rescue ArgumentError # invalid byte sequence in UTF-8
         false
       end
