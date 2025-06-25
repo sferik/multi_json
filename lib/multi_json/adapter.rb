@@ -7,7 +7,7 @@ module MultiJson
     include Singleton
 
     class << self
-      BLANK_RE = /\A\s*\z/.freeze
+      BLANK_RE = /\A\s*\z/
       private_constant :BLANK_RE
 
       def defaults(action, value)
