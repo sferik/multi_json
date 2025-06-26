@@ -1,52 +1,53 @@
 module MultiJson
   module OptionsCache
-    extend self
+    class Store
+      # Normally MultiJson is used with a few option sets for both dump/load
+      # methods. When options are generated dynamically though, every call would
+      # cause a cache miss and the cache would grow indefinitely. To prevent
+      # this, we just reset the cache every time the number of keys outgrows
+      # 1000.
+      MAX_CACHE_SIZE = 1000
+      private_constant :MAX_CACHE_SIZE
 
-    # Normally MultiJson is used with a few option sets for both dump/load
-    # methods. When options are generated dynamically though, every call would
-    # cause a cache miss and the cache would grow indefinitely. To prevent
-    # this, we just reset the cache every time the number of keys outgrows
-    # 1000.
-    MAX_CACHE_SIZE = 1000
-    MUTEX = Mutex.new
-    private_constant :MAX_CACHE_SIZE, :MUTEX
+      def initialize
+        @cache = {}
+        @mutex = Mutex.new
+      end
 
-    def reset
-      MUTEX.synchronize do
-        @dump_cache = {}
-        @load_cache = {}
+      def reset
+        @mutex.synchronize do
+          @cache = {}
+        end
+      end
+
+      def fetch(key, &)
+        @mutex.synchronize do
+          return @cache[key] if @cache.key?(key)
+        end
+
+        value = yield
+
+        @mutex.synchronize do
+          if @cache.key?(key)
+            # We ran into a race condition, keep the existing value
+            @cache[key]
+          else
+            @cache.clear if @cache.size >= MAX_CACHE_SIZE
+            @cache[key] = value
+          end
+        end
       end
     end
 
-    def fetch(type, key, &)
-      cache = nil
-      MUTEX.synchronize do
-        cache = cache_for(type)
-        return cache[key] if cache.key?(key)
-      end
+    class << self
+      attr_reader :dump, :load
 
-      value = yield
-      MUTEX.synchronize { value = write_cache(cache_for(type), key, value) }
-      value
-    end
-
-    private
-
-    def cache_for(type)
-      if type == :dump
-        @dump_cache ||= {}
-      else
-        @load_cache ||= {}
+      def reset
+        @dump = Store.new
+        @load = Store.new
       end
     end
 
-    def write_cache(cache, key, value)
-      if cache.key?(key)
-        cache[key]
-      else
-        cache.clear if cache.length >= MAX_CACHE_SIZE
-        cache[key] = value
-      end
-    end
+    reset
   end
 end
