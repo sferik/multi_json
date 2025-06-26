@@ -35,14 +35,14 @@ module MultiJson
 
       def cached_dump_options(options)
         opts = options_without_adapter(options)
-        OptionsCache.fetch(:dump, opts) do
+        OptionsCache.dump.fetch(opts) do
           dump_options(opts).merge(MultiJson.dump_options(opts)).merge!(opts)
         end
       end
 
       def cached_load_options(options)
         opts = options_without_adapter(options)
-        OptionsCache.fetch(:load, opts) do
+        OptionsCache.load.fetch(opts) do
           load_options(opts).merge(MultiJson.load_options(opts)).merge!(opts)
         end
       end
