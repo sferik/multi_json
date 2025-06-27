@@ -2,8 +2,7 @@
 
 [![Gem Version](http://img.shields.io/gem/v/multi_json.svg)][gem]
 [![Build Status](https://github.com/sferik/multi_json/actions/workflows/ci.yml/badge.svg)][build]
-[![Code Climate](https://codeclimate.com/github/sferik/multi_json.svg)][codeclimate]
-
+[![Maintainability](https://qlty.sh/badges/fde3f4a8-c331-44be-b1e6-45842137def9/maintainability.svg)][qlty]
 
 Lots of Ruby libraries parse JSON and everyone has their favorite JSON coder.
 Instead of choosing a single JSON coder and forcing users of your library to be
@@ -100,7 +99,6 @@ Copyright (c) 2010-2025 Michael Bleigh, Josh Kalderimis, Erik Berlin,
 and Pavel Pravosud. See [LICENSE][] for details.
 
 [build]: https://github.com/sferik/multi_json/actions/workflows/ci.yml
-[codeclimate]: https://codeclimate.com/github/sferik/multi_json
 [gem]: https://rubygems.org/gems/multi_json
 [gson]: https://github.com/avsej/gson.rb
 [jrjackson]: https://github.com/guyboertje/jrjackson
@@ -112,5 +110,6 @@ and Pavel Pravosud. See [LICENSE][] for details.
 [oj]: https://github.com/ohler55/oj
 [okjson]: https://github.com/kr/okjson
 [pvc]: http://docs.rubygems.org/read/chapter/16#page74
+[qlty]: https://qlty.sh/gh/sferik/projects/multi_json
 [semver]: http://semver.org/
 [yajl]: https://github.com/brianmario/yajl-ruby
