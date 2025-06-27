@@ -25,11 +25,4 @@ shared_examples_for "JSON-like adapter" do |adapter|
       end
     end
   end
-
-  describe ".load" do
-    it "passes :quirks_mode option" do
-      expect(JSON).to receive(:parse).with("[123]", {quirks_mode: false, create_additions: false})
-      MultiJson.load("[123]", quirks_mode: false)
-    end
-  end
 end

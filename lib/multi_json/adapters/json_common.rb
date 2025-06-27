@@ -3,8 +3,6 @@ require_relative "../adapter"
 module MultiJson
   module Adapters
     class JsonCommon < Adapter
-      defaults :load, create_additions: false, quirks_mode: true
-
       PRETTY_STATE_PROTOTYPE = {
         indent: "  ",
         space: " ",
