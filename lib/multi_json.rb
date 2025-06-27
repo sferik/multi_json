@@ -32,9 +32,9 @@ module MultiJson
     oj: "oj",
     yajl: "yajl",
     jr_jackson: "jrjackson",
-    json_gem: "json/ext",
+    json_gem: "json",
     gson: "gson",
-    json_pure: "json/pure"
+    json_pure: "json"
   }.freeze
 
   # The default adapter based on what you currently

@@ -1,7 +1,6 @@
 source "https://rubygems.org"
 
 gem "json", "~> 2.0", require: false
-gem "json_pure", "~> 2.0", require: false
 
 gem "rake", ">= 13.1"
 gem "rspec", ">= 3.13"
