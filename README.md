@@ -42,7 +42,7 @@ which inherits from `ArgumentError`.
 MultiJSON tries to have intelligent defaulting. That is, if you have any of the
 supported engines already loaded, it will utilize them before attempting to
 load any. When loading, libraries are ordered by speed. First Oj, then Yajl,
-then the JSON gem, then JSON pure. If no other JSON library is available,
+then the JSON gem. If no other JSON library is available,
 MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 
 ## Supported JSON Engines
@@ -104,7 +104,6 @@ and Pavel Pravosud. See [LICENSE][] for details.
 [jrjackson]: https://github.com/guyboertje/jrjackson
 [jruby]: http://www.jruby.org/
 [json-gem]: https://github.com/flori/json
-[json-pure]: https://github.com/flori/json
 [license]: LICENSE.md
 [macruby]: http://www.macruby.org/
 [oj]: https://github.com/ohler55/oj

@@ -50,7 +50,6 @@ RSpec.describe MultiJson do
 
   context "when JSON pure is already loaded" do
     it "default_adapter tries to require each adapter in turn and does not assume :json_gem is already loaded" do
-      require "json/pure"
       expect(JSON::JSON_LOADED).to be_truthy
 
       undefine_constants :Oj, :Yajl, :Gson, :JrJackson do
