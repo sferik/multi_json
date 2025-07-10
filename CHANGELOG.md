@@ -1,56 +1,55 @@
+1.16.0
+------
+* [Remove `NSJSONSerialization`](https://github.com/sferik/multi_json/commit/0423d3b5886e93405f4c2221687b7e3329bd2940)
+* [Stop referencing `JSON::PRETTY_STATE_PROTOTYPE`](https://github.com/sferik/multi_json/commit/58094d7a0583bf1f5052886806a032c00f16ffc5)
+* [Drop support for Ruby versions < 3.2](https://github.com/sferik/multi_json/commit/ff3b42c4bc26cd6512914b7e5321976e948985dc)
+* [Move repo from @intridea to @sferik](https://github.com/sferik/multi_json/commit/e87aeadbc9b9aa6df79818fa01bfc5fa959d8474)
+* [`JsonCommon`: force encoding to UTF-8, not binary](https://github.com/sferik/multi_json/commit/34dd0247de07f2703c7d42a42d4cefc73635f3cc)
+* [Stop setting defaults in `JsonCommon`](https://github.com/sferik/multi_json/commit/d5f9e6e72b99a7def695f430f72c8365998de625)
+* [Make `json_pure` an alias of `json_gem`](https://github.com/sferik/multi_json/commit/9ff7c3dcbe3650e712b38e636ad19061a4c08d1a)
+
 1.15.0
 ------
-
 * [Improve detection of json_gem adapter](https://github.com/sferik/multi_json/commit/62d54019b17ebf83b28c8deb871a02a122e7d9cf)
 
 1.14.1
 ------
-
 * [Fix a warning in Ruby 2.7](https://github.com/sferik/multi_json/commit/26a94ab8c78a394cc237e2ea292c1de4f6ed30d7)
 
 1.14.0
 ------
-
 * [Support Oj 3.x gem](https://github.com/sferik/multi_json/commit/5d8febdbebc428882811b90d514f3628617a61d5)
 
 1.13.1
 ------
-
 * [Fix missing stdlib set dependency in oj adapter](https://github.com/sferik/multi_json/commit/c4ff66e7bee6fb4f45e54429813d7fada1c152b8)
 
 1.13.0
 -----
-
 * [Make Oj adapter handle JSON::ParseError correctly](https://github.com/sferik/multi_json/commit/275e3ffd8169797c510d23d9ef5b8b07e64c3b42)
 
 1.12.2
 ------
-
 * [Renew gem certificate](https://github.com/sferik/multi_json/commit/57922d898c6eb587cc9a28ba5724c11e81724700)
 
 1.12.1
 ------
-
 * [Prevent memory leak in OptionsCache](https://github.com/sferik/multi_json/commit/aa7498199ad272f3d4a13750d7c568a66047e2ee)
 
 1.12.0
 ------
-
 * [Introduce global options cache to improve peroformance](https://github.com/sferik/multi_json/commit/7aaef2a1bc2b83c95e4208b12dad5d1d87ff20a6)
 
 1.11.2
 ------
-
 * [Only pass one argument to JrJackson when two is not supported](https://github.com/sferik/multi_json/commit/e798fa517c817fc706982d3f3c61129b6651d601)
 
 1.11.1
 ------
-
 * [Dump method passes options throught for JrJackson adapter](https://github.com/sferik/multi_json/commit/3c730fd12135c3e7bf212f878958004908f13909)
 
 1.11.0
 ------
-
 * [Make all adapters read IO object before load](https://github.com/sferik/multi_json/commit/167f559e18d4efee05e1f160a2661d16dbb215d4)
 
 1.10.1
@@ -266,10 +265,8 @@
 
 0.0.2
 -----
-
 * [Rename to `multi_json`](https://github.com/sferik/twitter/commit/461ab89ce071c8c9fabfc183581e0ec523788b62)
 
 0.0.1
 -----
-
 * [Initial commit](https://github.com/sferik/twitter/commit/518c21ab299c500527491e6c049ab2229e22a805)
