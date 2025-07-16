@@ -20,7 +20,7 @@ module MultiJson
         end
       end
 
-      def fetch(key, &)
+      def fetch(key, &block)
         @mutex.synchronize do
           return @cache[key] if @cache.key?(key)
         end
