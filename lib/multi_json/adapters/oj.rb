@@ -1,5 +1,4 @@
 require "oj"
-require "set"
 require_relative "../adapter"
 
 module MultiJson
@@ -17,7 +16,7 @@ module MultiJson
       # shouldn't be a problem since the library is not known to be using it
       # (at least for now).
       class ParseError < ::SyntaxError
-        WRAPPED_CLASSES = %w[Oj::ParseError JSON::ParserError].to_set.freeze
+        WRAPPED_CLASSES = %w[Oj::ParseError JSON::ParserError].freeze
         private_constant :WRAPPED_CLASSES
 
         def self.===(exception)
