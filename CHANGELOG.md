@@ -1,3 +1,7 @@
+1.17.0
+------
+* [Revert minimum ruby version requirement](https://github.com/sferik/multi_json/pull/16)
+
 1.16.0
 ------
 * [Remove `NSJSONSerialization`](https://github.com/sferik/multi_json/commit/0423d3b5886e93405f4c2221687b7e3329bd2940)
