@@ -7,7 +7,7 @@ shared_examples_for "JSON-like adapter" do |adapter|
     describe "with :pretty option set to true" do
       it "passes default pretty options" do
         object = "foo"
-        expect(::JSON).to receive(:generate).with(object, {
+        expect(JSON).to receive(:generate).with(object, {
           indent: "  ",
           space: " ",
           object_nl: "\n",
@@ -20,7 +20,7 @@ shared_examples_for "JSON-like adapter" do |adapter|
     describe "with :indent option" do
       it "passes it on dump" do
         object = "foo"
-        expect(::JSON).to receive(:generate).with(object, {indent: "\t"}).and_call_original
+        expect(JSON).to receive(:generate).with(object, {indent: "\t"}).and_call_original
         MultiJson.dump(object, indent: "\t")
       end
     end
