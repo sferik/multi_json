@@ -87,7 +87,7 @@ shared_examples_for "an adapter" do |adapter|
 
     it "dumps custom objects that implement to_json" do
       pending "not supported" if adapter.name == "MultiJson::Adapters::Gson"
-      klass = Class.new { def to_json(*) '"foobar"' end }
+      klass = Class.new { def to_json(*) = '"foobar"' }
       expect(MultiJson.dump(klass.new)).to eq('"foobar"')
     end
 
