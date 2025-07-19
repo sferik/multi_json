@@ -15,6 +15,11 @@ end
 RSpec.describe MultiJson do
   let(:config) { RSpec.configuration }
 
+  before do
+    described_class.use :oj
+    skip "java based implementations" if config.java?
+  end
+
   context "when no other json implementations are available" do
     around do |example|
       simulate_no_adapters { example.call }
@@ -164,11 +169,6 @@ RSpec.describe MultiJson do
       expect(MultiJson::Adapters::OkJson).to have_received(:load)
       expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
     end
-  end
-
-  before do
-    described_class.use :oj
-    skip "java based implementations" if config.java?
   end
 
   it "can set adapter for a block", :aggregate_failures do
