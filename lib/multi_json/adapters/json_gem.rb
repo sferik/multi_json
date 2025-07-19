@@ -27,7 +27,7 @@ module MultiJson
       def dump(object, options = {})
         options.merge!(PRETTY_STATE_PROTOTYPE) if options.delete(:pretty)
 
-        object.to_json(options)
+        ::JSON.generate(object, options)
       end
     end
   end
