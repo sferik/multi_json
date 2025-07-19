@@ -3,7 +3,7 @@ require "spec_helper"
 describe MultiJson::OptionsCache do
   before do
     described_class.reset
-    max = described_class::Store.const_get(:MAX_CACHE_SIZE)
+    max = described_class::MAX_CACHE_SIZE
 
     (max + 1).times do |i|
       described_class.dump.fetch(key: i) { {foo: i} }
