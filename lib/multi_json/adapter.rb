@@ -26,7 +26,7 @@ module MultiJson
 
       def load(string, options = {})
         string = string.read if string.respond_to?(:read)
-        raise self::ParseError if blank?(string)
+        return nil if blank?(string)
 
         instance.load(string, cached_load_options(options))
       end
