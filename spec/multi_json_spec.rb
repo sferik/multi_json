@@ -61,8 +61,9 @@ RSpec.describe MultiJson do
         ext = JSON::Ext::Parser if defined?(JSON::Ext::Parser)
         hide_const("JSON::Ext::Parser")
         begin
-          expect(described_class).to receive(:require)
+          allow(described_class).to receive(:require)
           described_class.default_adapter
+          expect(described_class).to have_received(:require)
         ensure
           stub_const("JSON::Ext::Parser", ext) if ext
         end
@@ -149,11 +150,13 @@ RSpec.describe MultiJson do
 
   context "with one-shot parser" do
     it "uses the defined parser just for the call" do
-      expect(MultiJson::Adapters::OkJson).to receive(:dump).once.and_return("dump_something")
-      expect(MultiJson::Adapters::OkJson).to receive(:load).once.and_return("load_something")
+      allow(MultiJson::Adapters::OkJson).to receive(:dump).and_return("dump_something")
+      allow(MultiJson::Adapters::OkJson).to receive(:load).and_return("load_something")
       described_class.use :json_gem
       expect(described_class.dump("", adapter: :ok_json)).to eq("dump_something")
       expect(described_class.load("", adapter: :ok_json)).to eq("load_something")
+      expect(MultiJson::Adapters::OkJson).to have_received(:dump)
+      expect(MultiJson::Adapters::OkJson).to have_received(:load)
       expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
     end
   end
