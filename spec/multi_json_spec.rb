@@ -215,12 +215,12 @@ RSpec.describe MultiJson do
 
   describe "aliases", :jrjackson do
     describe "jrjackson" do
-      it "allows jrjackson alias as symbol" do
+      it "allows jrjackson alias as symbol", :aggregate_failures do
         expect { described_class.use :jrjackson }.not_to raise_error
         expect(described_class.adapter).to eq(MultiJson::Adapters::JrJackson)
       end
 
-      it "allows jrjackson alias as string" do
+      it "allows jrjackson alias as string", :aggregate_failures do
         expect { described_class.use "jrjackson" }.not_to raise_error
         expect(described_class.adapter).to eq(MultiJson::Adapters::JrJackson)
       end
