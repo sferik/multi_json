@@ -27,15 +27,16 @@ module MultiJson
 
         value = yield
 
-        @mutex.synchronize do
-          if @cache.key?(key)
-            # We ran into a race condition, keep the existing value
-            @cache[key]
-          else
-            @cache.clear if @cache.size >= MAX_CACHE_SIZE
-            @cache[key] = value
-          end
-        end
+        @mutex.synchronize { store_value(key, value) }
+      end
+
+      private
+
+      def store_value(key, value)
+        return @cache[key] if @cache.key?(key)
+
+        @cache.clear if @cache.size >= MAX_CACHE_SIZE
+        @cache[key] = value
       end
     end
 
