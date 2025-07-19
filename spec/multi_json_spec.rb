@@ -53,7 +53,7 @@ RSpec.describe MultiJson do
   end
 
   context "when JSON pure is already loaded" do
-    it "default_adapter tries to require each adapter in turn and does not assume :json_gem is already loaded" do
+    it "default_adapter tries to require each adapter in turn and does not assume :json_gem is already loaded", :aggregate_failures do
       expect(JSON::JSON_LOADED).to be_truthy
 
       undefine_constants :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser do
@@ -77,14 +77,14 @@ RSpec.describe MultiJson do
     let(:adapter) { MultiJson::Adapters::JsonGem }
     let(:json_string) { '{"abc":"def"}' }
 
-    it "busts caches on global options change" do
+    it "busts caches on global options change", :aggregate_failures do
       described_class.load_options = {symbolize_keys: true}
       expect(described_class.load(json_string)).to eq(abc: "def")
       described_class.load_options = nil
       expect(described_class.load(json_string)).to eq("abc" => "def")
     end
 
-    it "busts caches on per-adapter options change" do
+    it "busts caches on per-adapter options change", :aggregate_failures do
       adapter.load_options = {symbolize_keys: true}
       expect(described_class.load(json_string)).to eq(abc: "def")
       adapter.load_options = nil
@@ -97,7 +97,7 @@ RSpec.describe MultiJson do
       described_class.send(:remove_instance_variable, :@adapter) if described_class.instance_variable_defined?(:@adapter)
     end
 
-    it "defaults to the best available gem" do
+    it "defaults to the best available gem", :aggregate_failures do
       if config.java? && config.jrjackson?
         expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::JrJackson")
       elsif config.java? && config.json?
@@ -141,7 +141,7 @@ RSpec.describe MultiJson do
     expect { described_class.use "bad adapter" }.to raise_error(MultiJson::AdapterError, /bad adapter/)
   end
 
-  it "gives access to original error when raising AdapterError" do
+  it "gives access to original error when raising AdapterError", :aggregate_failures do
     exception = get_exception(MultiJson::AdapterError) { described_class.use "foobar" }
     expect(exception.cause).to be_instance_of(LoadError)
     expect(exception.message).to include("-- multi_json/adapters/foobar")
@@ -149,7 +149,7 @@ RSpec.describe MultiJson do
   end
 
   context "with one-shot parser" do
-    it "uses the defined parser just for the call" do
+    it "uses the defined parser just for the call", :aggregate_failures do
       allow(MultiJson::Adapters::OkJson).to receive_messages(dump: "dump_something", load: "load_something")
       described_class.use :json_gem
       expect(described_class.dump("", adapter: :ok_json)).to eq("dump_something")
@@ -160,7 +160,7 @@ RSpec.describe MultiJson do
     end
   end
 
-  it "can set adapter for a block" do
+  it "can set adapter for a block", :aggregate_failures do
     described_class.use :oj
     described_class.with_adapter(:json_gem) do
       described_class.with_engine(:ok_json) do
@@ -171,7 +171,7 @@ RSpec.describe MultiJson do
     expect(described_class.adapter).to eq(MultiJson::Adapters::Oj)
   end
 
-  it "restores adapter after an exception" do
+  it "restores adapter after an exception", :aggregate_failures do
     described_class.use :json_gem
     expect do
       expect { described_class.with_adapter(:oj) { raise StandardError } }.to raise_error(StandardError)
