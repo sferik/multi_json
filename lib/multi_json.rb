@@ -8,6 +8,7 @@ require_relative "multi_json/adapter_selector"
 module MultiJson
   include Options
   extend AdapterSelector
+
   module_function
 
   def default_options=(value)
