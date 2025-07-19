@@ -206,7 +206,7 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "allows for symbolization of keys" do
-      ex = [[ '{"abc":{"def":"hgi"}}', {abc: {def: "hgi"}} ],
+      ex = [['{"abc":{"def":"hgi"}}', {abc: {def: "hgi"}}],
             ['[{"abc":{"def":"hgi"}}]', [{abc: {def: "hgi"}}]],
             ['{"abc":[{"def":"hgi"}]}', {abc: [{def: "hgi"}]}]]
       ex.each { |json, expected| expect(MultiJson.load(json, symbolize_keys: true)).to eq(expected) }
