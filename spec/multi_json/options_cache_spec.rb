@@ -5,18 +5,17 @@ describe MultiJson::OptionsCache do
 
   it "doesn't leak memory" do
     max = described_class::Store.const_get(:MAX_CACHE_SIZE)
-    max.succ.times do |i|
-      described_class.dump.fetch(key: i) do
-        {foo: i}
-      end
 
-      described_class.load.fetch(key: i) do
-        {foo: i}
-      end
+    max.succ.times do |i|
+      described_class.dump.fetch(key: i) { {foo: i} }
+      described_class.load.fetch(key: i) { {foo: i} }
     end
 
-    expect(described_class.dump.instance_variable_get(:@cache).length).to eq(1)
-    expect(described_class.load.instance_variable_get(:@cache).length).to eq(1)
+    caches = [described_class.dump, described_class.load].map do |cache|
+      cache.instance_variable_get(:@cache).length
+    end
+
+    expect(caches).to all(eq(1))
   end
 
   it "stores value in current cache after reset" do
