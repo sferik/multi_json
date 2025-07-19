@@ -47,6 +47,7 @@ MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 
 ## Supported JSON Engines
 
+- [FastJsonparser][fast_jsonparser] Fast JSON parser by Anil Maurya
 - [Oj][oj] Optimized JSON by Peter Ohler
 - [Yajl][yajl] Yet Another JSON Library by Brian Lopez
 - [JSON][json-gem] The default JSON gem with C-extensions (ships with Ruby 1.9+)
@@ -105,6 +106,7 @@ and Pavel Pravosud. See [LICENSE][] for details.
 [json-gem]: https://github.com/flori/json
 [license]: LICENSE.md
 [macruby]: http://www.macruby.org/
+[fast_jsonparser]: https://github.com/anilmaurya/fast_jsonparser
 [oj]: https://github.com/ohler55/oj
 [okjson]: https://github.com/kr/okjson
 [pvc]: http://docs.rubygems.org/read/chapter/16#page74

@@ -17,6 +17,7 @@ RSpec.configure do |config|
   config.add_setting :ok_json, default: loaded_specs.key?("ok_json")
   config.add_setting :oj, default: loaded_specs.key?("oj")
   config.add_setting :yajl, default: loaded_specs.key?("yajl")
+  config.add_setting :fast_jsonparser, default: loaded_specs.key?("fast_jsonparser")
 
   config.filter_run_excluding(:jrjackson) unless config.jrjackson?
   config.filter_run_excluding(:json) unless config.json?
@@ -24,6 +25,7 @@ RSpec.configure do |config|
   config.filter_run_excluding(:ok_json) unless config.ok_json?
   config.filter_run_excluding(:oj) unless config.oj?
   config.filter_run_excluding(:yajl) unless config.yajl?
+  config.filter_run_excluding(:fast_jsonparser) unless config.fast_jsonparser?
 
   unless config.java?
     config.filter_run_excluding(:java)
@@ -71,7 +73,7 @@ end
 
 def simulate_no_adapters(&block)
   break_requirements do
-    undefine_constants :JSON, :Oj, :Yajl, :Gson, :JrJackson, &block
+    undefine_constants :JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &block
   end
 end
 

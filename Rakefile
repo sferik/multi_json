@@ -22,6 +22,7 @@ end
 desc "Run the full test suite"
 task spec: %w[
   base_spec
+  adapters:fast_jsonparser
   adapters:oj
   adapters:yajl
   adapters:json_gem
