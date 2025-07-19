@@ -1,14 +1,12 @@
 module MultiJson
   module OptionsCache
-    class Store
-      # Normally MultiJson is used with a few option sets for both dump/load
-      # methods. When options are generated dynamically though, every call would
-      # cause a cache miss and the cache would grow indefinitely. To prevent
-      # this, we just reset the cache every time the number of keys outgrows
-      # 1000.
-      MAX_CACHE_SIZE = 1000
-      private_constant :MAX_CACHE_SIZE
+    # Normally MultiJson is used with a few option sets for both dump/load
+    # methods. When options are generated dynamically though, every call would
+    # cause a cache miss and the cache would grow indefinitely. To prevent this,
+    # we reset the cache every time the number of keys outgrows 1000.
+    MAX_CACHE_SIZE = 1000
 
+    class Store
       def initialize
         @cache = {}
         @mutex = Mutex.new
