@@ -12,12 +12,8 @@ module MultiJson
 
       def inherited(subclass)
         super
-        if instance_variable_defined?(:@default_load_options)
-          subclass.instance_variable_set(:@default_load_options, @default_load_options)
-        end
-        if instance_variable_defined?(:@default_dump_options)
-          subclass.instance_variable_set(:@default_dump_options, @default_dump_options)
-        end
+        subclass.instance_variable_set(:@default_load_options, @default_load_options) if instance_variable_defined?(:@default_load_options)
+        subclass.instance_variable_set(:@default_dump_options, @default_dump_options) if instance_variable_defined?(:@default_dump_options)
       end
 
       def defaults(action, value)
