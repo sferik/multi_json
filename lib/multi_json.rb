@@ -61,7 +61,6 @@ module MultiJson
   alias_method :adapter=, :use
   alias_method :engine=, :use
 
-
   def load(string, options = {})
     adapter = current_adapter(options)
     begin

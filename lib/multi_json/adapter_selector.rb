@@ -4,7 +4,6 @@ module MultiJson
 
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
-
     def default_adapter
       adapter = loaded_adapter || installable_adapter
       return adapter if adapter
