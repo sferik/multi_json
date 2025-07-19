@@ -86,14 +86,10 @@ module MultiJson
 
   def load_adapter(new_adapter)
     case new_adapter
-    when String, Symbol
-      load_adapter_from_string_name new_adapter.to_s
-    when NilClass, FalseClass
-      load_adapter default_adapter
-    when Class, Module
-      new_adapter
-    else
-      raise ::LoadError, new_adapter
+    when String, Symbol then load_adapter_from_string_name new_adapter.to_s
+    when NilClass, FalseClass then load_adapter default_adapter
+    when Class, Module then new_adapter
+    else raise ::LoadError, new_adapter
     end
   rescue ::LoadError => e
     raise(AdapterError.build(e), cause: e)
