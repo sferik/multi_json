@@ -12,7 +12,6 @@ RSpec.configure do |config|
   config.add_setting :java, default: RUBY_PLATFORM == "java"
   config.add_setting :gson, default: loaded_specs.key?("gson")
   config.add_setting :json, default: loaded_specs.key?("json")
-  config.add_setting :json_pure, default: loaded_specs.key?("json_pure")
   config.add_setting :jrjackson, default: loaded_specs.key?("jrjackson")
   config.add_setting :ok_json, default: loaded_specs.key?("ok_json")
   config.add_setting :oj, default: loaded_specs.key?("oj")
@@ -21,7 +20,6 @@ RSpec.configure do |config|
 
   config.filter_run_excluding(:jrjackson) unless config.jrjackson?
   config.filter_run_excluding(:json) unless config.json?
-  config.filter_run_excluding(:json_pure) unless config.json_pure?
   config.filter_run_excluding(:ok_json) unless config.ok_json?
   config.filter_run_excluding(:oj) unless config.oj?
   config.filter_run_excluding(:yajl) unless config.yajl?
