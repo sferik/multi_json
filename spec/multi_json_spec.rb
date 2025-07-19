@@ -154,7 +154,7 @@ RSpec.describe MultiJson do
   it "gives access to original error when raising AdapterError", :aggregate_failures do
     exception = get_exception(MultiJson::AdapterError) { described_class.use "foobar" }
     expect(exception.cause).to be_instance_of(LoadError)
-    expect(exception.message).to include("-- multi_json/adapters/foobar")
+    expect(exception.message).to match(%r{adapters/foobar})
     expect(exception.message).to include("Did not recognize your adapter specification")
   end
 
