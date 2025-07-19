@@ -24,12 +24,8 @@ shared_examples_for "has options" do |object|
     end
 
     it "allows objects that implement #to_hash" do
-      value = Class.new do
-        def to_hash
-          {foo: "bar"}
-        end
-      end.new
-
+      value = Object.new
+      allow(value).to receive(:to_hash).and_return(foo: "bar")
       subject.dump_options = value
       expect(subject.dump_options).to eq(foo: "bar")
     end
@@ -45,17 +41,10 @@ shared_examples_for "has options" do |object|
     end
 
     it "returns empty hash in all other cases" do
-      subject.dump_options = true
-      expect(subject.dump_options).to eq(subject.default_dump_options)
-
-      subject.dump_options = false
-      expect(subject.dump_options).to eq(subject.default_dump_options)
-
-      subject.dump_options = 10
-      expect(subject.dump_options).to eq(subject.default_dump_options)
-
-      subject.dump_options = nil
-      expect(subject.dump_options).to eq(subject.default_dump_options)
+      [true, false, 10, nil].each do |val|
+        subject.dump_options = val
+        expect(subject.dump_options).to eq(subject.default_dump_options)
+      end
     end
   end
 
@@ -82,12 +71,8 @@ shared_examples_for "has options" do |object|
     end
 
     it "allows objects that implement #to_hash" do
-      value = Class.new do
-        def to_hash
-          {foo: "bar"}
-        end
-      end.new
-
+      value = Object.new
+      allow(value).to receive(:to_hash).and_return(foo: "bar")
       subject.load_options = value
       expect(subject.load_options).to eq(foo: "bar")
     end
@@ -103,17 +88,10 @@ shared_examples_for "has options" do |object|
     end
 
     it "returns empty hash in all other cases" do
-      subject.load_options = true
-      expect(subject.load_options).to eq(subject.default_load_options)
-
-      subject.load_options = false
-      expect(subject.load_options).to eq(subject.default_load_options)
-
-      subject.load_options = 10
-      expect(subject.load_options).to eq(subject.default_load_options)
-
-      subject.load_options = nil
-      expect(subject.load_options).to eq(subject.default_load_options)
+      [true, false, 10, nil].each do |val|
+        subject.load_options = val
+        expect(subject.load_options).to eq(subject.default_load_options)
+      end
     end
   end
 end
