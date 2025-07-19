@@ -1,9 +1,5 @@
 shared_examples_for "has options" do |object|
-  if object.respond_to?(:call)
-    subject { object.call }
-  else
-    subject { object }
-  end
+  subject { object.respond_to?(:call) ? object.call : object }
 
   describe "dump options" do
     before do
