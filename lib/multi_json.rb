@@ -6,7 +6,6 @@ require_relative "multi_json/options_cache"
 require_relative "multi_json/adapter_selector"
 
 module MultiJson
-  include Options
   extend Options
   extend AdapterSelector
 
