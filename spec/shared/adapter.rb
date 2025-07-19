@@ -13,7 +13,6 @@ shared_examples_for "an adapter" do |adapter|
   end
 
   describe ".dump" do
-
     describe "#dump_options" do
       before { MultiJson.dump_options = MultiJson.adapter.dump_options = {} }
 
@@ -170,10 +169,15 @@ shared_examples_for "an adapter" do |adapter|
       expect(MultiJson.load('{"abc":"def"}')).to eq("abc" => "def")
     end
 
-    examples = [nil, '{"abc"}', " ", "\t\t\t", "\n", StringIO.new("")]
-    #
-    # GSON bug: https://github.com/avsej/gson.rb/issues/3
-    examples << "\x82\xAC\xEF" unless adapter.name.include?("Gson")
+    it "returns nil on blank input" do
+      [nil, "", " ", "\t\t\t", "\n", StringIO.new("")].each do |input|
+        expect(MultiJson.load(input)).to be_nil
+      end
+    end
+
+    examples = ['{"abc"}', "\x82\xAC\xEF"].tap do |arr|
+      arr.pop if adapter.name.include?("Gson")
+    end
 
     examples.each do |input|
       it "raises MultiJson::ParseError on invalid input: #{input.inspect}" do
