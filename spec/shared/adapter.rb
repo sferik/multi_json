@@ -68,9 +68,9 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "dumps symbol and fixnum keys as strings" do
-      ex = [[{foo:{bar:"baz"}}, {"foo"=>{"bar"=>"baz"}}],
-            [[{foo:{bar:"baz"}}], [{"foo"=>{"bar"=>"baz"}}]],
-            [{foo:[{bar:"baz"}]}, {"foo"=>[{"bar"=>"baz"}]}],
+      ex = [[{foo: {bar: "baz"}}, {"foo"=>{"bar"=>"baz"}}],
+            [[{foo: {bar: "baz"}}], [{"foo"=>{"bar"=>"baz"}}]],
+            [{foo: [{bar: "baz"}]}, {"foo"=>[{"bar"=>"baz"}]}],
             [{1=>{2=>{3=>"bar"}}}, {"1"=>{"2"=>{"3"=>"bar"}}}]]
       ex.each { |v, exp| expect(MultiJson.load(MultiJson.dump(v))).to eq(exp) }
     end
@@ -208,9 +208,9 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "allows for symbolization of keys" do
-      ex = [[ '{"abc":{"def":"hgi"}}', {abc:{def:"hgi"}} ],
-            ['[{"abc":{"def":"hgi"}}]', [{abc:{def:"hgi"}}]],
-            ['{"abc":[{"def":"hgi"}]}', {abc:[{def:"hgi"}]}]]
+      ex = [[ '{"abc":{"def":"hgi"}}', {abc: {def: "hgi"}} ],
+            ['[{"abc":{"def":"hgi"}}]', [{abc: {def: "hgi"}}]],
+            ['{"abc":[{"def":"hgi"}]}', {abc: [{def: "hgi"}]}]]
       ex.each { |json, expected| expect(MultiJson.load(json, symbolize_keys: true)).to eq(expected) }
     end
 
