@@ -202,7 +202,7 @@ RSpec.describe MultiJson do
       expect(Kernel).to have_received(:warn).with(/deprecated/i)
     end
 
-    it "sets both load and dump options" do
+    it "sets both load and dump options", :aggregate_failures do
       expect(described_class).to receive(:dump_options=).with({foo: "bar"})
       expect(described_class).to receive(:load_options=).with({foo: "bar"})
       silence_warnings { described_class.default_options = {foo: "bar"} }
