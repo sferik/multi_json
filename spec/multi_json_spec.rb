@@ -5,11 +5,9 @@ RSpec.configure do |config|
   config.before(:suite) do
     # make sure all available libs are required
     MultiJson::REQUIREMENT_MAP.each_value do |library|
-      begin
-        require library
-      rescue LoadError
-        next
-      end
+      require library
+    rescue LoadError
+      next
     end
   end
 end
