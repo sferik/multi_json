@@ -18,7 +18,8 @@ shared_examples_for "an adapter" do |adapter|
 
   describe ".dump" do
     describe "#dump_options" do
-      before { MultiJson.dump_options = MultiJson.adapter.dump_options = {}
+      before { 
+        MultiJson.dump_options = MultiJson.adapter.dump_options = {}
                MultiJson.adapter.dump_options = {foo: "foo"}
                MultiJson.dump_options = {foo: "bar"}
                allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
@@ -101,7 +102,8 @@ shared_examples_for "an adapter" do |adapter|
 
   describe ".load" do
     describe "#load_options" do
-      before { MultiJson.load_options = MultiJson.adapter.load_options = {}
+      before { 
+        MultiJson.load_options = MultiJson.adapter.load_options = {}
                MultiJson.adapter.load_options = {foo: "foo"}
                MultiJson.load_options = {foo: "bar"}
                allow(MultiJson.adapter.instance).to receive(:load).and_call_original
