@@ -29,6 +29,7 @@ module MultiJson
   ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
   REQUIREMENT_MAP = {
+    fast_jsonparser: "fast_jsonparser",
     oj: "oj",
     yajl: "yajl",
     jr_jackson: "jrjackson",
@@ -69,6 +70,7 @@ module MultiJson
   # Set the JSON parser utilizing a symbol, string, or class.
   # Supported by default are:
   #
+  # * <tt>:fast_jsonparser</tt>
   # * <tt>:oj</tt>
   # * <tt>:json_gem</tt>
   # * <tt>:json_pure</tt>
@@ -143,6 +145,7 @@ module MultiJson
 
   # Checks for already loaded adapters and returns the first match
   def loaded_adapter
+    return :fast_jsonparser if defined?(::FastJsonparser)
     return :oj if defined?(::Oj)
     return :yajl if defined?(::Yajl)
     return :jr_jackson if defined?(::JrJackson)

@@ -52,7 +52,7 @@ RSpec.describe MultiJson do
     it "default_adapter tries to require each adapter in turn and does not assume :json_gem is already loaded" do
       expect(JSON::JSON_LOADED).to be_truthy
 
-      undefine_constants :Oj, :Yajl, :Gson, :JrJackson do
+      undefine_constants :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser do
         # simulate that the json_gem is not loaded
         ext = defined?(JSON::Ext::Parser) ? JSON::Ext.send(:remove_const, :Parser) : nil
         begin
@@ -96,6 +96,8 @@ RSpec.describe MultiJson do
         expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::JrJackson")
       elsif config.java? && config.json?
         expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::JsonGem")
+      elsif config.fast_jsonparser?
+        expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::FastJsonparser")
       else
         expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::Oj")
       end
