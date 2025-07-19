@@ -1,0 +1,5 @@
+Review this entire codebase and make one change that would improve the code quality. Make sure the code is consistent across the codebase, readable, idiomatic, and high performance.
+
+* Do not add frozen-string-literal pragmas
+* Do not give names to anonymous splat or block parameters
+* Do not merely change indentation
