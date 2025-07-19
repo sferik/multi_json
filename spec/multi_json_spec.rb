@@ -54,7 +54,8 @@ RSpec.describe MultiJson do
 
       undefine_constants :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser do
         # simulate that the json_gem is not loaded
-        ext = defined?(JSON::Ext::Parser) ? JSON::Ext.send(:remove_const, :Parser) : nil
+        ext = JSON::Ext::Parser if defined?(JSON::Ext::Parser)
+        hide_const("JSON::Ext::Parser")
         begin
           expect(described_class).to receive(:require)
           described_class.default_adapter
