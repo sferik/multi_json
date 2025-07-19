@@ -39,14 +39,16 @@ RSpec.describe MultiJson do
     end
 
     it "prints a warning" do
-      expect(Kernel).to receive(:warn).with(/warning/i)
+      allow(Kernel).to receive(:warn)
       described_class.default_adapter
+      expect(Kernel).to have_received(:warn).with(/warning/i)
     end
 
     it "warns only once" do
-      expect(Kernel).to receive(:warn).once
+      allow(Kernel).to receive(:warn)
       described_class.default_adapter
       described_class.default_adapter
+      expect(Kernel).to have_received(:warn).once
     end
   end
 
@@ -193,8 +195,9 @@ RSpec.describe MultiJson do
     end
 
     it "is deprecated" do
-      expect(Kernel).to receive(:warn).with(/deprecated/i)
+      allow(Kernel).to receive(:warn)
       silence_warnings { described_class.default_options = {foo: "bar"} }
+      expect(Kernel).to have_received(:warn).with(/deprecated/i)
     end
 
     it "sets both load and dump options" do
