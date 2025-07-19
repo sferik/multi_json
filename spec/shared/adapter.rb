@@ -24,7 +24,7 @@ shared_examples_for "an adapter" do |adapter|
         MultiJson.dump_options = MultiJson.adapter.dump_options = nil
       end
 
-      it "respects global dump options" do
+      it "respects global dump options", :aggregate_failures do
         MultiJson.dump_options = {foo: "bar"}
         expect(MultiJson.dump_options).to eq({foo: "bar"})
         allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
@@ -32,7 +32,7 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
-      it "respects per-adapter dump options" do
+      it "respects per-adapter dump options", :aggregate_failures do
         MultiJson.adapter.dump_options = {foo: "bar"}
         expect(MultiJson.adapter.dump_options).to eq({foo: "bar"})
         allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
@@ -40,7 +40,7 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
-      it "adapter-specific are overridden by global options" do
+      it "adapter-specific are overridden by global options", :aggregate_failures do
         MultiJson.adapter.dump_options = {foo: "foo"}
         MultiJson.dump_options = {foo: "bar"}
         expect(MultiJson.adapter.dump_options).to eq({foo: "foo"})
@@ -99,7 +99,7 @@ shared_examples_for "an adapter" do |adapter|
       end
     end
 
-    it "dumps rootless JSON" do
+    it "dumps rootless JSON", :aggregate_failures do
       expect(MultiJson.dump("random rootless string")).to eq('"random rootless string"')
       expect(MultiJson.dump(123)).to eq("123")
     end
@@ -137,7 +137,7 @@ shared_examples_for "an adapter" do |adapter|
         MultiJson.load_options = MultiJson.adapter.load_options = nil
       end
 
-      it "respects global load options" do
+      it "respects global load options", :aggregate_failures do
         MultiJson.load_options = {foo: "bar"}
         expect(MultiJson.load_options).to eq({foo: "bar"})
         allow(MultiJson.adapter.instance).to receive(:load).and_call_original
@@ -145,7 +145,7 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
       end
 
-      it "respects per-adapter load options" do
+      it "respects per-adapter load options", :aggregate_failures do
         MultiJson.adapter.load_options = {foo: "bar"}
         expect(MultiJson.adapter.load_options).to eq({foo: "bar"})
         allow(MultiJson.adapter.instance).to receive(:load).and_call_original
@@ -153,7 +153,7 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
       end
 
-      it "adapter-specific are overridden by global options" do
+      it "adapter-specific are overridden by global options", :aggregate_failures do
         MultiJson.adapter.load_options = {foo: "foo"}
         MultiJson.load_options = {foo: "bar"}
         expect(MultiJson.adapter.load_options).to eq({foo: "foo"})
@@ -200,21 +200,21 @@ shared_examples_for "an adapter" do |adapter|
       end
     end
 
-    it "raises MultiJson::ParseError with data on invalid JSON" do
+    it "raises MultiJson::ParseError with data on invalid JSON", :aggregate_failures do
       data = "{invalid}"
       exception = get_exception(MultiJson::ParseError) { MultiJson.load data }
       expect(exception.data).to eq(data)
       expect(exception.cause).to match(adapter::ParseError)
     end
 
-    it "catches MultiJson::DecodeError for legacy support" do
+    it "catches MultiJson::DecodeError for legacy support", :aggregate_failures do
       data = "{invalid}"
       exception = get_exception(MultiJson::DecodeError) { MultiJson.load data }
       expect(exception.data).to eq(data)
       expect(exception.cause).to match(adapter::ParseError)
     end
 
-    it "catches MultiJson::LoadError for legacy support" do
+    it "catches MultiJson::LoadError for legacy support", :aggregate_failures do
       data = "{invalid}"
       exception = get_exception(MultiJson::LoadError) { MultiJson.load data }
       expect(exception.data).to eq(data)
