@@ -58,14 +58,16 @@ RSpec.describe MultiJson do
   end
 
   context "when JSON pure is already loaded" do
+    let(:ext_parser) { defined?(JSON::Ext::Parser) ? JSON::Ext::Parser : nil }
+
     before do
-      expect(JSON::JSON_LOADED).to be_truthy
-      @ext = JSON::Ext::Parser if defined?(JSON::Ext::Parser)
+      skip "JSON pure is not loaded" unless JSON::JSON_LOADED
+      ext_parser # memoize before hiding the constant
       hide_const("JSON::Ext::Parser")
       allow(described_class).to receive(:require)
     end
 
-    after { stub_const("JSON::Ext::Parser", @ext) if @ext }
+    after { stub_const("JSON::Ext::Parser", ext_parser) if ext_parser }
 
     it "default_adapter tries to require each adapter in turn", :aggregate_failures do
       undefine_constants(:Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
