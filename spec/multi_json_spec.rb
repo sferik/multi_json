@@ -184,7 +184,6 @@ RSpec.describe MultiJson do
     end.not_to change(described_class, :adapter)
   end
 
-
   it "JSON gem does not create symbols on parse" do
     described_class.with_engine(:json_gem) do
       described_class.load('{"json_class":"ZOMG"}')

@@ -44,7 +44,6 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
-
       it "adapter-specific are overridden by global options", :aggregate_failures do
         MultiJson.dump(1, fizz: "buzz")
         expect(MultiJson.adapter.dump_options).to eq({foo: "foo"})
@@ -127,7 +126,6 @@ shared_examples_for "an adapter" do |adapter|
         MultiJson.load("1", fizz: "buzz")
         expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
       end
-
 
       it "adapter-specific are overridden by global options", :aggregate_failures do
         MultiJson.load("1", fizz: "buzz")
