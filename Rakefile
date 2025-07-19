@@ -31,8 +31,11 @@ task spec: %w[
   adapters:jr_jackson
 ]
 
-desc "Run the default task"
-task default: :spec
-
 desc "Alias for spec"
 task test: :spec
+
+desc "Run linters"
+task lint: %i[rubocop standard]
+
+desc "Run the default task"
+task default: %i[spec lint]
