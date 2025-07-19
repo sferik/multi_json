@@ -23,7 +23,7 @@ shared_examples_for "an adapter" do |adapter|
         MultiJson.adapter.dump_options = {foo: "foo"}
         MultiJson.dump_options = {foo: "bar"}
         allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
-       end
+      end
 
       after do
         MultiJson.dump_options = MultiJson.adapter.dump_options = nil
@@ -107,7 +107,7 @@ shared_examples_for "an adapter" do |adapter|
         MultiJson.adapter.load_options = {foo: "foo"}
         MultiJson.load_options = {foo: "bar"}
         allow(MultiJson.adapter.instance).to receive(:load).and_call_original
-         end
+      end
 
       after do
         MultiJson.load_options = MultiJson.adapter.load_options = nil
