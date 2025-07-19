@@ -19,9 +19,9 @@ shared_examples_for "an adapter" do |adapter|
   describe ".dump" do
     describe "#dump_options" do
       before { MultiJson.dump_options = MultiJson.adapter.dump_options = {}
-MultiJson.adapter.dump_options = {foo: "foo"}
-        MultiJson.dump_options = {foo: "bar"}
-        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
+               MultiJson.adapter.dump_options = {foo: "foo"}
+               MultiJson.dump_options = {foo: "bar"}
+               allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
        }
 
       after do
@@ -103,9 +103,9 @@ MultiJson.adapter.dump_options = {foo: "foo"}
   describe ".load" do
     describe "#load_options" do
       before { MultiJson.load_options = MultiJson.adapter.load_options = {}
-MultiJson.adapter.load_options = {foo: "foo"}
-          MultiJson.load_options = {foo: "bar"}
-          allow(MultiJson.adapter.instance).to receive(:load).and_call_original
+               MultiJson.adapter.load_options = {foo: "foo"}
+               MultiJson.load_options = {foo: "bar"}
+               allow(MultiJson.adapter.instance).to receive(:load).and_call_original
          }
 
       after do
@@ -129,12 +129,12 @@ MultiJson.adapter.load_options = {foo: "foo"}
       end
 
 
-        it "adapter-specific are overridden by global options", :aggregate_failures do
-          MultiJson.load("1", fizz: "buzz")
-          expect(MultiJson.adapter.load_options).to eq({foo: "foo"})
-          expect(MultiJson.load_options).to eq({foo: "bar"})
-          expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
-        end
+      it "adapter-specific are overridden by global options", :aggregate_failures do
+        MultiJson.load("1", fizz: "buzz")
+        expect(MultiJson.adapter.load_options).to eq({foo: "foo"})
+        expect(MultiJson.load_options).to eq({foo: "bar"})
+        expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
+      end
     end
 
     it "does not modify input" do
