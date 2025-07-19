@@ -167,8 +167,7 @@ RSpec.describe MultiJson do
   it "restores adapter after an exception" do
     described_class.use :json_gem
     expect do
-      described_class.with_adapter(:oj) { raise StandardError }
-    rescue
+      expect { described_class.with_adapter(:oj) { raise StandardError } }.to raise_error(StandardError)
     end.not_to change(described_class, :adapter)
   end
 
