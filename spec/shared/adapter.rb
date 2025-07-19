@@ -6,9 +6,13 @@ shared_examples_for "an adapter" do |adapter|
 
   it_behaves_like "has options", adapter
 
-  it "does not modify argument hashes" do
+  it "does not modify argument hashes when loading" do
     options = {symbolize_keys: true, pretty: false, adapter: :ok_json}
     expect { MultiJson.load("{}", options) }.not_to(change { options })
+  end
+
+  it "does not modify argument hashes when dumping" do
+    options = {symbolize_keys: true, pretty: false, adapter: :ok_json}
     expect { MultiJson.dump([42], options) }.not_to(change { options })
   end
 
