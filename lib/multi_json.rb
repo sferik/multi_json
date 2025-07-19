@@ -33,7 +33,7 @@ module MultiJson
     end
   end
 
-  ALIASES = {"jrjackson" => "jr_jackson"}.freeze
+  ALIASES = AdapterSelector::ALIASES
 
   REQUIREMENT_MAP = {
     fast_jsonparser: "fast_jsonparser",
