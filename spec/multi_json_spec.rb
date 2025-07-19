@@ -203,9 +203,11 @@ RSpec.describe MultiJson do
     end
 
     it "sets both load and dump options", :aggregate_failures do
-      expect(described_class).to receive(:dump_options=).with({foo: "bar"})
-      expect(described_class).to receive(:load_options=).with({foo: "bar"})
+      allow(described_class).to receive(:dump_options=)
+      allow(described_class).to receive(:load_options=)
       silence_warnings { described_class.default_options = {foo: "bar"} }
+      expect(described_class).to have_received(:dump_options=).with({foo: "bar"})
+      expect(described_class).to have_received(:load_options=).with({foo: "bar"})
     end
   end
 
