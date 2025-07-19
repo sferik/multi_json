@@ -28,7 +28,9 @@ shared_examples_for "an adapter" do |adapter|
       it "respects global dump options" do
         MultiJson.dump_options = {foo: "bar"}
         expect(MultiJson.dump_options).to eq({foo: "bar"})
-        expect(MultiJson.adapter.instance).to receive(:dump).with(1, {foo: "bar", fizz: "buzz"})
+        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
+        MultiJson.dump(1, fizz: "buzz")
+        expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
       it "respects per-adapter dump options" do
