@@ -10,9 +10,18 @@ module MultiJson
       BLANK_RE = /\A\s*\z/
       private_constant :BLANK_RE
 
+      def inherited(subclass)
+        super
+        if instance_variable_defined?(:@default_load_options)
+          subclass.instance_variable_set(:@default_load_options, @default_load_options)
+        end
+        if instance_variable_defined?(:@default_dump_options)
+          subclass.instance_variable_set(:@default_dump_options, @default_dump_options)
+        end
+      end
+
       def defaults(action, value)
-        value.freeze
-        define_singleton_method("default_#{action}_options") { value }
+        instance_variable_set("@default_#{action}_options", value.freeze)
       end
 
       def load(string, options = {})
