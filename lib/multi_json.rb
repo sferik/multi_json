@@ -7,7 +7,11 @@ require_relative "multi_json/adapter_selector"
 
 module MultiJson
   include Options
+  extend Options
   extend AdapterSelector
+
+  Options.private_instance_methods(false).each { |m| singleton_class.send(:public, m) }
+  AdapterSelector.private_instance_methods(false).each { |m| singleton_class.send(:public, m) }
 
   module_function
 
@@ -61,6 +65,7 @@ module MultiJson
   end
   alias_method :adapter=, :use
   alias_method :engine=, :use
+  module_function :adapter=, :engine=
 
   def load(string, options = {})
     adapter = current_adapter(options)
@@ -95,4 +100,5 @@ module MultiJson
     self.adapter = old_adapter
   end
   alias_method :with_engine, :with_adapter
+  module_function :with_engine
 end
