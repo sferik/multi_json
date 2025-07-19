@@ -59,12 +59,9 @@ MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 This library aims to support and is [tested against](https://github.com/sferik/multi_json/actions/workflows/ci.yml) the following Ruby
 implementations:
 
-- Ruby 3.0
-- Ruby 3.1
 - Ruby 3.2
 - Ruby 3.3
 - Ruby 3.4
-- [JRuby][jruby] 9.4 (targets Ruby 3.1 compatibility)
 - [JRuby][jruby] 10.0 (targets Ruby 3.4 compatibility)
 
 If something doesn't work in one of these implementations, it's a bug.

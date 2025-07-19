@@ -17,12 +17,12 @@ module MultiJson
       end
     end
 
-    def prepare_hash(value, &block)
+    def prepare_hash(value, &)
       case value
       when Array
-        handle_array(value, &block)
+        handle_array(value, &)
       when Hash
-        handle_hash(value, &block)
+        handle_hash(value, &)
       else
         handle_simple_objects(value)
       end
