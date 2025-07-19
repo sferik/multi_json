@@ -18,7 +18,11 @@ shared_examples_for "an adapter" do |adapter|
 
   describe ".dump" do
     describe "#dump_options" do
-      before { MultiJson.dump_options = MultiJson.adapter.dump_options = {} }
+      before { MultiJson.dump_options = MultiJson.adapter.dump_options = {}
+MultiJson.adapter.dump_options = {foo: "foo"}
+        MultiJson.dump_options = {foo: "bar"}
+        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
+       }
 
       after do
         MultiJson.dump_options = MultiJson.adapter.dump_options = nil
@@ -40,11 +44,6 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
-      before do
-        MultiJson.adapter.dump_options = {foo: "foo"}
-        MultiJson.dump_options = {foo: "bar"}
-        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
-      end
 
       it "adapter-specific are overridden by global options", :aggregate_failures do
         MultiJson.dump(1, fizz: "buzz")
@@ -103,7 +102,11 @@ shared_examples_for "an adapter" do |adapter|
 
   describe ".load" do
     describe "#load_options" do
-      before { MultiJson.load_options = MultiJson.adapter.load_options = {} }
+      before { MultiJson.load_options = MultiJson.adapter.load_options = {}
+MultiJson.adapter.load_options = {foo: "foo"}
+          MultiJson.load_options = {foo: "bar"}
+          allow(MultiJson.adapter.instance).to receive(:load).and_call_original
+         }
 
       after do
         MultiJson.load_options = MultiJson.adapter.load_options = nil
@@ -125,11 +128,6 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
       end
 
-        before do
-          MultiJson.adapter.load_options = {foo: "foo"}
-          MultiJson.load_options = {foo: "bar"}
-          allow(MultiJson.adapter.instance).to receive(:load).and_call_original
-        end
 
         it "adapter-specific are overridden by global options", :aggregate_failures do
           MultiJson.load("1", fizz: "buzz")
