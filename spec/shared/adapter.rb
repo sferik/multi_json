@@ -68,10 +68,10 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "dumps symbol and fixnum keys as strings" do
-      ex = [[{foo: {bar: "baz"}}, {"foo"=>{"bar"=>"baz"}}],
-            [[{foo: {bar: "baz"}}], [{"foo"=>{"bar"=>"baz"}}]],
-            [{foo: [{bar: "baz"}]}, {"foo"=>[{"bar"=>"baz"}]}],
-            [{1=>{2=>{3=>"bar"}}}, {"1"=>{"2"=>{"3"=>"bar"}}}]]
+      ex = [[{foo: {bar: "baz"}}, {"foo" => {"bar" => "baz"}}],
+            [[{foo: {bar: "baz"}}], [{"foo" => {"bar" => "baz"}}]],
+            [{foo: [{bar: "baz"}]}, {"foo" => [{"bar" => "baz"}]}],
+            [{1 => {2 => {3 => "bar"}}}, {"1" => {"2" => {"3" => "bar"}}}]]
       ex.each { |v, exp| expect(MultiJson.load(MultiJson.dump(v))).to eq(exp) }
     end
 
