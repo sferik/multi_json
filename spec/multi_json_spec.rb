@@ -166,7 +166,7 @@ RSpec.describe MultiJson do
     end
   end
 
-  before { 
+  before {
     described_class.use :oj
     skip "java based implementations" if config.java?  }
 
