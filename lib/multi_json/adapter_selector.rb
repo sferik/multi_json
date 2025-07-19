@@ -45,7 +45,7 @@ module MultiJson
         require library
         return adapter
       rescue ::LoadError
-        next
+        # ignore and try next
       end
       nil
     end
