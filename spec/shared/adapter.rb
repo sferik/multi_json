@@ -40,31 +40,23 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
 
-      it "adapter-specific are overridden by global options", :aggregate_failures do
+      before do
         MultiJson.adapter.dump_options = {foo: "foo"}
         MultiJson.dump_options = {foo: "bar"}
+        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
+      end
+
+      it "adapter-specific are overridden by global options", :aggregate_failures do
+        MultiJson.dump(1, fizz: "buzz")
         expect(MultiJson.adapter.dump_options).to eq({foo: "foo"})
         expect(MultiJson.dump_options).to eq({foo: "bar"})
-        allow(MultiJson.adapter.instance).to receive(:dump).and_call_original
-        MultiJson.dump(1, fizz: "buzz")
         expect(MultiJson.adapter.instance).to have_received(:dump).with(1, {foo: "bar", fizz: "buzz"})
       end
     end
 
     it "writes decodable JSON" do
-      examples = [
-        {"abc" => "def"},
-        [],
-        1,
-        "2",
-        true,
-        false,
-        nil
-      ]
-
-      examples.each do |example|
-        expect(MultiJson.load(MultiJson.dump(example))).to eq(example)
-      end
+      examples = [{"abc" => "def"}, [], 1, "2", true, false, nil]
+      examples.each { |e| expect(MultiJson.load(MultiJson.dump(e))).to eq(e) }
     end
 
     it "dumps time in correct format" do
@@ -76,27 +68,11 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "dumps symbol and fixnum keys as strings" do
-      [
-        [
-          {foo: {bar: "baz"}},
-          {"foo" => {"bar" => "baz"}}
-        ],
-        [
-          [{foo: {bar: "baz"}}],
-          [{"foo" => {"bar" => "baz"}}]
-        ],
-        [
-          {foo: [{bar: "baz"}]},
-          {"foo" => [{"bar" => "baz"}]}
-        ],
-        [
-          {1 => {2 => {3 => "bar"}}},
-          {"1" => {"2" => {"3" => "bar"}}}
-        ]
-      ].each do |example, expected|
-        dumped_json = MultiJson.dump(example)
-        expect(MultiJson.load(dumped_json)).to eq(expected)
-      end
+      ex = [[{foo:{bar:"baz"}}, {"foo"=>{"bar"=>"baz"}}],
+            [[{foo:{bar:"baz"}}], [{"foo"=>{"bar"=>"baz"}}]],
+            [{foo:[{bar:"baz"}]}, {"foo"=>[{"bar"=>"baz"}]}],
+            [{1=>{2=>{3=>"bar"}}}, {"1"=>{"2"=>{"3"=>"bar"}}}]]
+      ex.each { |v, exp| expect(MultiJson.load(MultiJson.dump(v))).to eq(exp) }
     end
 
     it "dumps rootless JSON", :aggregate_failures do
@@ -112,11 +88,7 @@ shared_examples_for "an adapter" do |adapter|
 
     it "dumps custom objects that implement to_json" do
       pending "not supported" if adapter.name == "MultiJson::Adapters::Gson"
-      klass = Class.new do
-        def to_json(*)
-          '"foobar"'
-        end
-      end
+      klass = Class.new { def to_json(*) '"foobar"' end }
       expect(MultiJson.dump(klass.new)).to eq('"foobar"')
     end
 
@@ -153,15 +125,18 @@ shared_examples_for "an adapter" do |adapter|
         expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
       end
 
-      it "adapter-specific are overridden by global options", :aggregate_failures do
-        MultiJson.adapter.load_options = {foo: "foo"}
-        MultiJson.load_options = {foo: "bar"}
-        expect(MultiJson.adapter.load_options).to eq({foo: "foo"})
-        expect(MultiJson.load_options).to eq({foo: "bar"})
-        allow(MultiJson.adapter.instance).to receive(:load).and_call_original
-        MultiJson.load("1", fizz: "buzz")
-        expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
-      end
+        before do
+          MultiJson.adapter.load_options = {foo: "foo"}
+          MultiJson.load_options = {foo: "bar"}
+          allow(MultiJson.adapter.instance).to receive(:load).and_call_original
+        end
+
+        it "adapter-specific are overridden by global options", :aggregate_failures do
+          MultiJson.load("1", fizz: "buzz")
+          expect(MultiJson.adapter.load_options).to eq({foo: "foo"})
+          expect(MultiJson.load_options).to eq({foo: "bar"})
+          expect(MultiJson.adapter.instance).to have_received(:load).with("1", hash_including(foo: "bar", fizz: "buzz"))
+        end
     end
 
     it "does not modify input" do
@@ -233,22 +208,10 @@ shared_examples_for "an adapter" do |adapter|
     end
 
     it "allows for symbolization of keys" do
-      [
-        [
-          '{"abc":{"def":"hgi"}}',
-          {abc: {def: "hgi"}}
-        ],
-        [
-          '[{"abc":{"def":"hgi"}}]',
-          [{abc: {def: "hgi"}}]
-        ],
-        [
-          '{"abc":[{"def":"hgi"}]}',
-          {abc: [{def: "hgi"}]}
-        ]
-      ].each do |example, expected|
-        expect(MultiJson.load(example, symbolize_keys: true)).to eq(expected)
-      end
+      ex = [[ '{"abc":{"def":"hgi"}}', {abc:{def:"hgi"}} ],
+            ['[{"abc":{"def":"hgi"}}]', [{abc:{def:"hgi"}}]],
+            ['{"abc":[{"def":"hgi"}]}', {abc:[{def:"hgi"}]}]]
+      ex.each { |json, expected| expect(MultiJson.load(json, symbolize_keys: true)).to eq(expected) }
     end
 
     it "allows to load JSON values" do

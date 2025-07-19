@@ -53,20 +53,19 @@ RSpec.describe MultiJson do
   end
 
   context "when JSON pure is already loaded" do
-    it "default_adapter tries to require each adapter in turn and does not assume :json_gem is already loaded", :aggregate_failures do
+    before do
       expect(JSON::JSON_LOADED).to be_truthy
+      @ext = JSON::Ext::Parser if defined?(JSON::Ext::Parser)
+      hide_const("JSON::Ext::Parser")
+      allow(described_class).to receive(:require)
+    end
 
-      undefine_constants :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser do
-        # simulate that the json_gem is not loaded
-        ext = JSON::Ext::Parser if defined?(JSON::Ext::Parser)
-        hide_const("JSON::Ext::Parser")
-        begin
-          allow(described_class).to receive(:require)
-          described_class.default_adapter
-          expect(described_class).to have_received(:require)
-        ensure
-          stub_const("JSON::Ext::Parser", ext) if ext
-        end
+    after { stub_const("JSON::Ext::Parser", @ext) if @ext }
+
+    it "default_adapter tries to require each adapter in turn", :aggregate_failures do
+      undefine_constants(:Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
+        described_class.default_adapter
+        expect(described_class).to have_received(:require)
       end
     end
   end
@@ -97,16 +96,20 @@ RSpec.describe MultiJson do
       described_class.send(:remove_instance_variable, :@adapter) if described_class.instance_variable_defined?(:@adapter)
     end
 
-    it "defaults to the best available gem", :aggregate_failures do
+    let(:expected_adapter) do
       if config.java? && config.jrjackson?
-        expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::JrJackson")
+        "MultiJson::Adapters::JrJackson"
       elsif config.java? && config.json?
-        expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::JsonGem")
+        "MultiJson::Adapters::JsonGem"
       elsif config.fast_jsonparser?
-        expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::FastJsonparser")
+        "MultiJson::Adapters::FastJsonparser"
       else
-        expect(described_class.adapter.to_s).to eq("MultiJson::Adapters::Oj")
+        "MultiJson::Adapters::Oj"
       end
+    end
+
+    it "defaults to the best available gem" do
+      expect(described_class.adapter.to_s).to eq(expected_adapter)
     end
 
     it "looks for adapter even if @adapter variable is nil" do
@@ -149,9 +152,12 @@ RSpec.describe MultiJson do
   end
 
   context "with one-shot parser" do
-    it "uses the defined parser just for the call", :aggregate_failures do
+    before do
       allow(MultiJson::Adapters::OkJson).to receive_messages(dump: "dump_something", load: "load_something")
       described_class.use :json_gem
+    end
+
+    it "uses the defined parser just for the call", :aggregate_failures do
       expect(described_class.dump("", adapter: :ok_json)).to eq("dump_something")
       expect(described_class.load("", adapter: :ok_json)).to eq("load_something")
       expect(MultiJson::Adapters::OkJson).to have_received(:dump)
@@ -160,12 +166,11 @@ RSpec.describe MultiJson do
     end
   end
 
+  before { described_class.use :oj }
+
   it "can set adapter for a block", :aggregate_failures do
-    described_class.use :oj
     described_class.with_adapter(:json_gem) do
-      described_class.with_engine(:ok_json) do
-        expect(described_class.adapter).to eq(MultiJson::Adapters::OkJson)
-      end
+      described_class.with_engine(:ok_json) { expect(described_class.adapter).to eq(MultiJson::Adapters::OkJson) }
       expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
     end
     expect(described_class.adapter).to eq(MultiJson::Adapters::Oj)
@@ -178,15 +183,12 @@ RSpec.describe MultiJson do
     end.not_to change(described_class, :adapter)
   end
 
-  it "JSON gem does not create symbols on parse" do
-    skip "java based implementations" if config.java?
+  before { skip "java based implementations" if config.java? }
 
+  it "JSON gem does not create symbols on parse" do
     described_class.with_engine(:json_gem) do
       described_class.load('{"json_class":"ZOMG"}')
-
-      expect do
-        described_class.load('{"json_class":"OMG"}')
-      end.not_to(change { Symbol.all_symbols.count })
+      expect { described_class.load('{"json_class":"OMG"}') }.not_to(change { Symbol.all_symbols.count })
     end
   end
 
