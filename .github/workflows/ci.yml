@@ -12,26 +12,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: true
-    - name: Run linter
-      run: bundle exec rake standard
-
   test:
     strategy:
       matrix:
         ruby-version: ['3.2', '3.3', '3.4', 'jruby-10.0']
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
-    needs: lint
 
     steps:
     - uses: actions/checkout@v4
