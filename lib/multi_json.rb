@@ -8,7 +8,7 @@ require_relative "multi_json/adapter_selector"
 module MultiJson
   include Options
   extend AdapterSelector
-  extend self
+  module_function
 
   def default_options=(value)
     Kernel.warn "MultiJson.default_options setter is deprecated\nUse MultiJson.load_options and MultiJson.dump_options instead"

@@ -1,6 +1,6 @@
 module MultiJson
   module AdapterSelector
-    extend self
+    module_function
 
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
