@@ -150,8 +150,7 @@ RSpec.describe MultiJson do
 
   context "with one-shot parser" do
     it "uses the defined parser just for the call" do
-      allow(MultiJson::Adapters::OkJson).to receive(:dump).and_return("dump_something")
-      allow(MultiJson::Adapters::OkJson).to receive(:load).and_return("load_something")
+      allow(MultiJson::Adapters::OkJson).to receive_messages(dump: "dump_something", load: "load_something")
       described_class.use :json_gem
       expect(described_class.dump("", adapter: :ok_json)).to eq("dump_something")
       expect(described_class.load("", adapter: :ok_json)).to eq("load_something")
