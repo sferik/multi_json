@@ -26,7 +26,6 @@ task spec: %w[
   adapters:oj
   adapters:yajl
   adapters:json_gem
-  adapters:json_pure
   adapters:ok_json
   adapters:gson
   adapters:jr_jackson

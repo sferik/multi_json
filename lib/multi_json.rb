@@ -34,8 +34,7 @@ module MultiJson
     yajl: "yajl",
     jr_jackson: "jrjackson",
     json_gem: "json",
-    gson: "gson",
-    json_pure: "json"
+    gson: "gson"
   }.freeze
 
   # The default adapter based on what you currently
@@ -73,7 +72,6 @@ module MultiJson
   # * <tt>:fast_jsonparser</tt>
   # * <tt>:oj</tt>
   # * <tt>:json_gem</tt>
-  # * <tt>:json_pure</tt>
   # * <tt>:ok_json</tt>
   # * <tt>:yajl</tt>
   # * <tt>:gson</tt> (JRuby only)

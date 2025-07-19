@@ -144,30 +144,30 @@ RSpec.describe MultiJson do
 
   context "with one-shot parser" do
     it "uses the defined parser just for the call" do
-      expect(MultiJson::Adapters::JsonPure).to receive(:dump).once.and_return("dump_something")
-      expect(MultiJson::Adapters::JsonPure).to receive(:load).once.and_return("load_something")
+      expect(MultiJson::Adapters::OkJson).to receive(:dump).once.and_return("dump_something")
+      expect(MultiJson::Adapters::OkJson).to receive(:load).once.and_return("load_something")
       described_class.use :json_gem
-      expect(described_class.dump("", adapter: :json_pure)).to eq("dump_something")
-      expect(described_class.load("", adapter: :json_pure)).to eq("load_something")
+      expect(described_class.dump("", adapter: :ok_json)).to eq("dump_something")
+      expect(described_class.load("", adapter: :ok_json)).to eq("load_something")
       expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
     end
   end
 
   it "can set adapter for a block" do
-    described_class.use :ok_json
-    described_class.with_adapter(:json_pure) do
-      described_class.with_engine(:json_gem) do
-        expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
+    described_class.use :oj
+    described_class.with_adapter(:json_gem) do
+      described_class.with_engine(:ok_json) do
+        expect(described_class.adapter).to eq(MultiJson::Adapters::OkJson)
       end
-      expect(described_class.adapter).to eq(MultiJson::Adapters::JsonPure)
+      expect(described_class.adapter).to eq(MultiJson::Adapters::JsonGem)
     end
-    expect(described_class.adapter).to eq(MultiJson::Adapters::OkJson)
+    expect(described_class.adapter).to eq(MultiJson::Adapters::Oj)
   end
 
   it "restores adapter after an exception" do
     described_class.use :json_gem
     expect do
-      described_class.with_adapter(:json_pure) { raise StandardError }
+      described_class.with_adapter(:oj) { raise StandardError }
     rescue
     end.not_to change(described_class, :adapter)
   end

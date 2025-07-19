@@ -13,11 +13,6 @@ shared_examples_for "an adapter" do |adapter|
   end
 
   describe ".dump" do
-    let(:json_pure) do
-      Kernel.const_get("MultiJson::Adapters::JsonPure")
-    rescue
-      nil
-    end
 
     describe "#dump_options" do
       before { MultiJson.dump_options = MultiJson.adapter.dump_options = {} }
