@@ -86,7 +86,7 @@ RSpec.describe MultiJson do
     end
   end
 
-  context "automatic adapter loading" do
+  context "when automatically loading adapter" do
     before do
       described_class.send(:remove_instance_variable, :@adapter) if described_class.instance_variable_defined?(:@adapter)
     end
