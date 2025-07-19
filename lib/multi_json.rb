@@ -9,8 +9,8 @@ module MultiJson
   extend Options
   extend AdapterSelector
 
-  Options.private_instance_methods(false).each { |m| singleton_class.send(:public, m) }
-  AdapterSelector.private_instance_methods(false).each { |m| singleton_class.send(:public, m) }
+  singleton_class.send(:public, *Options.private_instance_methods(false))
+  singleton_class.send(:public, *AdapterSelector.private_instance_methods(false))
 
   module_function
 
