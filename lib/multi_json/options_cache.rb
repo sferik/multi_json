@@ -20,12 +20,16 @@ module MultiJson
         end
       end
 
-      def fetch(key)
+      def fetch(key, default = nil)
         @mutex.synchronize do
           return @cache[key] if @cache.key?(key)
         end
 
-        value = yield
+        value = if block_given?
+          yield
+        else
+          default
+        end
 
         @mutex.synchronize { store_value(key, value) }
       end
