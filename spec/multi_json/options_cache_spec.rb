@@ -1,19 +1,18 @@
 require "spec_helper"
 
 describe MultiJson::OptionsCache do
-  before { described_class.reset }
-
-  it "doesn't leak memory" do
+  before do
+    described_class.reset
     max = described_class::Store.const_get(:MAX_CACHE_SIZE)
 
-    max.succ.times do |i|
+    (max + 1).times do |i|
       described_class.dump.fetch(key: i) { {foo: i} }
       described_class.load.fetch(key: i) { {foo: i} }
     end
+  end
 
-    caches = [described_class.dump, described_class.load].map do |cache|
-      cache.instance_variable_get(:@cache).length
-    end
+  it "doesn't leak memory" do
+    caches = [described_class.dump, described_class.load].map { |cache| cache.instance_variable_get(:@cache).length }
 
     expect(caches).to all(eq(1))
   end
