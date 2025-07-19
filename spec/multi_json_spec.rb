@@ -166,9 +166,9 @@ RSpec.describe MultiJson do
     end
   end
 
-  before {
+  before do
     described_class.use :oj
-    skip "java based implementations" if config.java?  }
+    skip "java based implementations" if config.java?  end
 
   it "can set adapter for a block", :aggregate_failures do
     described_class.with_adapter(:json_gem) do
