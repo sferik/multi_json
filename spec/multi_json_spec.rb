@@ -1,17 +1,21 @@
 require "spec_helper"
 require "shared/options"
 
-RSpec.describe MultiJson do
-  let(:config) { RSpec.configuration }
-
-  before(:all) do
+RSpec.configure do |config|
+  config.before(:suite) do
     # make sure all available libs are required
     MultiJson::REQUIREMENT_MAP.each_value do |library|
-      require library
-    rescue LoadError
-      next
+      begin
+        require library
+      rescue LoadError
+        next
+      end
     end
   end
+end
+
+RSpec.describe MultiJson do
+  let(:config) { RSpec.configuration }
 
   context "when no other json implementations are available" do
     around do |example|
@@ -185,7 +189,10 @@ RSpec.describe MultiJson do
   end
 
   describe "default options" do
-    after(:all) { described_class.load_options = described_class.dump_options = nil }
+    around do |example|
+      example.run
+      described_class.load_options = described_class.dump_options = nil
+    end
 
     it "is deprecated" do
       expect(Kernel).to receive(:warn).with(/deprecated/i)
