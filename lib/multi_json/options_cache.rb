@@ -13,9 +13,7 @@ module MultiJson
       end
 
       def reset
-        @mutex.synchronize do
-          @cache = {}
-        end
+        @mutex.synchronize { @cache.clear }
       end
 
       def fetch(key, default = nil)
