@@ -37,7 +37,7 @@ RSpec.describe MultiJson do
       end
     end
 
-    it "defaults to ok_json if no other json implementions are available" do
+    it "defaults to ok_json if no other JSON implementations are available" do
       silence_warnings do
         expect(described_class.default_adapter).to eq(:ok_json)
       end
