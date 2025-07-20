@@ -34,8 +34,8 @@ module MultiJson
       obj.respond_to?(:to_s) ? obj.to_s : obj
     end
 
-    def handle_array(array, &key_modifier)
-      array.map { |value| prepare_hash(value, &key_modifier) }
+    def handle_array(array, &)
+      array.map { |value| prepare_hash(value, &) }
     end
 
     def handle_hash(original_hash, &key_modifier)

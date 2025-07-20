@@ -60,9 +60,9 @@ ensure
   end
 end
 
-def simulate_no_adapters(&block)
+def simulate_no_adapters(&)
   break_requirements do
-    undefine_constants :JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &block
+    undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &)
   end
 end
 
