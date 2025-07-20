@@ -4,18 +4,18 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
   pull_request:
     branches: [main]
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
   workflow_dispatch:
 
 jobs:
   test:
     strategy:
       matrix:
-        ruby-version: ['3.2', '3.3', '3.4']
+        ruby-version: ["3.2", "3.3", "3.4", "jruby-10.0"]
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
 
