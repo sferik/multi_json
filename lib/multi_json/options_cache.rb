@@ -21,11 +21,10 @@ module MultiJson
       def fetch(key, default = nil)
         @mutex.synchronize do
           return @cache[key] if @cache.key?(key)
+
+          value = block_given? ? yield : default
+          store_value(key, value)
         end
-
-        value = block_given? ? yield : default
-
-        @mutex.synchronize { store_value(key, value) }
       end
 
       private

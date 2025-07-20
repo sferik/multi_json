@@ -25,4 +25,11 @@ describe MultiJson::OptionsCache do
 
     expect(described_class.load.fetch(:foo, :baz)).to eq(:baz)
   end
+
+  it "executes block only once per key in concurrent access" do
+    described_class.reset
+    counter = 0
+    Array.new(5) { Thread.new { described_class.dump.fetch(:foo) { counter += 1 } } }.each(&:join)
+    expect(counter).to eq(1)
+  end
 end
