@@ -1,7 +1,7 @@
 # MultiJSON
 
 [![Gem Version](http://img.shields.io/gem/v/multi_json.svg)][gem]
-[![Build Status](https://github.com/sferik/multi_json/actions/workflows/ci.yml/badge.svg)][build]
+[![Build Status](https://github.com/sferik/multi_json/actions/workflows/tests.yml/badge.svg)][build]
 [![Maintainability](https://qlty.sh/badges/fde3f4a8-c331-44be-b1e6-45842137def9/maintainability.svg)][qlty]
 
 Lots of Ruby libraries parse JSON and everyone has their favorite JSON coder.
@@ -98,7 +98,7 @@ spec.add_dependency 'multi_json', '~> 1.0'
 Copyright (c) 2010-2025 Michael Bleigh, Josh Kalderimis, Erik Berlin,
 and Pavel Pravosud. See [LICENSE][] for details.
 
-[build]: https://github.com/sferik/multi_json/actions/workflows/ci.yml
+[build]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
 [gem]: https://rubygems.org/gems/multi_json
 [gson]: https://github.com/avsej/gson.rb
 [jrjackson]: https://github.com/guyboertje/jrjackson
