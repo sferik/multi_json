@@ -17,6 +17,7 @@ module MultiJson
       end
       :ok_json
     end
+    public :default_adapter
 
     def load_adapter(new_adapter)
       case new_adapter
@@ -28,6 +29,7 @@ module MultiJson
     rescue ::LoadError => e
       raise(AdapterError.build(e), cause: e)
     end
+    public :load_adapter
 
     def loaded_adapter
       return :fast_jsonparser if defined?(::FastJsonparser)
@@ -39,6 +41,7 @@ module MultiJson
 
       nil
     end
+    public :loaded_adapter
 
     def installable_adapter
       MultiJson::REQUIREMENT_MAP.each do |adapter, library|
@@ -49,6 +52,7 @@ module MultiJson
       end
       nil
     end
+    public :installable_adapter
 
     def load_adapter_from_string_name(name)
       normalized_name = ALIASES.fetch(name, name).to_s
@@ -56,5 +60,6 @@ module MultiJson
       klass_name = normalized_name.split("_").map(&:capitalize).join
       MultiJson::Adapters.const_get(klass_name)
     end
+    public :load_adapter_from_string_name
   end
 end
