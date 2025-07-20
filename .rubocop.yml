@@ -9,7 +9,10 @@ plugins:
 
 AllCops:
   Exclude:
+    - ".git/**/*"
     - "lib/multi_json/vendor/**/*.rb"
+    - "tmp/**/*"
+    - "vendor/**/*"
   NewCops: enable
   TargetRubyVersion: 3.2
 
