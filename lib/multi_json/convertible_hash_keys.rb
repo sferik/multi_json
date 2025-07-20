@@ -5,43 +5,31 @@ module MultiJson
 
     private
 
-    def symbolize_keys(hash)
-      prepare_hash(hash) do |key|
-        key.respond_to?(:to_sym) ? key.to_sym : key
-      end
+    def symbolize_keys(value)
+      convert_hash_keys(value) { |key| key.respond_to?(:to_sym) ? key.to_sym : key }
     end
 
-    def stringify_keys(hash)
-      prepare_hash(hash) do |key|
-        key.respond_to?(:to_s) ? key.to_s : key
-      end
+    def stringify_keys(value)
+      convert_hash_keys(value) { |key| key.respond_to?(:to_s) ? key.to_s : key }
     end
 
-    def prepare_hash(value, &)
+    def convert_hash_keys(value, &key_modifier)
       case value
-      when Array
-        handle_array(value, &)
       when Hash
-        handle_hash(value, &)
+        value
+          .transform_keys(&key_modifier)
+          .transform_values { |v| convert_hash_keys(v, &key_modifier) }
+      when Array
+        value.map { |v| convert_hash_keys(v, &key_modifier) }
       else
-        handle_simple_objects(value)
+        convert_simple_object(value)
       end
     end
 
-    def handle_simple_objects(obj)
+    def convert_simple_object(obj)
       return obj if simple_object?(obj) || obj.respond_to?(:to_json)
 
       obj.respond_to?(:to_s) ? obj.to_s : obj
-    end
-
-    def handle_array(array, &)
-      array.map { |value| prepare_hash(value, &) }
-    end
-
-    def handle_hash(original_hash, &key_modifier)
-      original_hash.each_with_object({}) do |(key, value), result|
-        result[key_modifier.call(key)] = prepare_hash(value, &key_modifier)
-      end
     end
 
     def simple_object?(obj)
