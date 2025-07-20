@@ -9,9 +9,6 @@ module MultiJson
   extend Options
   extend AdapterSelector
 
-  singleton_class.send(:public, *Options.private_instance_methods(false))
-  singleton_class.send(:public, *AdapterSelector.private_instance_methods(false))
-
   module_function
 
   def default_options=(value)
