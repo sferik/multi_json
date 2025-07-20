@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
   spec.required_ruby_version = ">= 3.2"
   spec.summary = "A common interface to multiple JSON libraries."
-  spec.version = MultiJson::Version
+  spec.version = MultiJson::VERSION
 
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/sferik/multi_json/issues",
