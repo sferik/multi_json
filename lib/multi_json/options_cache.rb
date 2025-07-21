@@ -30,7 +30,7 @@ module MultiJson
       def store_value(key, value)
         return @cache[key] if @cache.key?(key)
 
-        @cache.clear if @cache.size >= MAX_CACHE_SIZE
+        @cache.shift if @cache.size >= MAX_CACHE_SIZE
         @cache[key] = value
       end
     end
