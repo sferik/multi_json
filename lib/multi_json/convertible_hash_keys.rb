@@ -16,9 +16,9 @@ module MultiJson
     def convert_hash_keys(value, &key_modifier)
       case value
       when Hash
-        value
-          .transform_keys(&key_modifier)
-          .transform_values { |v| convert_hash_keys(v, &key_modifier) }
+        value.each_with_object({}) do |(k, v), result|
+          result[key_modifier.call(k)] = convert_hash_keys(v, &key_modifier)
+        end
       when Array
         value.map { |v| convert_hash_keys(v, &key_modifier) }
       else
