@@ -18,6 +18,7 @@ RSpec.describe MultiJson do
   before do
     skip "java based implementations" if config.java?
     described_class.use :oj
+    described_class.remove_instance_variable(:@default_adapter) if described_class.instance_variable_defined?(:@default_adapter)
   end
 
   context "when no other json implementations are available" do

@@ -5,9 +5,15 @@ module MultiJson
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
     def default_adapter
-      adapter = loaded_adapter || installable_adapter
-      return adapter if adapter
+      return @default_adapter if defined?(@default_adapter)
 
+      adapter = loaded_adapter || installable_adapter
+      @default_adapter = adapter || fallback_adapter
+    end
+
+    private
+
+    def fallback_adapter
       unless @default_adapter_warning_shown
         Kernel.warn(
           "[WARNING] MultiJson is using the default adapter (ok_json). " \
