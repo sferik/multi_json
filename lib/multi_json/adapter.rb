@@ -54,7 +54,7 @@ module MultiJson
       end
 
       def options_without_adapter(options)
-        options[:adapter] ? options.except(:adapter) : options
+        options.except(:adapter).freeze
       end
     end
   end
