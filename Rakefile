@@ -7,7 +7,7 @@ RuboCop::RakeTask.new(:rubocop)
 
 require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new(:base_spec) do |task|
-  task.pattern = "spec/{multi_json,options_cache}_spec.rb"
+  task.pattern = "spec/{multi_json_spec.rb,multi_json/options_cache_spec.rb}"
 end
 
 namespace :adapters do

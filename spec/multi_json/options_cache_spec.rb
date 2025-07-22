@@ -12,9 +12,11 @@ describe MultiJson::OptionsCache do
   end
 
   it "doesn't leak memory" do
-    caches = [described_class.dump, described_class.load].map { |cache| cache.instance_variable_get(:@cache).length }
+    caches = [described_class.dump, described_class.load].map do |cache|
+      cache.instance_variable_get(:@cache).length
+    end
 
-    expect(caches).to all(eq(1))
+    expect(caches).to all(eq(described_class::MAX_CACHE_SIZE))
   end
 
   it "stores value in current cache after reset" do
