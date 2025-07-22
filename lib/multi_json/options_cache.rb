@@ -22,8 +22,11 @@ module MultiJson
         @mutex.synchronize do
           return @cache[key] if @cache.key?(key)
 
-          value = block_given? ? yield : default
-          store_value(key, value)
+          if block_given?
+            store_value(key, yield)
+          else
+            default
+          end
         end
       end
 

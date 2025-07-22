@@ -28,6 +28,11 @@ describe MultiJson::OptionsCache do
     expect(described_class.load.fetch(:foo, :baz)).to eq(:baz)
   end
 
+  it "does not store the default value" do
+    described_class.dump.fetch(:foo, :bar)
+    expect(described_class.dump.fetch(:foo, :baz)).to eq(:baz)
+  end
+
   it "executes block only once per key in concurrent access" do
     described_class.reset
     counter = 0
