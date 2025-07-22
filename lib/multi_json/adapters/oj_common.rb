@@ -1,9 +1,11 @@
+require "rubygems/version"
+
 module MultiJson
   module Adapters
     module OjCommon
-      OJ_VERSION = ::Oj::VERSION
-      OJ_V2 = OJ_VERSION.start_with?("2.")
-      OJ_V3 = OJ_VERSION.start_with?("3.")
+      OJ_VERSION = Gem::Version.new(::Oj::VERSION)
+      OJ_V2 = OJ_VERSION.segments.first == 2
+      OJ_V3 = OJ_VERSION.segments.first == 3
       private_constant :OJ_VERSION, :OJ_V2, :OJ_V3
 
       if OJ_V3
