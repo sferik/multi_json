@@ -58,6 +58,9 @@ Style/Documentation:
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
 
+Style/ModuleFunction:
+  Enabled: false
+
 Style/OpenStructUse:
   Enabled: false
 
