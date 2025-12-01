@@ -1,3 +1,7 @@
+1.18.0
+------
+* [Fix conflict between JSON gem and ActiveSupport](https://github.com/intridea/multi_json/issues/222)
+
 1.17.0
 ------
 * [Revert minimum ruby version requirement](https://github.com/sferik/multi_json/pull/16)
