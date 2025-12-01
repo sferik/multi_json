@@ -20,7 +20,7 @@ describe MultiJson::OptionsCache do
   end
 
   it "stores value in current cache after reset" do
-    described_class.fetch(:load, :foo) do
+    described_class.fetch(:load) do
       described_class.reset
       :bar
     end
