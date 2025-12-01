@@ -2,18 +2,34 @@ require "spec_helper"
 require "shared/adapter"
 require "shared/json_common_adapter"
 require "multi_json/adapters/json_gem"
+require "open3"
+require "rbconfig"
 
 RSpec.describe MultiJson::Adapters::JsonGem, :json do
   it_behaves_like "an adapter", described_class
   it_behaves_like "JSON-like adapter", described_class
 
   context "when active_support/json is loaded" do
+    let(:data) { {a: 1, b: 2, c: {d: {f: 2}}} }
+    let(:expected_output) { "#{JSON.pretty_generate(data)}\n" }
+
+    let(:script) do
+      <<~RUBY
+        $LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
+        require "multi_json"
+        require "multi_json/adapters/json_gem"
+        require "active_support/json"
+
+        data = {a: 1, b: 2, c: {d: {f: 2}}}
+
+        puts MultiJson.dump(data, pretty: true, adapter: :json_gem)
+      RUBY
+    end
+
     it "prettifies output when :pretty is true" do
-      require "active_support/json"
+      output, status = Open3.capture2(RbConfig.ruby, "-e", script)
 
-      data = {a: 1, b: 2, c: {d: {f: 2}}}
-
-      expect(MultiJson.dump(data, pretty: true)).to eq(JSON.pretty_generate(data))
+      expect([status.success?, output]).to eq([true, expected_output])
     end
   end
 end
