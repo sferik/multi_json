@@ -8,9 +8,9 @@ shared_examples_for "JSON-like adapter" do |adapter|
       it "passes default pretty options" do
         object = "foo"
         options = {indent: "  ", space: " ", object_nl: "\n", array_nl: "\n"}
-        allow(JSON).to receive(:generate).and_call_original
+        allow(JSON).to receive(:pretty_generate).and_call_original
         MultiJson.dump(object, pretty: true)
-        expect(JSON).to have_received(:generate).with(object, options)
+        expect(JSON).to have_received(:pretty_generate).with(object, options)
       end
     end
 
