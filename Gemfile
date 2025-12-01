@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
-gem "json", "~> 2.0", require: false
 gem "activesupport", require: false
+gem "json", "~> 2.0", require: false
 
 gem "rake", ">= 13.1"
 gem "rspec", ">= 3.13"
