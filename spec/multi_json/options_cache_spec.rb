@@ -25,6 +25,6 @@ describe MultiJson::OptionsCache do
       :bar
     end
 
-    expect(described_class.fetch(:load, :foo) { :baz }).to eq(:bar)
+    expect(described_class.fetch(:load, :baz)).to eq(:bar)
   end
 end
