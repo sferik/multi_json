@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "activesupport", require: false
 gem "json", "~> 2.0", require: false
 
 gem "rake", ">= 13.1"
