@@ -4,6 +4,7 @@ require "shared/json_common_adapter"
 require "multi_json/adapters/json_gem"
 require "open3"
 require "rbconfig"
+require "tempfile"
 
 RSpec.describe MultiJson::Adapters::JsonGem, :json do
   it_behaves_like "an adapter", described_class
@@ -27,9 +28,15 @@ RSpec.describe MultiJson::Adapters::JsonGem, :json do
     end
 
     it "prettifies output when :pretty is true" do
-      output, status = Open3.capture2(RbConfig.ruby, "-e", script)
+      Tempfile.create(["multi_json_json_gem", ".rb"]) do |file|
+        file.write(script)
+        file.flush
+        file.close
 
-      expect([status.success?, output]).to eq([true, expected_output])
+        output, status = Open3.capture2(RbConfig.ruby, file.path)
+
+        expect([status.success?, output]).to eq([true, expected_output])
+      end
     end
   end
 end
