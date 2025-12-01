@@ -6,6 +6,7 @@ module MultiJson
   module Adapters
     class OkJson < Adapter
       include ConvertibleHashKeys
+
       ParseError = ::MultiJson::OkJson::Error
 
       def load(string, options = {})

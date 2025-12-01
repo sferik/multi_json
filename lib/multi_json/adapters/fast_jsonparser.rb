@@ -8,6 +8,7 @@ module MultiJson
     # Use the FastJsonparser library to load and Oj to dump.
     class FastJsonparser < Adapter
       include OjCommon
+
       defaults :load, symbolize_keys: false
       defaults :dump, mode: :compat, time_format: :ruby, use_to_json: true
 
