@@ -1,5 +1,9 @@
-require "bundler"
-Bundler::GemHelper.install_tasks
+require "bundler/gem_tasks"
+
+# Override release task to skip gem push (handled by GitHub Actions)
+Rake::Task["release"].clear
+desc "Create tag and push to GitHub (gem push handled by CI)"
+task release: %w[release:guard_clean release:source_control_push]
 
 require "standard/rake"
 require "rubocop/rake_task"
