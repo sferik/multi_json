@@ -1,3 +1,7 @@
+1.19.0
+------
+* [Fix serialization of ActiveSupport-enhanced objects](https://github.com/sferik/multi_json/commit/03a367813ebd7ed87eb22ea05249cc6453bb3c10)
+
 1.18.0
 ------
 * [Fix conflict between JSON gem and ActiveSupport](https://github.com/intridea/multi_json/issues/222)
