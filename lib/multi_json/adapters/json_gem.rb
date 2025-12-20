@@ -26,9 +26,8 @@ module MultiJson
 
       def dump(object, options = {})
         opts = options.except(:adapter)
-        return ::JSON.dump(object) if opts.empty? && !object.respond_to?(:as_json)
-
         json_object = object.respond_to?(:as_json) ? object.as_json : object
+        return ::JSON.dump(json_object) if opts.empty?
 
         if opts.delete(:pretty)
           opts = PRETTY_STATE_PROTOTYPE.merge(opts)
