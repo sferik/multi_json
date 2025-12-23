@@ -17,15 +17,9 @@ module MultiJson
       end
 
       def fetch(key, default = nil)
-        return @cache[key] if @cache.key?(key)
-
-        @mutex.synchronize do
-          return @cache[key] if @cache.key?(key)
-
-          if block_given?
-            store_value(key, yield)
-          else
-            default
+        @cache.fetch(key) do
+          @mutex.synchronize do
+            @cache.fetch(key) { block_given? ? store_value(key, yield) : default }
           end
         end
       end
@@ -33,10 +27,10 @@ module MultiJson
       private
 
       def store_value(key, value)
-        return @cache[key] if @cache.key?(key)
-
-        @cache.shift if @cache.size >= MAX_CACHE_SIZE
-        @cache[key] = value
+        @cache.fetch(key) do
+          @cache.shift if @cache.size >= MAX_CACHE_SIZE
+          @cache[key] = value
+        end
       end
     end
 

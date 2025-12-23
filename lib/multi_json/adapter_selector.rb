@@ -4,11 +4,20 @@ module MultiJson
 
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
-    def default_adapter
-      return @default_adapter if defined?(@default_adapter)
+    IDENTITY_LOADER = ->(adapter, _) { adapter }
+    STRING_LOADER = ->(adapter, selector) { selector.send(:load_adapter_from_string_name, adapter) }
+    SYMBOL_LOADER = ->(adapter, selector) { selector.send(:load_adapter_from_string_name, adapter.to_s) }
+    DEFAULT_LOADER = ->(_, selector) { selector.send(:load_adapter, selector.default_adapter) }
 
-      adapter = loaded_adapter || installable_adapter
-      @default_adapter = adapter || fallback_adapter
+    ADAPTER_LOADERS = {
+      String => STRING_LOADER,
+      Symbol => SYMBOL_LOADER,
+      NilClass => DEFAULT_LOADER,
+      FalseClass => DEFAULT_LOADER
+    }.freeze
+
+    def default_adapter
+      @default_adapter ||= loaded_adapter || installable_adapter || fallback_adapter
     end
 
     private
@@ -25,14 +34,20 @@ module MultiJson
     end
 
     def load_adapter(new_adapter)
-      case new_adapter
-      when String, Symbol then load_adapter_from_string_name new_adapter.to_s
-      when NilClass, FalseClass then load_adapter default_adapter
-      when Class, Module then new_adapter
-      else raise ::LoadError, new_adapter
-      end
+      loader = adapter_loader_for(new_adapter)
+      return loader.call(new_adapter, self) if loader
+
+      raise ::LoadError, new_adapter
     rescue ::LoadError => e
-      raise(AdapterError.build(e), cause: e)
+      raise AdapterError.build(e)
+    end
+
+    def adapter_loader_for(adapter)
+      ADAPTER_LOADERS[adapter.class] || module_loader_if_module(adapter)
+    end
+
+    def module_loader_if_module(adapter)
+      IDENTITY_LOADER if adapter.is_a?(::Module)
     end
 
     def loaded_adapter
@@ -41,13 +56,12 @@ module MultiJson
       return :yajl if defined?(::Yajl)
       return :jr_jackson if defined?(::JrJackson)
       return :json_gem if defined?(::JSON::Ext::Parser)
-      return :gson if defined?(::Gson)
 
-      nil
+      :gson if defined?(::Gson)
     end
 
     def installable_adapter
-      MultiJson::REQUIREMENT_MAP.each do |adapter, library|
+      ::MultiJson::REQUIREMENT_MAP.each do |adapter, library|
         require library
         return adapter
       rescue ::LoadError
@@ -57,10 +71,10 @@ module MultiJson
     end
 
     def load_adapter_from_string_name(name)
-      normalized_name = ALIASES.fetch(name, name).to_s
+      normalized_name = ALIASES.fetch(name, name)
       require_relative "adapters/#{normalized_name.downcase}"
       klass_name = normalized_name.split("_").map(&:capitalize).join
-      MultiJson::Adapters.const_get(klass_name)
+      ::MultiJson::Adapters.const_get(klass_name)
     end
   end
 end

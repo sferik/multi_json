@@ -11,11 +11,11 @@ module MultiJson
     end
 
     def load_options(...)
-      (defined?(@load_options) && get_options(@load_options, ...)) || default_load_options
+      get_options(@load_options, ...) || default_load_options
     end
 
     def dump_options(...)
-      (defined?(@dump_options) && get_options(@dump_options, ...)) || default_dump_options
+      get_options(@dump_options, ...) || default_dump_options
     end
 
     def default_load_options
@@ -43,7 +43,7 @@ module MultiJson
     end
 
     def handle_hashable_options(options)
-      options.respond_to?(:to_hash) ? options.to_hash : nil
+      options.to_hash if options.respond_to?(:to_hash)
     end
   end
 end
