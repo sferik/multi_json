@@ -10,7 +10,7 @@ Here are some ways *you* can contribute:
 * by reporting bugs
 * by suggesting new features
 * by writing or editing documentation
-* by writing specifications
+* by writing tests
 * by writing code (**no patch is too small**: fix typos, add comments, clean up
   inconsistent whitespace)
 * by refactoring code
@@ -25,17 +25,17 @@ submitting a bug report or feature request, check to make sure it hasn't
 already been submitted. When submitting a bug report, please include a [Gist][]
 that includes a stack trace and any details that may be necessary to reproduce
 the bug, including your gem version, Ruby version, and operating system.
-Ideally, a bug report should include a pull request with failing specs.
+Ideally, a bug report should include a pull request with failing tests.
 
 [gist]: https://gist.github.com/
 
 ## Submitting a Pull Request
 1. [Fork the repository.][fork]
 2. [Create a topic branch.][branch]
-3. Add specs for your unimplemented feature or bug fix.
-4. Run `bundle exec rake spec`. If your specs pass, return to step 3.
+3. Add tests for your unimplemented feature or bug fix.
+4. Run `bundle exec rake test`. If your tests pass, return to step 3.
 5. Implement your feature or bug fix.
-6. Run `bundle exec rake spec`. If your specs fail, return to step 5.
+6. Run `bundle exec rake test`. If your tests fail, return to step 5.
 7. Run `open coverage/index.html`. If your changes are not completely covered
    by your tests, return to step 3.
 8. Add, commit, and push your changes.
