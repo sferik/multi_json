@@ -1,42 +1,43 @@
 require "spec_helper"
-return unless RSpec.configuration.oj?
-
 require "shared/adapter"
-require "multi_json/adapters/oj"
 
-RSpec.describe MultiJson::Adapters::Oj, :oj do
-  it_behaves_like "an adapter", described_class
+if RSpec.configuration.oj?
+  require "multi_json/adapters/oj"
 
-  describe ".dump" do
-    describe "#dump_options" do
-      around { |example| with_default_options(&example) }
+  RSpec.describe MultiJson::Adapters::Oj, :oj do
+    it_behaves_like "an adapter", described_class
 
-      it "ensures indent is a Fixnum" do
-        expect { MultiJson.dump(42, indent: "") }.not_to raise_error
+    describe ".dump" do
+      describe "#dump_options" do
+        around { |example| with_default_options(&example) }
+
+        it "ensures indent is a Fixnum" do
+          expect { MultiJson.dump(42, indent: "") }.not_to raise_error
+        end
       end
     end
-  end
 
-  it "Oj does not create symbols on parse" do
-    MultiJson.load('{"json_class":"ZOMG"}')
+    it "Oj does not create symbols on parse" do
+      MultiJson.load('{"json_class":"ZOMG"}')
 
-    expect do
-      MultiJson.load('{"json_class":"OMG"}')
-    end.not_to(change { Symbol.all_symbols.count })
-  end
-
-  context "with Oj.default_settings" do
-    around do |example|
-      options = Oj.default_options
-      Oj.default_options = {symbol_keys: true}
-      example.call
-      Oj.default_options = options
+      expect do
+        MultiJson.load('{"json_class":"OMG"}')
+      end.not_to(change { Symbol.all_symbols.count })
     end
 
-    it "ignores global settings" do
-      example = '{"a": 1, "b": 2}'
-      expected = {"a" => 1, "b" => 2}
-      expect(MultiJson.load(example)).to eq(expected)
+    context "with Oj.default_settings" do
+      around do |example|
+        options = Oj.default_options
+        Oj.default_options = {symbol_keys: true}
+        example.call
+        Oj.default_options = options
+      end
+
+      it "ignores global settings" do
+        example = '{"a": 1, "b": 2}'
+        expected = {"a" => 1, "b" => 2}
+        expect(MultiJson.load(example)).to eq(expected)
+      end
     end
   end
 end
