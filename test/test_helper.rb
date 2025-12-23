@@ -116,6 +116,53 @@ module TestHelpers
     MultiJson.remove_instance_variable(:@default_adapter_warning_shown)
   end
 
+  # Custom adapter that verifies exact argument signatures
+  class StrictAdapter
+    class ParseError < StandardError; end
+
+    class << self
+      attr_accessor :load_calls, :dump_calls
+
+      def reset_calls
+        @load_calls = []
+        @dump_calls = []
+      end
+
+      def load(string, options = nil)
+        raise ArgumentError, "load requires exactly 2 arguments" if options.nil?
+        raise ArgumentError, "string cannot be nil" if string.nil?
+
+        @load_calls ||= []
+        @load_calls << {string: string, options: options}
+
+        return symbolize_keys(JSON.parse(string)) if options[:symbolize_keys]
+
+        JSON.parse(string)
+      rescue JSON::ParserError => e
+        raise ParseError, e.message
+      end
+
+      def dump(object, options = nil)
+        raise ArgumentError, "dump requires exactly 2 arguments" if options.nil?
+        raise ArgumentError, "object cannot be nil" if object.nil?
+
+        @dump_calls ||= []
+        @dump_calls << {object: object, options: options}
+        JSON.generate(object)
+      end
+
+      private
+
+      def symbolize_keys(hash)
+        return hash unless hash.is_a?(Hash)
+
+        hash.each_with_object({}) do |(k, v), h|
+          h[k.to_sym] = symbolize_keys(v)
+        end
+      end
+    end
+  end
+
   def expected_default_adapter
     if java? && jrjackson? then "MultiJson::Adapters::JrJackson"
     elsif java? && json? then "MultiJson::Adapters::JsonGem"
