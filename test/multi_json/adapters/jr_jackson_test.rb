@@ -5,6 +5,8 @@ if TestHelpers.jrjackson?
   require "multi_json/adapters/jr_jackson"
 
   class JrJacksonAdapterTest < Minitest::Test
+    cover "MultiJson*"
+
     include AdapterTests
 
     def adapter_class

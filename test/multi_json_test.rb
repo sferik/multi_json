@@ -19,6 +19,8 @@ module MultiJsonTestSetup
 end
 
 class MultiJsonAdapterSelectionTest < Minitest::Test
+  cover "MultiJson*"
+
   include MultiJsonTestSetup
 
   def test_defaults_to_best_available_gem
@@ -88,6 +90,8 @@ class MultiJsonAdapterSelectionTest < Minitest::Test
 end
 
 class MultiJsonBehaviorTest < Minitest::Test
+  cover "MultiJson*"
+
   include MultiJsonTestSetup
 
   def test_defaults_to_ok_json_when_no_adapters_available
@@ -191,6 +195,8 @@ class MultiJsonBehaviorTest < Minitest::Test
 end
 
 class MultiJsonOptionsTest < Minitest::Test
+  cover "MultiJson*"
+
   include OptionsTests
 
   def subject

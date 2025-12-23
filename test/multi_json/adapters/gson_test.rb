@@ -5,6 +5,8 @@ if TestHelpers.gson?
   require "multi_json/adapters/gson"
 
   class GsonAdapterTest < Minitest::Test
+    cover "MultiJson*"
+
     include AdapterTests
 
     def adapter_class

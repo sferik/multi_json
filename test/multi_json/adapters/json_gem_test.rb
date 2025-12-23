@@ -7,6 +7,8 @@ require "rbconfig"
 require "tempfile"
 
 class JsonGemAdapterTest < Minitest::Test
+  cover "MultiJson*"
+
   include AdapterTests
   include JsonCommonAdapterTests
 
@@ -71,6 +73,8 @@ class JsonGemAdapterTest < Minitest::Test
 end
 
 class JsonGemWithActiveSupportTest < Minitest::Test
+  cover "MultiJson*"
+
   def setup
     MultiJson.use MultiJson::Adapters::JsonGem
   end
