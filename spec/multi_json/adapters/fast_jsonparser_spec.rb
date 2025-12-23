@@ -1,9 +1,10 @@
 require "spec_helper"
-return unless RSpec.configuration.respond_to?(:fast_jsonparser?) && RSpec.configuration.fast_jsonparser?
-
 require "shared/adapter"
-require "multi_json/adapters/fast_jsonparser"
 
-RSpec.describe MultiJson::Adapters::FastJsonparser, :fast_jsonparser do
-  it_behaves_like "an adapter", described_class
+if RSpec.configuration.fast_jsonparser?
+  require "multi_json/adapters/fast_jsonparser"
+
+  RSpec.describe MultiJson::Adapters::FastJsonparser, :fast_jsonparser do
+    it_behaves_like "an adapter", described_class
+  end
 end

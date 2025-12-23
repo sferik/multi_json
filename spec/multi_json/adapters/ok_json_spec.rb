@@ -1,6 +1,4 @@
 require "spec_helper"
-return unless RSpec.configuration.ok_json?
-
 require "shared/adapter"
 require "multi_json/adapters/ok_json"
 
