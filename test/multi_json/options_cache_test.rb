@@ -1,6 +1,8 @@
 require_relative "../test_helper"
 
 class OptionsCacheTest < Minitest::Test
+  cover "MultiJson::OptionsCache*"
+
   def setup
     MultiJson::OptionsCache.reset
     max = MultiJson::OptionsCache::MAX_CACHE_SIZE

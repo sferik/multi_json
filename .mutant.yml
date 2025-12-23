@@ -1,0 +1,19 @@
+usage: opensource
+
+integration:
+  name: minitest
+
+matcher:
+  subjects:
+    - "MultiJson*"
+  ignore:
+    - "MultiJson::Adapters::OkJson*"
+    - "MultiJson::Adapters::Gson*"
+    - "MultiJson::Adapters::JrJackson*"
+    - "MultiJson::Vendor*"
+
+requires:
+  - multi_json
+
+mutation:
+  timeout: 10.0

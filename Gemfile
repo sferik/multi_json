@@ -4,6 +4,7 @@ gem "activesupport", require: false
 gem "json", "~> 2.0", require: false
 
 gem "minitest", ">= 5.20"
+gem "mutant-minitest", ">= 0.12"
 gem "rake", ">= 13.1"
 gem "rubocop", ">= 1.62.1"
 gem "rubocop-minitest", ">= 0.35"

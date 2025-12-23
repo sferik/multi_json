@@ -5,6 +5,8 @@ if TestHelpers.fast_jsonparser?
   require "multi_json/adapters/fast_jsonparser"
 
   class FastJsonparserAdapterTest < Minitest::Test
+    cover "MultiJson*"
+
     include AdapterTests
 
     def adapter_class

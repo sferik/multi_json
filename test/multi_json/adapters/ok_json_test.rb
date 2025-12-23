@@ -3,6 +3,8 @@ require_relative "../../support/adapter_tests"
 require "multi_json/adapters/ok_json"
 
 class OkJsonAdapterTest < Minitest::Test
+  cover "MultiJson*"
+
   include AdapterTests
 
   def adapter_class

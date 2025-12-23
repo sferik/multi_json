@@ -1,6 +1,7 @@
 require "bundler/setup"
 require "multi_json"
 require "minitest/autorun"
+require "mutant/minitest/coverage"
 
 module TestHelpers
   module_function

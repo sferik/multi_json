@@ -5,6 +5,8 @@ if TestHelpers.yajl?
   require "multi_json/adapters/yajl"
 
   class YajlAdapterTest < Minitest::Test
+    cover "MultiJson*"
+
     include AdapterTests
 
     def adapter_class
