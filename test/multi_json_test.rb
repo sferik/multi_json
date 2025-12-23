@@ -65,6 +65,10 @@ class MultiJsonAdapterSelectionTest < Minitest::Test
     assert_raises(MultiJson::AdapterError) { MultiJson.use "bad adapter" }
   end
 
+  def test_throws_adapter_error_on_invalid_type
+    assert_raises(MultiJson::AdapterError) { MultiJson.use 12_345 }
+  end
+
   def test_gives_access_to_original_error_when_raising_adapter_error
     exception = get_exception(MultiJson::AdapterError) { MultiJson.use "foobar" }
 
@@ -102,12 +106,46 @@ class MultiJsonBehaviorTest < Minitest::Test
     end
   end
 
+  def test_finds_installable_adapter_when_none_preloaded
+    # Undefine adapter constants so loaded_adapter returns nil,
+    # but keep REQUIREMENT_MAP intact so installable_adapter can require them
+    undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
+      clear_default_adapter_warning
+
+      # This will trigger installable_adapter since no constants are defined
+      adapter = silence_warnings { MultiJson.default_adapter }
+
+      # Should find the first installable adapter from REQUIREMENT_MAP
+      assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], adapter
+    end
+  end
+
   def test_prints_warning_when_no_adapters_available
     simulate_no_adapters { assert_warns_about_no_adapters(times: 1) }
   end
 
   def test_warns_only_once_when_no_adapters_available
     simulate_no_adapters { assert_warns_about_no_adapters(times: 1) { MultiJson.default_adapter } }
+  end
+
+  def test_fallback_adapter_skips_warning_when_already_shown
+    simulate_no_adapters do
+      clear_default_adapter_warning
+
+      # First call - shows warning and sets @default_adapter_warning_shown
+      silence_warnings { MultiJson.default_adapter }
+
+      # Clear @default_adapter but keep @default_adapter_warning_shown
+      MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+
+      # Second call should NOT warn (exercises else branch at line 17)
+      warn_count = 0
+      with_stub(Kernel, :warn, ->(msg) { warn_count += 1 if /warning/i.match?(msg) }) do
+        MultiJson.default_adapter
+      end
+
+      assert_equal 0, warn_count
+    end
   end
 
   def test_busts_caches_on_global_options_change
@@ -135,17 +173,6 @@ class MultiJsonBehaviorTest < Minitest::Test
 
       assert_equal original_count, Symbol.all_symbols.count
     end
-  end
-
-  def test_default_options_is_deprecated
-    warned = false
-    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
-      silence_warnings { MultiJson.default_options = {foo: "bar"} }
-    end
-
-    assert warned
-  ensure
-    MultiJson.load_options = MultiJson.dump_options = nil
   end
 
   private
@@ -201,6 +228,163 @@ class MultiJsonOptionsTest < Minitest::Test
 
   def subject
     MultiJson
+  end
+end
+
+class MultiJsonDeprecatedMethodsTest < Minitest::Test
+  cover "MultiJson*"
+
+  def test_default_options_setter_is_deprecated
+    warned = false
+    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+      silence_warnings { MultiJson.default_options = {foo: "bar"} }
+    end
+
+    assert warned
+  ensure
+    MultiJson.load_options = MultiJson.dump_options = nil
+  end
+
+  def test_default_options_getter_is_deprecated
+    warned = false
+    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+      silence_warnings { MultiJson.default_options }
+    end
+
+    assert warned
+  end
+
+  def test_cached_options_is_deprecated
+    warned = false
+    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+      silence_warnings { MultiJson.cached_options }
+    end
+
+    assert warned
+  end
+
+  def test_reset_cached_options_is_deprecated
+    warned = false
+    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+      silence_warnings { MultiJson.reset_cached_options! }
+    end
+
+    assert warned
+  end
+end
+
+class MultiJsonErrorsTest < Minitest::Test
+  cover "MultiJson*"
+
+  def test_adapter_error_without_cause
+    error = MultiJson::AdapterError.new("test message")
+
+    assert_equal "test message", error.message
+    assert_nil error.backtrace
+  end
+
+  def test_adapter_error_with_cause
+    cause = StandardError.new("original")
+    cause.set_backtrace(%w[line1 line2])
+    error = MultiJson::AdapterError.new("test message", cause: cause)
+
+    assert_equal "test message", error.message
+    assert_equal %w[line1 line2], error.backtrace
+  end
+
+  def test_parse_error_without_cause
+    error = MultiJson::ParseError.new("test message", data: "{invalid}")
+
+    assert_equal "test message", error.message
+    assert_equal "{invalid}", error.data
+    assert_nil error.backtrace
+  end
+
+  def test_parse_error_with_cause
+    cause = StandardError.new("original")
+    cause.set_backtrace(%w[line1 line2])
+    error = MultiJson::ParseError.new("test message", data: "{bad}", cause: cause)
+
+    assert_equal "test message", error.message
+    assert_equal "{bad}", error.data
+    assert_equal %w[line1 line2], error.backtrace
+  end
+end
+
+class MultiJsonAdapterDetectionTest < Minitest::Test
+  cover "MultiJson*"
+
+  include MultiJsonTestSetup
+
+  def test_loaded_adapter_detects_oj
+    skip unless defined?(::Oj)
+    undefine_constants(:FastJsonparser) do
+      clear_default_adapter_warning
+      adapter = silence_warnings { MultiJson.default_adapter }
+
+      assert_equal :oj, adapter
+    end
+  end
+
+  def test_loaded_adapter_detects_yajl
+    skip unless defined?(::Yajl)
+    undefine_constants(:FastJsonparser, :Oj) do
+      clear_default_adapter_warning
+      adapter = silence_warnings { MultiJson.default_adapter }
+
+      assert_equal :yajl, adapter
+    end
+  end
+
+  def test_loaded_adapter_detects_json_gem
+    skip unless defined?(::JSON::Ext::Parser)
+    undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
+      clear_default_adapter_warning
+      adapter = silence_warnings { MultiJson.default_adapter }
+
+      assert_equal :json_gem, adapter
+    end
+  end
+
+  def test_loaded_adapter_detects_jr_jackson
+    undefine_constants(:FastJsonparser, :Oj, :Yajl) do
+      with_temporary_constant(:JrJackson) do
+        clear_default_adapter_warning
+        adapter = silence_warnings { MultiJson.default_adapter }
+
+        assert_equal :jr_jackson, adapter
+      end
+    end
+  end
+
+  def test_loaded_adapter_detects_gson
+    undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
+      with_json_ext_parser_removed do
+        with_temporary_constant(:Gson) do
+          clear_default_adapter_warning
+          adapter = silence_warnings { MultiJson.default_adapter }
+
+          assert_equal :gson, adapter
+        end
+      end
+    end
+  end
+
+  private
+
+  def with_temporary_constant(name)
+    Object.const_set(name, Module.new)
+    yield
+  ensure
+    Object.send(:remove_const, name) if Object.const_defined?(name)
+  end
+
+  def with_json_ext_parser_removed
+    json_ext_parser = defined?(::JSON::Ext::Parser) ? ::JSON::Ext::Parser : nil
+    JSON::Ext.send(:remove_const, :Parser) if json_ext_parser
+    yield
+  ensure
+    JSON::Ext.const_set(:Parser, json_ext_parser) if json_ext_parser && !defined?(::JSON::Ext::Parser)
   end
 end
 
