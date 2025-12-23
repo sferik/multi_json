@@ -1,4 +1,23 @@
 require "bundler/setup"
+
+unless ENV["MUTANT"]
+  require "simplecov"
+  SimpleCov.start do
+    add_filter "/test/"
+    add_filter "/vendor/"
+    # Oj v2 compatibility code - cannot be tested with Oj v3
+    add_filter "lib/multi_json/adapters/oj_common.rb"
+
+    # JRuby doesn't support branch coverage
+    if RUBY_PLATFORM == "java"
+      minimum_coverage line: 100
+    else
+      enable_coverage :branch
+      minimum_coverage line: 100, branch: 100
+    end
+  end
+end
+
 require "multi_json"
 require "minitest/autorun"
 require "mutant/minitest/coverage"
