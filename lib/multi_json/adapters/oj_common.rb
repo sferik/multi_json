@@ -22,6 +22,14 @@ module MultiJson
 
       private
 
+      # Prepare options for Oj.dump based on Oj version
+      #
+      # @api private
+      # @param options [Hash] serialization options
+      # @return [Hash] processed options for Oj.dump
+      #
+      # @example Prepare dump options
+      #   prepare_dump_options(pretty: true)
       def prepare_dump_options(options)
         if OJ_V2
           options[:indent] = 2 if options[:pretty]

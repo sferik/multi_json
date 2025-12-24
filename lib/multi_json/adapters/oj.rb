@@ -22,16 +22,42 @@ module MultiJson
         WRAPPED_CLASSES = %w[Oj::ParseError JSON::ParserError].freeze
         private_constant :WRAPPED_CLASSES
 
+        # Case equality for exception matching in rescue clauses
+        #
+        # @api private
+        # @param exception [Exception] exception to check
+        # @return [Boolean] true if exception is a parse error
+        #
+        # @example Match parse errors in rescue
+        #   rescue ParseError => e
         def self.===(exception)
           exception.is_a?(::SyntaxError) || WRAPPED_CLASSES.include?(exception.class.to_s)
         end
       end
 
+      # Parse a JSON string into a Ruby object
+      #
+      # @api private
+      # @param string [String] JSON string to parse
+      # @param options [Hash] parsing options
+      # @return [Object] parsed Ruby object
+      #
+      # @example Parse JSON string
+      #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
         options[:symbol_keys] = options[:symbolize_keys]
         ::Oj.load(string, options)
       end
 
+      # Serialize a Ruby object to JSON
+      #
+      # @api private
+      # @param object [Object] object to serialize
+      # @param options [Hash] serialization options
+      # @return [String] JSON string
+      #
+      # @example Serialize object to JSON
+      #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
       def dump(object, options = {})
         ::Oj.dump(object, prepare_dump_options(options))
       end

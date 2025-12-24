@@ -26,7 +26,6 @@ Yardstick::Rake::Measurement.new(:yardstick_measure) do |measurement|
   measurement.output = "doc/coverage.txt"
   measurement.path = Rake::FileList.new("lib/**/*.rb") do |list|
     list.exclude("lib/multi_json/vendor/**/*.rb")
-    list.exclude("lib/multi_json/adapters/**/*.rb")
   end
 end
 
@@ -36,7 +35,6 @@ Yardstick::Rake::Verify.new(:yardstick) do |verify|
   verify.require_exact_threshold = true
   verify.path = Rake::FileList.new("lib/**/*.rb") do |list|
     list.exclude("lib/multi_json/vendor/**/*.rb")
-    list.exclude("lib/multi_json/adapters/**/*.rb")
   end
 end
 
