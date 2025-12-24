@@ -20,4 +20,4 @@ task :mutant do
 end
 
 desc "Run the default task"
-task default: %i[test lint]
+task default: %i[test lint mutant]
