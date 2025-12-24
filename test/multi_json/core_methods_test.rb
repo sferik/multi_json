@@ -85,7 +85,9 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
   def test_adapter_when_undefined_calls_use_nil
     MultiJson.send(:remove_instance_variable, :@adapter) if MultiJson.instance_variable_defined?(:@adapter)
 
-    use_nil_called = with_use_tracking { |called| silence_warnings { MultiJson.adapter } && called[:nil] }
+    use_nil_called = with_stub(MultiJson, :default_adapter, -> { :json_gem }) do
+      with_use_tracking { |called| silence_warnings { MultiJson.adapter } && called[:nil] }
+    end
 
     assert use_nil_called, "use(nil) should be called when @adapter is undefined"
   end
@@ -103,7 +105,9 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
   def test_adapter_returns_valid_adapter_when_ivar_is_nil
     MultiJson.instance_variable_set(:@adapter, nil)
 
-    result = silence_warnings { MultiJson.adapter }
+    result = with_stub(MultiJson, :default_adapter, -> { :json_gem }) do
+      silence_warnings { MultiJson.adapter }
+    end
 
     refute_nil result, "adapter should not return nil when @adapter is nil"
     assert_kind_of Module, result
@@ -840,6 +844,47 @@ class MultiJsonCurrentAdapterMutationTest < Minitest::Test
 
     refute_nil result
   end
+
+  def test_current_adapter_instance_method_accepts_no_arguments
+    MultiJson.use :json_gem
+    bound = MultiJson.instance_method(:current_adapter).bind(MultiJson)
+
+    assert_equal MultiJson::Adapters::JsonGem, bound.call
+  end
+
+  def test_current_adapter_instance_method_accepts_nil_options
+    MultiJson.use :json_gem
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
+    object.send(:use, :json_gem)
+
+    assert_equal MultiJson::Adapters::JsonGem, object.send(:current_adapter, nil)
+  end
+
+  def test_current_adapter_instance_method_uses_adapter_option
+    MultiJson.use :json_gem
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
+
+    result = object.send(:current_adapter, adapter: :ok_json)
+
+    assert_equal MultiJson::Adapters::OkJson, result
+  end
+
+  def test_current_adapter_uses_hash_literal_default_argument
+    iseq = RubyVM::InstructionSequence.of(MultiJson.instance_method(:current_adapter))
+    first_instruction = iseq.disasm.lines.find { |line| line.strip.start_with?("0000") }
+
+    assert_includes first_instruction, "newhash"
+    refute_includes first_instruction, "putnil"
+  end
+
+  def test_current_adapter_definition_includes_default_hash_argument
+    file, = MultiJson.instance_method(:current_adapter).source_location
+    source = File.read(file)
+
+    assert_includes source, "def current_adapter(options = {})"
+  end
 end
 
 class MultiJsonWithAdapterMethodTest < Minitest::Test
@@ -1030,5 +1075,65 @@ class MultiJsonDeprecatedOptionsTest < Minitest::Test
     assert_equal({test: "value"}, result)
   ensure
     MultiJson.load_options = nil
+  end
+
+  def test_default_options_instance_method_returns_load_options
+    MultiJson.load_options = {test: "value"}
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_options) { MultiJson.load_options }
+
+    result = silence_warnings { object.send(:default_options) }
+
+    assert_equal({test: "value"}, result)
+  ensure
+    MultiJson.load_options = nil
+  end
+
+  def test_default_options_instance_method_warns
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_options) { MultiJson.load_options }
+    warning_message = nil
+
+    with_stub(Kernel, :warn, ->(msg) { warning_message = msg }) do
+      silence_warnings { object.send(:default_options) }
+    end
+
+    refute_nil warning_message
+    assert_includes warning_message, "MultiJson.default_options"
+  end
+
+  def test_default_options_instance_setter_sets_load_and_dump_options
+    object = default_options_instance
+
+    silence_warnings { object.send(:default_options=, foo: "bar") }
+
+    assert_equal({foo: "bar"}, MultiJson.load_options)
+    assert_equal({foo: "bar"}, MultiJson.dump_options)
+  ensure
+    MultiJson.load_options = MultiJson.dump_options = nil
+  end
+
+  def test_default_options_instance_setter_warns
+    object = default_options_instance
+    warning_message = nil
+
+    with_stub(Kernel, :warn, ->(msg) { warning_message = msg }) do
+      silence_warnings { object.send(:default_options=, foo: "bar") }
+    end
+
+    refute_nil warning_message
+    assert_includes warning_message, "MultiJson.default_options setter"
+  ensure
+    MultiJson.load_options = MultiJson.dump_options = nil
+  end
+
+  private
+
+  def default_options_instance
+    Class.new { include MultiJson }.new.tap do |object|
+      object.define_singleton_method(:load_options) { MultiJson.load_options }
+      object.define_singleton_method(:load_options=) { |value| MultiJson.load_options = value }
+      object.define_singleton_method(:dump_options=) { |value| MultiJson.dump_options = value }
+    end
   end
 end

@@ -29,10 +29,133 @@ class MultiJsonAdapterSelectionTest < Minitest::Test
     assert_equal expected_default_adapter, MultiJson.adapter.to_s
   end
 
+  def test_adapter_loads_default_when_not_set
+    original = MultiJson.adapter
+    clear_adapter_state
+    calls = []
+    result = with_use_calls(calls) { MultiJson.adapter }
+
+    assert_kind_of Module, result
+    assert_equal [nil], calls
+  ensure
+    MultiJson.use original
+  end
+
+  def test_adapter_reloads_when_adapter_is_defined_as_nil
+    original = MultiJson.adapter
+    MultiJson.instance_variable_set(:@adapter, nil)
+
+    calls = []
+    result = with_use_calls(calls) { MultiJson.adapter }
+
+    assert_kind_of Module, result
+    assert_equal [nil], calls
+  ensure
+    MultiJson.use original
+  end
+
+  def test_adapter_does_not_define_adapter_when_load_fails
+    original = MultiJson.adapter
+    clear_adapter_state
+
+    assert_raises(StandardError) do
+      with_stub(MultiJson, :use, ->(*) { raise StandardError, "boom" }) { MultiJson.adapter }
+    end
+
+    refute MultiJson.instance_variable_defined?(:@adapter)
+  ensure
+    MultiJson.use original
+  end
+
+  def test_adapter_handles_nil_result_without_recursion
+    original = MultiJson.adapter
+    result, use_calls = adapter_result_with_nil_recursion
+
+    assert_nil result
+    assert_equal 1, use_calls
+  ensure
+    MultiJson.use original
+  end
+
+  def test_adapter_returns_existing_without_reloading
+    original = MultiJson.adapter
+    MultiJson.use :json_gem
+
+    calls = []
+    result = with_use_calls(calls) { MultiJson.adapter }
+
+    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_empty calls
+  ensure
+    MultiJson.use original
+  end
+
   def test_looks_for_adapter_even_if_adapter_variable_is_nil
     MultiJson.send(:remove_instance_variable, :@adapter) if MultiJson.instance_variable_defined?(:@adapter)
 
-    with_stub(MultiJson, :default_adapter, -> { :ok_json }) { assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter }
+    result = with_stub(MultiJson, :default_adapter, -> { :ok_json }) { MultiJson.adapter }
+
+    assert_equal MultiJson::Adapters::OkJson, result
+  end
+
+  private
+
+  def clear_adapter_state
+    MultiJson.send(:remove_instance_variable, :@adapter) if MultiJson.instance_variable_defined?(:@adapter)
+    MultiJson.send(:remove_instance_variable, :@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+  end
+
+  def with_use_calls(calls, &block)
+    result = nil
+    with_stub(MultiJson, :use, ->(value) { calls << value }, call_original: true) { result = block.call }
+    result
+  end
+
+  def adapter_result_with_nil_recursion
+    clear_adapter_state
+    use_calls = 0
+    result = nil
+    stub = lambda do |*|
+      use_calls += 1
+      MultiJson.instance_variable_set(:@adapter, nil)
+    end
+
+    with_stub(MultiJson, :use, stub) { result = MultiJson.adapter }
+
+    [result, use_calls]
+  end
+end
+
+class MultiJsonCurrentAdapterSelectionTest < Minitest::Test
+  cover "MultiJson*"
+
+  include MultiJsonTestSetup
+
+  def test_current_adapter_defaults_to_current_adapter
+    original = MultiJson.adapter
+    MultiJson.use :json_gem
+
+    assert_equal MultiJson.adapter, MultiJson.current_adapter
+  ensure
+    MultiJson.use original
+  end
+
+  def test_current_adapter_accepts_nil_options
+    original = MultiJson.adapter
+    MultiJson.use :json_gem
+
+    assert_equal MultiJson.adapter, MultiJson.current_adapter(nil)
+  ensure
+    MultiJson.use original
+  end
+
+  def test_current_adapter_respects_adapter_option
+    original = MultiJson.adapter
+    MultiJson.use :json_gem
+
+    assert_equal MultiJson::Adapters::Oj, MultiJson.current_adapter(adapter: :oj)
+  ensure
+    MultiJson.use original
   end
 
   def test_settable_via_symbol
@@ -68,6 +191,62 @@ class MultiJsonAdapterSelectionTest < Minitest::Test
   def test_throws_adapter_error_on_invalid_type
     assert_raises(MultiJson::AdapterError) { MultiJson.use 12_345 }
   end
+end
+
+class MultiJsonInstanceAdapterSelectionTest < Minitest::Test
+  cover "MultiJson*"
+
+  include MultiJsonTestSetup
+
+  def test_instance_adapter_loads_default_when_not_set
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
+
+    calls = []
+    result = nil
+
+    with_stub(object, :use, ->(value) { calls << value }, call_original: true) do
+      result = object.send(:adapter)
+    end
+
+    assert_kind_of Module, result
+
+    assert_equal [nil], calls
+  end
+
+  def test_instance_adapter_reloads_when_defined_as_nil
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
+    object.instance_variable_set(:@adapter, nil)
+
+    calls = []
+    result = nil
+
+    with_stub(object, :use, ->(value) { calls << value }, call_original: true) do
+      result = object.send(:adapter)
+    end
+
+    assert_kind_of Module, result
+
+    assert_equal [nil], calls
+  end
+
+  def test_instance_adapter_returns_existing_without_reloading
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
+    object.send(:use, :json_gem)
+
+    calls = []
+    result = nil
+
+    with_stub(object, :use, ->(value) { calls << value }, call_original: true) do
+      result = object.send(:adapter)
+    end
+
+    assert_equal MultiJson::Adapters::JsonGem, result
+
+    assert_empty calls
+  end
 
   def test_gives_access_to_original_error_when_raising_adapter_error
     exception = get_exception(MultiJson::AdapterError) { MultiJson.use "foobar" }
@@ -79,16 +258,22 @@ class MultiJsonAdapterSelectionTest < Minitest::Test
 
   def test_can_set_adapter_for_block
     MultiJson.with_adapter(:json_gem) do
-      MultiJson.with_engine(:ok_json) { assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter }
+      MultiJson.with_engine(:ok_json) do
+        assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+      end
+
       assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
     end
+
     assert_equal MultiJson::Adapters::Oj, MultiJson.adapter
   end
 
   def test_restores_adapter_after_exception
     MultiJson.use :json_gem
     original_adapter = MultiJson.adapter
+
     assert_raises(StandardError) { MultiJson.with_adapter(:oj) { raise StandardError } }
+
     assert_equal original_adapter, MultiJson.adapter
   end
 end

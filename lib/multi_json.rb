@@ -46,11 +46,7 @@ module MultiJson
 
   # Get the current adapter class.
   def adapter
-    return @adapter if defined?(@adapter) && @adapter
-
-    use nil # load default adapter
-
-    @adapter
+    @adapter ||= use(nil)
   end
   alias_method :engine, :adapter
 
@@ -74,6 +70,8 @@ module MultiJson
   alias_method :decode, :load
 
   def current_adapter(options = {})
+    options ||= {}
+
     if (new_adapter = options[:adapter])
       load_adapter(new_adapter)
     else
