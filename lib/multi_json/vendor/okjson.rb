@@ -391,7 +391,7 @@ module MultiJson
     end
 
     def strenc(s)
-      t = StringIO.new
+      t = StringIO.new(String.new(encoding: Encoding::UTF_8))
       t.putc('"')
       r = 0
 
