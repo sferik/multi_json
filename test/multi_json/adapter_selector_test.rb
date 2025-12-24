@@ -1247,6 +1247,7 @@ class AdapterSelectorAliasesFetchMutationTest < Minitest::Test
   # With "jrjackson", original returns "jr_jackson", mutation returns "jrjackson"
   # The file is at adapters/jr_jackson.rb, so mutation would fail to load it
   def test_load_adapter_from_string_name_uses_alias_key_not_nil
+    skip "jrjackson gem is available on JRuby so no LoadError is raised" if java?
     error = assert_raises(LoadError) { @instance.send(:load_adapter_from_string_name, "jrjackson") }
 
     # Original code: ALIASES.fetch("jrjackson", "jrjackson") returns "jr_jackson"

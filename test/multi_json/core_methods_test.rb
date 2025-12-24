@@ -1256,6 +1256,8 @@ class MultiJsonCurrentAdapterMutationTest < Minitest::Test
   end
 
   def test_current_adapter_uses_hash_literal_default_argument
+    skip "RubyVM::InstructionSequence not available on JRuby" if java?
+
     iseq = RubyVM::InstructionSequence.of(MultiJson.instance_method(:current_adapter))
     first_instruction = iseq.disasm.lines.find { |line| line.strip.start_with?("0000") }
 

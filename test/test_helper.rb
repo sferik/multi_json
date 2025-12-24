@@ -7,6 +7,8 @@ unless ENV["MUTANT"]
     add_filter "/vendor/"
     # Oj v2 compatibility code - cannot be tested with Oj v3
     add_filter "lib/multi_json/adapters/oj_common.rb"
+    # JrJackson arity compatibility code - only one branch can run per version
+    add_filter "lib/multi_json/adapters/jr_jackson.rb"
 
     # JRuby doesn't support branch coverage
     if RUBY_PLATFORM == "java"
