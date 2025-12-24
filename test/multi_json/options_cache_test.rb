@@ -90,20 +90,20 @@ class OptionsCacheTest < Minitest::Test
     [key_added, continue_fetch]
   end
 
-  def test_store_value_returns_existing_when_race_condition
+  def test_store_returns_existing_when_race_condition
     # This tests the race condition branch at line 36:
-    # Value gets stored by another thread between line 23 check and store_value call
+    # Value gets stored by another thread between line 23 check and store call
     store = MultiJson::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
 
     # We need to trigger the scenario where:
     # 1. Thread A passes line 23 check (key doesn't exist)
     # 2. Thread B adds the key to cache
-    # 3. Thread A calls store_value, which checks again at line 36
+    # 3. Thread A calls store, which checks again at line 36
 
-    # To test this directly, we call store_value via send when key exists
+    # To test this directly, we call store via send when key exists
     cache[:direct_key] = "existing_value"
-    result = store.send(:store_value, :direct_key, "new_value")
+    result = store.send(:store, :direct_key, "new_value")
 
     # Should return existing value, not store new value
     assert_equal "existing_value", result
@@ -211,7 +211,7 @@ class OptionsCacheBasicMutationTest < Minitest::Test
     assert_nil store.fetch(:key2, nil)
   end
 
-  def test_store_value_adds_to_cache
+  def test_store_adds_to_cache
     store = MultiJson::OptionsCache::Store.new
 
     store.fetch(:key) { "stored" }
@@ -230,7 +230,7 @@ class OptionsCacheSizeTest < Minitest::Test
     MultiJson::OptionsCache.reset
   end
 
-  def test_store_value_shifts_when_at_max_size
+  def test_store_shifts_when_at_max_size
     store = MultiJson::OptionsCache::Store.new
     max = MultiJson::OptionsCache::MAX_CACHE_SIZE
 
@@ -265,7 +265,7 @@ class OptionsCacheSizeTest < Minitest::Test
     refute cache.key?(:key0)
   end
 
-  def test_store_value_checks_cache_size
+  def test_store_checks_cache_size
     store = MultiJson::OptionsCache::Store.new
     max = MultiJson::OptionsCache::MAX_CACHE_SIZE
 
@@ -454,7 +454,7 @@ class OptionsCacheLookupTest < Minitest::Test
     assert_equal "from_other_thread", result
   end
 
-  def test_store_value_returns_stored_value
+  def test_store_returns_stored_value
     store = MultiJson::OptionsCache::Store.new
 
     result = store.fetch(:key) { "stored" }
@@ -708,15 +708,15 @@ class OptionsCacheFetchInnerCheckMutationTest < Minitest::Test
     store = MultiJson::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:return_test] = "early_return_value"
-    store_value_called = track_store_value_call(store) { store.fetch(:return_test) { "should_not_store" } }
+    store_called = track_store_call(store) { store.fetch(:return_test) { "should_not_store" } }
 
-    refute store_value_called, "store_value should not be called when returning from inner check"
+    refute store_called, "store should not be called when returning from inner check"
     assert_equal "early_return_value", cache[:return_test]
   end
 
-  def track_store_value_call(store)
+  def track_store_call(store)
     called = false
-    store.define_singleton_method(:store_value) { |key, value| (called = true) && super(key, value) }
+    store.define_singleton_method(:store) { |key, value| (called = true) && super(key, value) }
     yield
     called
   end
@@ -725,7 +725,7 @@ end
 class OptionsCacheStoreValueMutationTest < Minitest::Test
   cover "MultiJson::OptionsCache*"
 
-  def test_store_value_returns_value_from_assignment
+  def test_store_returns_value_from_assignment
     store = MultiJson::OptionsCache::Store.new
 
     result = store.fetch(:sv_test) { "stored_value" }
@@ -733,7 +733,7 @@ class OptionsCacheStoreValueMutationTest < Minitest::Test
     assert_equal "stored_value", result
   end
 
-  def test_store_value_stores_passed_value
+  def test_store_stores_passed_value
     store = MultiJson::OptionsCache::Store.new
     store.fetch(:direct_store) { "direct_value" }
     cache = store.instance_variable_get(:@cache)
@@ -741,12 +741,12 @@ class OptionsCacheStoreValueMutationTest < Minitest::Test
     assert_equal "direct_value", cache[:direct_store]
   end
 
-  def test_store_value_checks_key_exists_before_storing
+  def test_store_checks_key_exists_before_storing
     store = MultiJson::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:preexist] = "old"
 
-    result = store.send(:store_value, :preexist, "new")
+    result = store.send(:store, :preexist, "new")
 
     assert_equal "old", result
     assert_equal "old", cache[:preexist]
@@ -790,7 +790,7 @@ class OptionsCacheStoreValueMutationTest < Minitest::Test
     assert cache.key?(:below0)
   end
 
-  def test_store_value_shifts_when_size_greater_than_max
+  def test_store_shifts_when_size_greater_than_max
     # This tests that >= works correctly - shift should happen when size > MAX too
     # Kill mutation: >= -> ==
     store = MultiJson::OptionsCache::Store.new
@@ -805,14 +805,14 @@ class OptionsCacheStoreValueMutationTest < Minitest::Test
 
     assert cache.key?(first_key)
 
-    # Now store_value should still shift because size >= MAX
-    store.send(:store_value, :new_key, "new_value")
+    # Now store should still shift because size >= MAX
+    store.send(:store, :new_key, "new_value")
 
     # First key should have been removed by shift
     refute cache.key?(first_key), "Cache should shift when size > MAX_CACHE_SIZE"
   end
 
-  def test_store_value_with_gte_operator_shifts_above_max
+  def test_store_with_gte_operator_shifts_above_max
     # Explicitly test that cache shifts when size is ABOVE max, not just equal
     store = MultiJson::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
@@ -827,8 +827,8 @@ class OptionsCacheStoreValueMutationTest < Minitest::Test
 
     assert cache.key?(first_key)
 
-    # store_value should shift because size > max (>= max is true)
-    store.send(:store_value, :after_overflow, "value")
+    # store should shift because size > max (>= max is true)
+    store.send(:store, :after_overflow, "value")
 
     # First key should have been removed
     refute cache.key?(first_key), "Cache should have shifted when size > MAX"

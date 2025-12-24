@@ -1,5 +1,12 @@
 module MultiJson
+  # Mixin providing configurable load/dump options with support for
+  # static hashes or dynamic callables (procs/lambdas).
+  #
+  # Extended by both MultiJson (global options) and Adapter classes.
   module Options
+    EMPTY_OPTIONS = {}.freeze
+    private_constant :EMPTY_OPTIONS
+
     def load_options=(options)
       OptionsCache.reset
       @load_options = options
@@ -11,39 +18,31 @@ module MultiJson
     end
 
     def load_options(...)
-      get_options(@load_options, ...) || default_load_options
+      resolve_options(@load_options, ...) || default_load_options
     end
 
     def dump_options(...)
-      get_options(@dump_options, ...) || default_dump_options
+      resolve_options(@dump_options, ...) || default_dump_options
     end
 
     def default_load_options
-      @default_load_options ||= {}.freeze
+      @default_load_options ||= EMPTY_OPTIONS
     end
 
     def default_dump_options
-      @default_dump_options ||= {}.freeze
+      @default_dump_options ||= EMPTY_OPTIONS
     end
 
     private
 
-    def get_options(options, ...)
-      return handle_callable_options(options, ...) if options_callable?(options)
+    def resolve_options(options, ...)
+      return invoke_callable(options, ...) if options.respond_to?(:call)
 
-      handle_hashable_options(options)
-    end
-
-    def options_callable?(options)
-      options.respond_to?(:call)
-    end
-
-    def handle_callable_options(options, ...)
-      options.arity.zero? ? options.call : options.call(...)
-    end
-
-    def handle_hashable_options(options)
       options.to_hash if options.respond_to?(:to_hash)
+    end
+
+    def invoke_callable(callable, ...)
+      callable.arity.zero? ? callable.call : callable.call(...)
     end
   end
 end

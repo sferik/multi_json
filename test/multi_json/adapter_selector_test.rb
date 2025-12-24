@@ -122,37 +122,37 @@ class AdapterSelectorLoadAdapterTest < Minitest::Test
   end
 end
 
-class AdapterSelectorLoadAdapterFromStringNameTest < Minitest::Test
+class AdapterSelectorLoadAdapterByNameTest < Minitest::Test
   cover "MultiJson::AdapterSelector*"
 
-  def test_load_adapter_from_string_name_requires_adapter_file
-    result = MultiJson.send(:load_adapter_from_string_name, "json_gem")
+  def test_load_adapter_by_name_requires_adapter_file
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
     assert_equal MultiJson::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_from_string_name_handles_underscore_names
-    result = MultiJson.send(:load_adapter_from_string_name, "ok_json")
+  def test_load_adapter_by_name_handles_underscore_names
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
 
     assert_equal MultiJson::Adapters::OkJson, result
   end
 
-  def test_load_adapter_from_string_name_handles_aliases
+  def test_load_adapter_by_name_handles_aliases
     skip "JrJackson not available" unless TestHelpers.jrjackson?
 
-    result = MultiJson.send(:load_adapter_from_string_name, "jrjackson")
+    result = MultiJson.send(:load_adapter_by_name, "jrjackson")
 
     assert_equal MultiJson::Adapters::JrJackson, result
   end
 
-  def test_load_adapter_from_string_name_normalizes_case
-    result = MultiJson.send(:load_adapter_from_string_name, "JSON_GEM")
+  def test_load_adapter_by_name_normalizes_case
+    result = MultiJson.send(:load_adapter_by_name, "JSON_GEM")
 
     assert_equal MultiJson::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_from_string_name_constructs_class_name
-    result = MultiJson.send(:load_adapter_from_string_name, "ok_json")
+  def test_load_adapter_by_name_constructs_class_name
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
 
     assert_equal "OkJson", result.name.split("::").last
   end
@@ -495,45 +495,45 @@ class AdapterSelectorLoadAdapterMutationTest < Minitest::Test
   end
 end
 
-# Tests for load_adapter_from_string_name method
+# Tests for load_adapter_by_name method
 class AdapterSelectorStringNameMutationTest < Minitest::Test
   cover "MultiJson::AdapterSelector*"
 
-  def test_load_adapter_from_string_name_uses_aliases_fetch
+  def test_load_adapter_by_name_uses_aliases_fetch
     skip "JrJackson not available" unless TestHelpers.jrjackson?
 
-    result = MultiJson.send(:load_adapter_from_string_name, "jrjackson")
+    result = MultiJson.send(:load_adapter_by_name, "jrjackson")
 
     assert_equal MultiJson::Adapters::JrJackson, result
   end
 
-  def test_load_adapter_from_string_name_uses_name_when_not_aliased
-    result = MultiJson.send(:load_adapter_from_string_name, "json_gem")
+  def test_load_adapter_by_name_uses_name_when_not_aliased
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
     assert_equal MultiJson::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_from_string_name_downcases_for_require
-    result = MultiJson.send(:load_adapter_from_string_name, "JSON_GEM")
+  def test_load_adapter_by_name_downcases_for_require
+    result = MultiJson.send(:load_adapter_by_name, "JSON_GEM")
 
     assert_equal MultiJson::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_from_string_name_capitalizes_segments
-    result = MultiJson.send(:load_adapter_from_string_name, "ok_json")
+  def test_load_adapter_by_name_capitalizes_segments
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
 
     assert_equal "OkJson", result.name.split("::").last
   end
 
-  def test_load_adapter_from_string_name_constructs_correct_class_name
-    result = MultiJson.send(:load_adapter_from_string_name, "ok_json")
+  def test_load_adapter_by_name_constructs_correct_class_name
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
 
     assert_equal "OkJson", result.name.split("::").last
   end
 
   def test_load_adapter_converts_symbol_to_string
     # Kill mutation: new_adapter.to_s -> new_adapter
-    # Symbol needs to be converted to string for load_adapter_from_string_name
+    # Symbol needs to be converted to string for load_adapter_by_name
     result = MultiJson.send(:load_adapter, :json_gem)
 
     assert_equal MultiJson::Adapters::JsonGem, result
@@ -541,7 +541,7 @@ class AdapterSelectorStringNameMutationTest < Minitest::Test
 
   def test_load_adapter_to_s_is_called_on_symbol
     # Kill mutation: new_adapter.to_s -> new_adapter
-    # This explicitly tests that to_s is called, which is required for load_adapter_from_string_name
+    # This explicitly tests that to_s is called, which is required for load_adapter_by_name
     symbol_adapter = :ok_json
 
     result = MultiJson.send(:load_adapter, symbol_adapter)
@@ -792,7 +792,7 @@ class AdapterSelectorToSMutationTest < Minitest::Test
   # Kill mutation: new_adapter.to_s -> new_adapter
 
   def test_load_adapter_calls_to_s_on_symbol
-    # If to_s is not called, load_adapter_from_string_name receives a symbol
+    # If to_s is not called, load_adapter_by_name receives a symbol
     # which would fail differently
     result = MultiJson.send(:load_adapter, :json_gem)
 
@@ -805,21 +805,21 @@ class AdapterSelectorToSMutationTest < Minitest::Test
     assert_equal MultiJson::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_from_string_name_receives_string
-    received_arg = track_load_adapter_from_string_name_arg { MultiJson.send(:load_adapter, :ok_json) }
+  def test_load_adapter_by_name_receives_string
+    received_arg = track_load_adapter_by_name_arg { MultiJson.send(:load_adapter, :ok_json) }
 
     assert_kind_of String, received_arg
     assert_equal "ok_json", received_arg
   end
 
-  def track_load_adapter_from_string_name_arg
+  def track_load_adapter_by_name_arg
     received = nil
-    original = MultiJson.method(:load_adapter_from_string_name)
-    silence_warnings { MultiJson.define_singleton_method(:load_adapter_from_string_name) { |arg| (received = arg) && original.call(arg) } }
+    original = MultiJson.method(:load_adapter_by_name)
+    silence_warnings { MultiJson.define_singleton_method(:load_adapter_by_name) { |arg| (received = arg) && original.call(arg) } }
     yield
     received
   ensure
-    silence_warnings { MultiJson.define_singleton_method(:load_adapter_from_string_name, original) }
+    silence_warnings { MultiJson.define_singleton_method(:load_adapter_by_name, original) }
   end
 end
 
@@ -1030,22 +1030,22 @@ class AdapterSelectorInstanceMutationKillerTest < Minitest::Test
     assert_includes MultiJson::REQUIREMENT_MAP.keys, result
   end
 
-  def test_instance_load_adapter_from_string_name_with_symbol
-    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_from_string_name, "json_gem")
+  def test_instance_load_adapter_by_name_with_symbol
+    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "json_gem")
   end
 
-  def test_instance_load_adapter_from_string_name_uses_aliases
+  def test_instance_load_adapter_by_name_uses_aliases
     skip "JrJackson not available" unless TestHelpers.jrjackson?
 
-    assert_equal MultiJson::Adapters::JrJackson, @instance.send(:load_adapter_from_string_name, "jrjackson")
+    assert_equal MultiJson::Adapters::JrJackson, @instance.send(:load_adapter_by_name, "jrjackson")
   end
 
-  def test_instance_load_adapter_from_string_name_downcases
-    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_from_string_name, "JSON_GEM")
+  def test_instance_load_adapter_by_name_downcases
+    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
   end
 
-  def test_instance_load_adapter_from_string_name_uses_multijson_adapters
-    result = @instance.send(:load_adapter_from_string_name, "ok_json")
+  def test_instance_load_adapter_by_name_uses_multijson_adapters
+    result = @instance.send(:load_adapter_by_name, "ok_json")
 
     assert_equal MultiJson::Adapters::OkJson, result
     assert_equal "MultiJson::Adapters::OkJson", result.name
@@ -1093,7 +1093,7 @@ class AdapterSelectorInstanceMutationKillerTest < Minitest::Test
   end
 
   def test_instance_require_relative_uses_downcase
-    assert_equal MultiJson::Adapters::OkJson, @instance.send(:load_adapter_from_string_name, "OK_JSON")
+    assert_equal MultiJson::Adapters::OkJson, @instance.send(:load_adapter_by_name, "OK_JSON")
   end
 
   def test_instance_loaded_adapter_explicit_nil_return
@@ -1156,10 +1156,10 @@ class AdapterSelectorNamespaceMutationTest < Minitest::Test
 
   # Kill mutation: ::MultiJson::Adapters -> Adapters
   # By defining a conflicting Adapters in AdapterSelector scope
-  def test_load_adapter_from_string_name_uses_absolute_namespace_for_adapters
+  def test_load_adapter_by_name_uses_absolute_namespace_for_adapters
     define_conflicting_adapters
 
-    result = @instance.send(:load_adapter_from_string_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "ok_json")
 
     # Original code uses ::MultiJson::Adapters.const_get, should get the real adapter
     # Mutation would use bare Adapters.const_get, finding our fake module
@@ -1169,10 +1169,10 @@ class AdapterSelectorNamespaceMutationTest < Minitest::Test
 
   # Kill mutation: ::MultiJson::Adapters -> MultiJson::Adapters
   # By defining a nested MultiJson module in AdapterSelector with its own Adapters
-  def test_load_adapter_from_string_name_uses_absolute_not_relative_multijson
+  def test_load_adapter_by_name_uses_absolute_not_relative_multijson
     define_nested_multijson_with_adapters
 
-    result = @instance.send(:load_adapter_from_string_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "ok_json")
 
     # Original code uses ::MultiJson::Adapters (absolute path)
     # Mutation would use MultiJson::Adapters which finds the nested one first
@@ -1246,9 +1246,9 @@ class AdapterSelectorAliasesFetchMutationTest < Minitest::Test
   # Kill mutation: ALIASES.fetch(name, name) -> ALIASES.fetch(nil, name)
   # With "jrjackson", original returns "jr_jackson", mutation returns "jrjackson"
   # The file is at adapters/jr_jackson.rb, so mutation would fail to load it
-  def test_load_adapter_from_string_name_uses_alias_key_not_nil
+  def test_load_adapter_by_name_uses_alias_key_not_nil
     skip "jrjackson gem is available on JRuby so no LoadError is raised" if java?
-    error = assert_raises(LoadError) { @instance.send(:load_adapter_from_string_name, "jrjackson") }
+    error = assert_raises(LoadError) { @instance.send(:load_adapter_by_name, "jrjackson") }
 
     # Original code: ALIASES.fetch("jrjackson", "jrjackson") returns "jr_jackson"
     # Then requires "adapters/jr_jackson" which exists, then requires "jrjackson" gem (fails)
@@ -1329,31 +1329,31 @@ class AdapterSelectorDowncaseMutationTest < Minitest::Test
   end
 
   # Kill mutation: normalized_name.downcase -> normalized_name
-  def test_load_adapter_from_string_name_uses_lowercase_path
+  def test_load_adapter_by_name_uses_lowercase_path
     assert_equal "adapters/ok_json", capture_require_relative_path("OK_JSON")
   end
 
   # Also test with mixed case to ensure downcase is applied
-  def test_load_adapter_from_string_name_downcases_mixed_case
+  def test_load_adapter_by_name_downcases_mixed_case
     assert_equal "adapters/json_gem", capture_require_relative_path("Json_Gem")
   end
 
-  def test_load_adapter_from_string_name_normalizes_case
-    result = @instance.send(:load_adapter_from_string_name, "OK_JSON")
+  def test_load_adapter_by_name_normalizes_case
+    result = @instance.send(:load_adapter_by_name, "OK_JSON")
 
     assert_equal MultiJson::Adapters::OkJson, result
   end
 
   # Verify the class name is capitalized correctly from underscore-separated name
-  def test_load_adapter_from_string_name_capitalizes_class_name
-    result = @instance.send(:load_adapter_from_string_name, "ok_json")
+  def test_load_adapter_by_name_capitalizes_class_name
+    result = @instance.send(:load_adapter_by_name, "ok_json")
 
     assert_equal "OkJson", result.name.split("::").last
   end
 
   # Verify loading works with various case combinations
-  def test_load_adapter_from_string_name_handles_mixed_case
-    result = @instance.send(:load_adapter_from_string_name, "JSON_GEM")
+  def test_load_adapter_by_name_handles_mixed_case
+    result = @instance.send(:load_adapter_by_name, "JSON_GEM")
 
     assert_equal MultiJson::Adapters::JsonGem, result
   end
@@ -1363,7 +1363,7 @@ class AdapterSelectorDowncaseMutationTest < Minitest::Test
   def capture_require_relative_path(adapter_name)
     captured_path = nil
     test_module = create_path_capturing_module(->(path) { captured_path = path })
-    Object.new.extend(test_module).send(:load_adapter_from_string_name, adapter_name)
+    Object.new.extend(test_module).send(:load_adapter_by_name, adapter_name)
     captured_path
   end
 

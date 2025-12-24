@@ -1,53 +1,34 @@
 module MultiJson
+  # Handles adapter discovery, loading, and selection.
+  #
+  # Adapters can be specified as:
+  # - Symbol/String: adapter name (e.g., :oj, "json_gem")
+  # - Module: adapter class directly
+  # - nil/false: use default adapter
   module AdapterSelector
     extend self
 
+    # Alternate spellings for adapter names
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
-    IDENTITY_LOADER = ->(adapter, _) { adapter }
-    STRING_LOADER = ->(adapter, selector) { selector.send(:load_adapter_from_string_name, adapter) }
-    SYMBOL_LOADER = ->(adapter, selector) { selector.send(:load_adapter_from_string_name, adapter.to_s) }
-    DEFAULT_LOADER = ->(_, selector) { selector.send(:load_adapter, selector.default_adapter) }
-
-    ADAPTER_LOADERS = {
-      String => STRING_LOADER,
-      Symbol => SYMBOL_LOADER,
-      NilClass => DEFAULT_LOADER,
-      FalseClass => DEFAULT_LOADER
+    # Strategy lambdas for loading adapters based on specification type.
+    # Using lambdas allows the loader dispatch to be a simple hash lookup.
+    LOADERS = {
+      Module => ->(adapter, _selector) { adapter },
+      String => ->(name, selector) { selector.send(:load_adapter_by_name, name) },
+      Symbol => ->(name, selector) { selector.send(:load_adapter_by_name, name.to_s) },
+      NilClass => ->(_adapter, selector) { selector.send(:load_adapter, selector.default_adapter) },
+      FalseClass => ->(_adapter, selector) { selector.send(:load_adapter, selector.default_adapter) }
     }.freeze
 
     def default_adapter
-      @default_adapter ||= loaded_adapter || installable_adapter || fallback_adapter
+      @default_adapter ||= detect_best_adapter
     end
 
     private
 
-    def fallback_adapter
-      unless @default_adapter_warning_shown
-        Kernel.warn(
-          "[WARNING] MultiJson is using the default adapter (ok_json). " \
-          "We recommend loading a different JSON library to improve performance."
-        )
-        @default_adapter_warning_shown = true
-      end
-      :ok_json
-    end
-
-    def load_adapter(new_adapter)
-      loader = adapter_loader_for(new_adapter)
-      return loader.call(new_adapter, self) if loader
-
-      raise ::LoadError, new_adapter
-    rescue ::LoadError => e
-      raise AdapterError.build(e)
-    end
-
-    def adapter_loader_for(adapter)
-      ADAPTER_LOADERS[adapter.class] || module_loader_if_module(adapter)
-    end
-
-    def module_loader_if_module(adapter)
-      IDENTITY_LOADER if adapter.is_a?(::Module)
+    def detect_best_adapter
+      loaded_adapter || installable_adapter || fallback_adapter
     end
 
     def loaded_adapter
@@ -61,20 +42,54 @@ module MultiJson
     end
 
     def installable_adapter
-      ::MultiJson::REQUIREMENT_MAP.each do |adapter, library|
-        require library
-        return adapter
-      rescue ::LoadError
-        # ignore and try next
+      ::MultiJson::REQUIREMENT_MAP.each_key do |adapter_name|
+        return adapter_name if try_require(adapter_name)
       end
       nil
     end
 
-    def load_adapter_from_string_name(name)
-      normalized_name = ALIASES.fetch(name, name)
-      require_relative "adapters/#{normalized_name.downcase}"
-      klass_name = normalized_name.split("_").map(&:capitalize).join
-      ::MultiJson::Adapters.const_get(klass_name)
+    def try_require(adapter_name)
+      require ::MultiJson::REQUIREMENT_MAP.fetch(adapter_name)
+      true
+    rescue ::LoadError
+      false
+    end
+
+    def fallback_adapter
+      warn_about_fallback unless @default_adapter_warning_shown
+      @default_adapter_warning_shown = true
+      :ok_json
+    end
+
+    def warn_about_fallback
+      Kernel.warn(
+        "[WARNING] MultiJson is using the default adapter (ok_json). " \
+        "We recommend loading a different JSON library to improve performance."
+      )
+    end
+
+    def load_adapter(adapter_spec)
+      loader = find_loader_for(adapter_spec)
+      return loader.call(adapter_spec, self) if loader
+
+      raise ::LoadError, adapter_spec
+    rescue ::LoadError => e
+      raise AdapterError.build(e)
+    end
+
+    def find_loader_for(adapter_spec)
+      klass = adapter_spec.class
+      return LOADERS.fetch(klass) if LOADERS.key?(klass)
+
+      LOADERS.fetch(Module) if adapter_spec.is_a?(Module)
+    end
+
+    def load_adapter_by_name(name)
+      normalized = ALIASES.fetch(name, name).downcase
+      require_relative "adapters/#{normalized}"
+
+      class_name = normalized.split("_").map(&:capitalize).join
+      ::MultiJson::Adapters.const_get(class_name)
     end
   end
 end

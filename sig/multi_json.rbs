@@ -111,6 +111,8 @@ module MultiJson
   LoadError: singleton(ParseError)
 
   module Options
+    EMPTY_OPTIONS: options
+
     def load_options=: (options_input value) -> options_input
     def dump_options=: (options_input value) -> options_input
     def load_options: (*options) -> options
@@ -125,10 +127,8 @@ module MultiJson
 
     private
 
-    def get_options: (options_input? stored_options, *options) -> options?
-    def options_callable?: (options_input? value) -> bool
-    def handle_callable_options: (options_proc callable, *options) -> options
-    def handle_hashable_options: (options_input? value) -> options?
+    def resolve_options: (options_input? stored_options, *options) -> options?
+    def invoke_callable: (options_proc callable, *options) -> options
   end
 
   module OptionsCache
@@ -151,7 +151,7 @@ module MultiJson
 
       private
 
-      def store_value: (options key, options value) -> options
+      def store: (options key, options value) -> options
     end
   end
 
@@ -161,15 +161,9 @@ module MultiJson
     ALIASES: Hash[String, String]
 
     # Loader proc types - lambdas that take an adapter spec and selector, return an adapter
-    # Due to proc contravariance, we type these precisely for documentation
-    IDENTITY_LOADER: ^(_Adapter, AdapterSelector) -> _Adapter
-    STRING_LOADER: ^(String, AdapterSelector) -> _Adapter
-    SYMBOL_LOADER: ^(Symbol, AdapterSelector) -> _Adapter
-    DEFAULT_LOADER: ^(nil | false, AdapterSelector) -> _Adapter
-
     # The hash maps classes to their specific loaders
     # Value type is untyped because RBS can't express a union of different proc signatures
-    ADAPTER_LOADERS: Hash[Class, untyped]
+    LOADERS: Hash[Class, untyped]
 
     def default_adapter: () -> Symbol
 
@@ -178,13 +172,15 @@ module MultiJson
 
     private
 
-    def fallback_adapter: () -> Symbol
-    def load_adapter: (adapter_spec new_adapter) -> _Adapter
-    def adapter_loader_for: (adapter_spec adapter) -> (^(adapter_spec, AdapterSelector) -> _Adapter)?
-    def module_loader_if_module: (adapter_spec adapter) -> (^(_Adapter, AdapterSelector) -> _Adapter)?
+    def detect_best_adapter: () -> Symbol
     def loaded_adapter: () -> Symbol?
     def installable_adapter: () -> Symbol?
-    def load_adapter_from_string_name: (String name) -> _Adapter
+    def try_require: (Symbol adapter_name) -> bool
+    def fallback_adapter: () -> Symbol
+    def warn_about_fallback: () -> void
+    def load_adapter: (adapter_spec new_adapter) -> _Adapter
+    def find_loader_for: (adapter_spec adapter_spec) -> untyped
+    def load_adapter_by_name: (String name) -> _Adapter
   end
 
   module ConvertibleHashKeys
@@ -218,11 +214,11 @@ module MultiJson
     private
 
     def self.blank?: (String? input) -> bool
-    def self.cached_dump_options: (options options) -> options?
-    def self.cached_load_options: (options options) -> options?
-    def self.options_without_adapter: (options options) -> options
+    def self.merged_dump_options: (options options) -> options?
+    def self.merged_load_options: (options options) -> options?
+    def self.strip_adapter_key: (options options) -> options
 
-    BLANK_RE: Regexp
+    BLANK_PATTERN: Regexp
   end
 
   module Adapters

@@ -2,58 +2,70 @@ require "singleton"
 require_relative "options"
 
 module MultiJson
+  # Base class for JSON adapter implementations.
+  #
+  # Each adapter wraps a specific JSON library (Oj, JSON gem, etc.) and
+  # provides a consistent interface. Uses Singleton pattern so each adapter
+  # class has exactly one instance.
+  #
+  # Subclasses must implement:
+  # - #load(string, options) -> parsed object
+  # - #dump(object, options) -> JSON string
   class Adapter
     extend Options
     include Singleton
 
     class << self
-      BLANK_RE = /\A\s*\z/
-      private_constant :BLANK_RE
+      BLANK_PATTERN = /\A\s*\z/
+      private_constant :BLANK_PATTERN
 
       def inherited(subclass)
         super
-        subclass.instance_variable_set(:@default_load_options, @default_load_options) if instance_variable_defined?(:@default_load_options)
-        subclass.instance_variable_set(:@default_dump_options, @default_dump_options) if instance_variable_defined?(:@default_dump_options)
+        # Propagate default options to subclasses
+        subclass.instance_variable_set(:@default_load_options, @default_load_options) if defined?(@default_load_options)
+        subclass.instance_variable_set(:@default_dump_options, @default_dump_options) if defined?(@default_dump_options)
       end
 
+      # DSL for setting adapter-specific default options
       def defaults(action, value)
-        instance_variable_set("@default_#{action}_options", value.freeze)
+        instance_variable_set(:"@default_#{action}_options", value.freeze)
       end
 
       def load(string, options = {})
         string = string.read if string.respond_to?(:read)
         return nil if blank?(string)
 
-        instance.load(string, cached_load_options(options))
+        instance.load(string, merged_load_options(options))
       end
 
       def dump(object, options = {})
-        instance.dump(object, cached_dump_options(options))
+        instance.dump(object, merged_dump_options(options))
       end
 
       private
 
       def blank?(input)
-        input.nil? || BLANK_RE.match?(input)
-      rescue ArgumentError # invalid byte sequence in UTF-8
+        input.nil? || BLANK_PATTERN.match?(input)
+      rescue ArgumentError
+        # Invalid byte sequence in UTF-8 - treat as non-blank
         false
       end
 
-      def cached_dump_options(options)
-        opts = options_without_adapter(options)
-        OptionsCache.dump.fetch(opts) do
-          dump_options(opts).merge(MultiJson.dump_options(opts)).merge!(opts)
+      def merged_dump_options(options)
+        cache_key = strip_adapter_key(options)
+        OptionsCache.dump.fetch(cache_key) do
+          dump_options(cache_key).merge(MultiJson.dump_options(cache_key)).merge!(cache_key)
         end
       end
 
-      def cached_load_options(options)
-        opts = options_without_adapter(options)
-        OptionsCache.load.fetch(opts) do
-          load_options(opts).merge(MultiJson.load_options(opts)).merge!(opts)
+      def merged_load_options(options)
+        cache_key = strip_adapter_key(options)
+        OptionsCache.load.fetch(cache_key) do
+          load_options(cache_key).merge(MultiJson.load_options(cache_key)).merge!(cache_key)
         end
       end
 
-      def options_without_adapter(options)
+      def strip_adapter_key(options)
         options.except(:adapter).freeze
       end
     end

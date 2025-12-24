@@ -1,11 +1,16 @@
 module MultiJson
+  # Thread-safe LRU-like cache for merged options hashes.
+  #
+  # Caches are separated for load and dump operations. Each cache is
+  # bounded to prevent unbounded memory growth when options are
+  # generated dynamically.
   module OptionsCache
-    # Normally MultiJson is used with a few option sets for both dump/load
-    # methods. When options are generated dynamically though, every call would
-    # cause a cache miss and the cache would grow indefinitely. To prevent this,
-    # we reset the cache every time the number of keys outgrows 1000.
+    # Maximum entries before oldest entry is evicted (LRU approximation).
+    # Typical usage involves only a handful of option sets, but dynamic
+    # options could cause unbounded growth without this limit.
     MAX_CACHE_SIZE = 1000
 
+    # Thread-safe cache store using double-checked locking pattern.
     class Store
       def initialize
         @cache = {}
@@ -17,17 +22,21 @@ module MultiJson
       end
 
       def fetch(key, default = nil)
-        @cache.fetch(key) do
-          @mutex.synchronize do
-            @cache.fetch(key) { block_given? ? store_value(key, yield) : default }
-          end
+        # Fast path: check cache without lock (safe for reads)
+        return @cache.fetch(key) if @cache.key?(key)
+
+        # Slow path: acquire lock and compute value
+        @mutex.synchronize do
+          @cache.fetch(key) { block_given? ? store(key, yield) : default }
         end
       end
 
       private
 
-      def store_value(key, value)
+      def store(key, value)
+        # Double-check in case another thread computed while we waited
         @cache.fetch(key) do
+          # Evict oldest entry if at capacity (Hash maintains insertion order)
           @cache.shift if @cache.size >= MAX_CACHE_SIZE
           @cache[key] = value
         end
