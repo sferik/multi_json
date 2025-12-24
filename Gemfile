@@ -6,6 +6,7 @@ gem "json", "~> 2.0", require: false
 gem "minitest", ">= 5.20"
 gem "mutant-minitest", ">= 0.12"
 gem "rake", ">= 13.1"
+gem "rdoc", ">= 7.0.3"
 gem "rubocop", ">= 1.62.1"
 gem "rubocop-minitest", ">= 0.35"
 gem "rubocop-performance", ">= 1.20.2"
@@ -13,6 +14,8 @@ gem "rubocop-rake", ">= 0.6.0"
 gem "simplecov", ">= 0.22"
 gem "standard", ">= 1.35.1"
 gem "steep", ">= 1.10"
+gem "yard", ">= 0.9.38"
+gem "yardstick", ">= 0.9.9"
 
 gem "fast_jsonparser", "~> 0.6", platforms: %i[ruby windows], require: false
 gem "gson", ">= 0.6", platforms: [:jruby], require: false

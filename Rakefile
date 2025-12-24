@@ -18,6 +18,28 @@ end
 require "steep/rake_task"
 Steep::RakeTask.new
 
+require "yard"
+YARD::Rake::YardocTask.new(:yard)
+
+require "yardstick/rake/measurement"
+Yardstick::Rake::Measurement.new(:yardstick_measure) do |measurement|
+  measurement.output = "doc/coverage.txt"
+  measurement.path = Rake::FileList.new("lib/**/*.rb") do |list|
+    list.exclude("lib/multi_json/vendor/**/*.rb")
+    list.exclude("lib/multi_json/adapters/**/*.rb")
+  end
+end
+
+require "yardstick/rake/verify"
+Yardstick::Rake::Verify.new(:yardstick) do |verify|
+  verify.threshold = 100
+  verify.require_exact_threshold = true
+  verify.path = Rake::FileList.new("lib/**/*.rb") do |list|
+    list.exclude("lib/multi_json/vendor/**/*.rb")
+    list.exclude("lib/multi_json/adapters/**/*.rb")
+  end
+end
+
 desc "Run linters"
 task lint: %i[rubocop standard]
 
@@ -27,4 +49,4 @@ task :mutant do
 end
 
 desc "Run the default task"
-task default: %i[test lint mutant steep]
+task default: %i[test lint mutant steep yardstick]

@@ -1,26 +1,43 @@
 module MultiJson
-  # Thread-safe LRU-like cache for merged options hashes.
+  # Thread-safe LRU-like cache for merged options hashes
   #
   # Caches are separated for load and dump operations. Each cache is
   # bounded to prevent unbounded memory growth when options are
   # generated dynamically.
+  #
+  # @api private
   module OptionsCache
-    # Maximum entries before oldest entry is evicted (LRU approximation).
-    # Typical usage involves only a handful of option sets, but dynamic
-    # options could cause unbounded growth without this limit.
+    # Maximum entries before oldest entry is evicted
     MAX_CACHE_SIZE = 1000
 
-    # Thread-safe cache store using double-checked locking pattern.
+    # Thread-safe cache store using double-checked locking pattern
+    #
+    # @api private
     class Store
+      # Create a new cache store
+      #
+      # @api private
+      # @return [Store] new store instance
       def initialize
         @cache = {}
         @mutex = Mutex.new
       end
 
+      # Clear all cached entries
+      #
+      # @api private
+      # @return [void]
       def reset
         @mutex.synchronize { @cache.clear }
       end
 
+      # Fetch a value from cache or compute it
+      #
+      # @api private
+      # @param key [Object] cache key
+      # @param default [Object] default value if key not found
+      # @yield block to compute value if not cached
+      # @return [Object] cached or computed value
       def fetch(key, default = nil)
         # Fast path: check cache without lock (safe for reads)
         return @cache.fetch(key) if @cache.key?(key)
@@ -33,6 +50,12 @@ module MultiJson
 
       private
 
+      # Stores a value in the cache with LRU eviction
+      #
+      # @api private
+      # @param key [Object] cache key
+      # @param value [Object] value to store
+      # @return [Object] the stored value
       def store(key, value)
         # Double-check in case another thread computed while we waited
         @cache.fetch(key) do
@@ -44,8 +67,22 @@ module MultiJson
     end
 
     class << self
-      attr_reader :dump, :load
+      # Get the dump options cache
+      #
+      # @api private
+      # @return [Store] dump cache store
+      attr_reader :dump
 
+      # Get the load options cache
+      #
+      # @api private
+      # @return [Store] load cache store
+      attr_reader :load
+
+      # Reset both caches
+      #
+      # @api private
+      # @return [void]
       def reset
         @dump = Store.new
         @load = Store.new
