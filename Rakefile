@@ -15,6 +15,9 @@ Rake::TestTask.new(:test) do |t|
   t.pattern = "test/**/*_test.rb"
 end
 
+require "steep/rake_task"
+Steep::RakeTask.new
+
 desc "Run linters"
 task lint: %i[rubocop standard]
 
@@ -24,4 +27,4 @@ task :mutant do
 end
 
 desc "Run the default task"
-task default: %i[test lint mutant]
+task default: %i[test lint mutant steep]

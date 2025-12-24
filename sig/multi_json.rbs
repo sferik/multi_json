@@ -1,0 +1,230 @@
+module MultiJson
+  VERSION: String
+
+  ALIASES: Hash[String, String]
+  REQUIREMENT_MAP: Hash[Symbol, String]
+
+  extend Options
+  extend AdapterSelector
+
+  # JSON value type - what load() returns
+  type json = nil | bool | Integer | Float | String | Array[json] | Hash[String, json]
+
+  # JSON-serializable input type - what dump() accepts
+  type json_input = nil | bool | Integer | Float | String | Symbol | Array[json_input] | Hash[json_key, json_input] | _ToJson
+
+  # Valid hash key types for JSON input
+  type json_key = String | Symbol
+
+  # Options hash type
+  type options = Hash[Symbol, bool | String | Symbol | Integer | Proc | nil]
+
+  # Adapter specification - can be string name, symbol, module, or nil/false for default
+  type adapter_spec = String | Symbol | Module | nil | false
+
+  # Callable options - proc that returns options
+  type options_proc = ^() -> options | ^(options) -> options
+
+  # Options input - can be hash or callable
+  type options_input = options | options_proc
+
+  # String or IO-like object for load input
+  type string_input = String | _Readable
+
+  interface _Readable
+    def read: () -> String
+  end
+
+  interface _ToJson
+    def as_json: () -> json_input
+  end
+
+  # Adapter interface - accepts string_input since adapters handle IO internally
+  interface _Adapter
+    def load: (string_input string, options options) -> json
+    def dump: (json_input object, options options) -> String
+  end
+
+  # module_function methods - declared as both self. and instance methods
+  def self.default_options=: (options_input value) -> options_input
+  def self.default_options: () -> options
+  def self.cached_options: (*top) -> void
+  def self.reset_cached_options!: (*top) -> void
+  def self.default_engine: () -> Symbol
+  def self.adapter: () -> _Adapter
+  def self.engine: () -> _Adapter
+  def self.use: (adapter_spec new_adapter) -> _Adapter
+  def self.adapter=: (adapter_spec new_adapter) -> _Adapter
+  def self.engine=: (adapter_spec new_adapter) -> _Adapter
+  def self.load: (string_input string, ?options options) -> json
+  def self.decode: (string_input string, ?options options) -> json
+  def self.current_adapter: (?options? options) -> _Adapter
+  def self.dump: (json_input object, ?options options) -> String
+  def self.encode: (json_input object, ?options options) -> String
+  def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
+  def self.with_engine: [T] (adapter_spec new_adapter) { () -> T } -> T
+
+  # Instance method declarations for module_function
+  def default_options=: (options_input value) -> options_input
+  def default_options: () -> options
+  def cached_options: (*top) -> void
+  def reset_cached_options!: (*top) -> void
+  def adapter: () -> _Adapter
+  def engine: () -> _Adapter
+  def use: (adapter_spec new_adapter) -> _Adapter
+  def adapter=: (adapter_spec new_adapter) -> _Adapter
+  def engine=: (adapter_spec new_adapter) -> _Adapter
+  def load: (string_input string, ?options options) -> json
+  def decode: (string_input string, ?options options) -> json
+  def current_adapter: (?options? options) -> _Adapter
+  def dump: (json_input object, ?options options) -> String
+  def encode: (json_input object, ?options options) -> String
+  def with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
+  def with_engine: [T] (adapter_spec new_adapter) { () -> T } -> T
+
+  # Module-level instance variable for adapter caching
+  @adapter: _Adapter?
+
+  class Version
+    MAJOR: Integer
+    MINOR: Integer
+    PATCH: Integer
+    PRE: String?
+
+    def self.to_s: () -> String
+  end
+
+  class AdapterError < ArgumentError
+    def initialize: (?String? message, ?cause: Exception?) -> void
+    def self.build: (Exception original_exception) -> AdapterError
+  end
+
+  class ParseError < StandardError
+    # The raw data that failed to parse (string or IO-like object)
+    attr_reader data: string_input?
+
+    def initialize: (?String? message, ?data: string_input?, ?cause: Exception?) -> void
+    def self.build: (Exception original_exception, string_input data) -> ParseError
+  end
+
+  DecodeError: singleton(ParseError)
+  LoadError: singleton(ParseError)
+
+  module Options
+    def load_options=: (options_input value) -> options_input
+    def dump_options=: (options_input value) -> options_input
+    def load_options: (*options) -> options
+    def dump_options: (*options) -> options
+    def default_load_options: () -> options
+    def default_dump_options: () -> options
+
+    @load_options: options_input?
+    @dump_options: options_input?
+    @default_load_options: options?
+    @default_dump_options: options?
+
+    private
+
+    def get_options: (options_input? stored_options, *options) -> options?
+    def options_callable?: (options_input? value) -> bool
+    def handle_callable_options: (options_proc callable, *options) -> options
+    def handle_hashable_options: (options_input? value) -> options?
+  end
+
+  module OptionsCache
+    MAX_CACHE_SIZE: Integer
+
+    def self.dump: () -> Store
+    def self.load: () -> Store
+    def self.reset: () -> void
+
+    self.@dump: Store
+    self.@load: Store
+
+    class Store
+      def initialize: () -> void
+      def reset: () -> void
+      def fetch: (options key, ?options? default) ?{ () -> options } -> options?
+
+      @cache: Hash[options, options]
+      @mutex: Mutex
+
+      private
+
+      def store_value: (options key, options value) -> options
+    end
+  end
+
+  module AdapterSelector
+    extend AdapterSelector
+
+    ALIASES: Hash[String, String]
+
+    # Loader proc types - lambdas that take an adapter spec and selector, return an adapter
+    # Due to proc contravariance, we type these precisely for documentation
+    IDENTITY_LOADER: ^(_Adapter, AdapterSelector) -> _Adapter
+    STRING_LOADER: ^(String, AdapterSelector) -> _Adapter
+    SYMBOL_LOADER: ^(Symbol, AdapterSelector) -> _Adapter
+    DEFAULT_LOADER: ^(nil | false, AdapterSelector) -> _Adapter
+
+    # The hash maps classes to their specific loaders
+    # Value type is untyped because RBS can't express a union of different proc signatures
+    ADAPTER_LOADERS: Hash[Class, untyped]
+
+    def default_adapter: () -> Symbol
+
+    @default_adapter: Symbol?
+    @default_adapter_warning_shown: bool?
+
+    private
+
+    def fallback_adapter: () -> Symbol
+    def load_adapter: (adapter_spec new_adapter) -> _Adapter
+    def adapter_loader_for: (adapter_spec adapter) -> (^(adapter_spec, AdapterSelector) -> _Adapter)?
+    def module_loader_if_module: (adapter_spec adapter) -> (^(_Adapter, AdapterSelector) -> _Adapter)?
+    def loaded_adapter: () -> Symbol?
+    def installable_adapter: () -> Symbol?
+    def load_adapter_from_string_name: (String name) -> _Adapter
+  end
+
+  module ConvertibleHashKeys
+    SIMPLE_OBJECT_CLASSES: Array[Class]
+
+    private
+
+    # These methods work with json but return types that may have symbol keys after symbolize_keys
+    type convertible_value = nil | bool | Integer | Float | String | Symbol | Array[convertible_value] | Hash[String | Symbol, convertible_value]
+
+    def symbolize_keys: (convertible_value value) -> convertible_value
+    def stringify_keys: (convertible_value value) -> convertible_value
+    def convert_hash_keys: (convertible_value value) { (String | Symbol) -> (String | Symbol) } -> convertible_value
+    def convert_simple_object: (convertible_value obj) -> convertible_value
+    def simple_object?: (convertible_value obj) -> bool
+  end
+
+  class Adapter
+    extend Options
+    include Singleton
+
+    def self.inherited: (singleton(Adapter) subclass) -> void
+    def self.defaults: (:load | :dump action, options value) -> void
+    def self.load: (string_input string, ?options options) -> json
+    def self.dump: (json_input object, ?options options) -> String
+
+    # Instance methods receive String (after IO conversion in class method)
+    def load: (String string, options options) -> json
+    def dump: (json_input object, options options) -> String
+
+    private
+
+    def self.blank?: (String? input) -> bool
+    def self.cached_dump_options: (options options) -> options?
+    def self.cached_load_options: (options options) -> options?
+    def self.options_without_adapter: (options options) -> options
+
+    BLANK_RE: Regexp
+  end
+
+  module Adapters
+  end
+end
