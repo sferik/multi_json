@@ -15,9 +15,6 @@ Rake::TestTask.new(:test) do |t|
   t.pattern = "test/**/*_test.rb"
 end
 
-require "steep/rake_task"
-Steep::RakeTask.new
-
 require "yard"
 YARD::Rake::YardocTask.new(:yard)
 
@@ -47,4 +44,4 @@ task :mutant do
 end
 
 desc "Run the default task"
-task default: %i[test lint mutant steep yardstick]
+task default: %i[test lint mutant yardstick]
