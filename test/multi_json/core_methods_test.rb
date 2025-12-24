@@ -86,7 +86,7 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
     MultiJson.send(:remove_instance_variable, :@adapter) if MultiJson.instance_variable_defined?(:@adapter)
 
     use_nil_called = with_stub(MultiJson, :default_adapter, -> { :json_gem }) do
-      with_use_tracking { |called| silence_warnings { MultiJson.adapter } && called[:nil] }
+      with_use_tracking { |called| capture_stderr { MultiJson.adapter } && called[:nil] }
     end
 
     assert use_nil_called, "use(nil) should be called when @adapter is undefined"
@@ -95,7 +95,7 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
   def test_adapter_checks_both_defined_and_truthiness
     MultiJson.instance_variable_set(:@adapter, nil)
 
-    use_nil_called = with_use_tracking { |called| silence_warnings { MultiJson.adapter } && called[:nil] }
+    use_nil_called = with_use_tracking { |called| capture_stderr { MultiJson.adapter } && called[:nil] }
 
     assert use_nil_called, "use(nil) should be called when @adapter is nil"
   ensure
@@ -106,7 +106,7 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
     MultiJson.instance_variable_set(:@adapter, nil)
 
     result = with_stub(MultiJson, :default_adapter, -> { :json_gem }) do
-      silence_warnings { MultiJson.adapter }
+      capture_stderr { MultiJson.adapter }
     end
 
     refute_nil result, "adapter should not return nil when @adapter is nil"
@@ -119,7 +119,7 @@ class MultiJsonAdapterUndefinedTest < Minitest::Test
     MultiJson.instance_variable_set(:@adapter, nil)
     MultiJson.instance_variable_set(:@default_adapter, :ok_json)
 
-    result = silence_warnings { MultiJson.adapter }
+    result = capture_stderr { MultiJson.adapter }
 
     assert_equal MultiJson::Adapters::OkJson, result
   ensure

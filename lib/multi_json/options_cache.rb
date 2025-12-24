@@ -14,6 +14,9 @@ module MultiJson
     #
     # @api private
     class Store
+      # Sentinel value to detect cache misses (unique object identity)
+      NOT_FOUND = Object.new
+
       # Create a new cache store
       #
       # @api private
@@ -40,7 +43,8 @@ module MultiJson
       # @return [Object] cached or computed value
       def fetch(key, default = nil)
         # Fast path: check cache without lock (safe for reads)
-        return @cache.fetch(key) if @cache.key?(key)
+        value = @cache.fetch(key, NOT_FOUND)
+        return value unless value.equal?(NOT_FOUND)
 
         # Slow path: acquire lock and compute value
         @mutex.synchronize do

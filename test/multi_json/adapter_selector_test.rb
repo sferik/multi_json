@@ -7,7 +7,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
   def test_default_adapter_caches_result
     clear_default_adapter_state
 
-    first_call = silence_warnings { MultiJson.default_adapter }
+    first_call = capture_stderr { MultiJson.default_adapter }
     second_call = MultiJson.default_adapter
 
     assert_equal first_call, second_call
@@ -15,7 +15,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
 
   def test_default_adapter_returns_cached_value_when_set
     clear_default_adapter_state
-    silence_warnings { MultiJson.default_adapter }
+    capture_stderr { MultiJson.default_adapter }
 
     assert MultiJson.instance_variable_defined?(:@default_adapter)
   end
@@ -24,7 +24,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
     skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
     clear_default_adapter_state
 
-    result = silence_warnings { MultiJson.default_adapter }
+    result = capture_stderr { MultiJson.default_adapter }
 
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
   end
@@ -34,7 +34,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
       clear_default_adapter_state
       clear_default_adapter_warning
 
-      result = silence_warnings { MultiJson.default_adapter }
+      result = capture_stderr { MultiJson.default_adapter }
 
       assert_equal :ok_json, result
     end
@@ -79,7 +79,7 @@ class AdapterSelectorLoadAdapterTest < Minitest::Test
   def test_load_adapter_with_nil_loads_default
     MultiJson.use :json_gem
     clear_default_adapter_state
-    silence_warnings { MultiJson.default_adapter }
+    capture_stderr { MultiJson.default_adapter }
 
     result = MultiJson.send(:load_adapter, nil)
 
@@ -88,7 +88,7 @@ class AdapterSelectorLoadAdapterTest < Minitest::Test
 
   def test_load_adapter_with_false_loads_default
     clear_default_adapter_state
-    silence_warnings { MultiJson.default_adapter }
+    capture_stderr { MultiJson.default_adapter }
 
     result = MultiJson.send(:load_adapter, false)
 
@@ -338,7 +338,7 @@ class AdapterSelectorFallbackAdapterTest < Minitest::Test
   def test_fallback_adapter_sets_warning_shown_flag
     clear_default_adapter_warning
 
-    silence_warnings { MultiJson.send(:fallback_adapter) }
+    capture_stderr { MultiJson.send(:fallback_adapter) }
 
     assert MultiJson.instance_variable_get(:@default_adapter_warning_shown)
   end
@@ -366,7 +366,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
 
   def test_default_adapter_returns_cached_value
     clear_default_adapter_state
-    first = silence_warnings { MultiJson.default_adapter }
+    first = capture_stderr { MultiJson.default_adapter }
     second = MultiJson.default_adapter
 
     assert_equal first, second
@@ -374,7 +374,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
 
   def test_default_adapter_stores_result
     clear_default_adapter_state
-    silence_warnings { MultiJson.default_adapter }
+    capture_stderr { MultiJson.default_adapter }
 
     assert MultiJson.instance_variable_defined?(:@default_adapter)
   end
@@ -383,7 +383,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
     skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
     clear_default_adapter_state
 
-    result = silence_warnings { MultiJson.default_adapter }
+    result = capture_stderr { MultiJson.default_adapter }
 
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
   end
@@ -391,7 +391,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
   def test_default_adapter_tries_loaded_before_installable
     clear_default_adapter_state
 
-    result = silence_warnings { MultiJson.default_adapter }
+    result = capture_stderr { MultiJson.default_adapter }
 
     refute_nil result
     assert_kind_of Symbol, result
@@ -401,7 +401,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
     simulate_no_adapters do
       clear_default_adapter_state
 
-      result = silence_warnings { MultiJson.default_adapter }
+      result = capture_stderr { MultiJson.default_adapter }
 
       assert_equal :ok_json, result
     end
@@ -412,7 +412,7 @@ class AdapterSelectorDefaultAdapterMutationTest < Minitest::Test
       break_requirements do
         clear_default_adapter_state
 
-        result = silence_warnings { MultiJson.default_adapter }
+        result = capture_stderr { MultiJson.default_adapter }
 
         assert_equal :ok_json, result
       end
@@ -588,7 +588,7 @@ class AdapterSelectorDefinedMutationTest < Minitest::Test
     # We verify caching works correctly with either check
     clear_default_adapter_state
 
-    first = silence_warnings { MultiJson.default_adapter }
+    first = capture_stderr { MultiJson.default_adapter }
     second = MultiJson.default_adapter
 
     assert_equal first, second
@@ -597,7 +597,7 @@ class AdapterSelectorDefinedMutationTest < Minitest::Test
 
   def test_default_adapter_returns_early_when_cached
     clear_default_adapter_state
-    first_result = silence_warnings { MultiJson.default_adapter }
+    first_result = capture_stderr { MultiJson.default_adapter }
 
     loaded_adapter_called = track_loaded_adapter_call { MultiJson.default_adapter }
 
@@ -635,7 +635,7 @@ class AdapterSelectorOrOperatorMutationTest < Minitest::Test
     skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
     clear_default_adapter_state
 
-    result = silence_warnings { MultiJson.default_adapter }
+    result = capture_stderr { MultiJson.default_adapter }
 
     # loaded_adapter should return a symbol when adapters are loaded
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
@@ -645,7 +645,7 @@ class AdapterSelectorOrOperatorMutationTest < Minitest::Test
     simulate_no_adapters do
       clear_default_adapter_state
       # installable_adapter will try to require adapters
-      result = silence_warnings { MultiJson.default_adapter }
+      result = capture_stderr { MultiJson.default_adapter }
 
       # Should eventually get ok_json as fallback since no adapters can be required
       assert_equal :ok_json, result
@@ -658,7 +658,7 @@ class AdapterSelectorOrOperatorMutationTest < Minitest::Test
 
       # With no adapters defined, loaded_adapter returns nil
       # installable_adapter should be called (though it will also fail and fall back)
-      result = silence_warnings { MultiJson.default_adapter }
+      result = capture_stderr { MultiJson.default_adapter }
 
       # The mutation loaded_adapter || nil would cause a fallback to fallback_adapter
       # The mutation nil || installable_adapter would work but skip loaded_adapter
@@ -684,7 +684,7 @@ class AdapterSelectorOrOperatorMutationTest < Minitest::Test
     installable = false
     with_adapter_method_tracking(:loaded_adapter, -> { loaded = true }) do
       with_adapter_method_tracking(:installable_adapter, -> { installable = true }) do
-        silence_warnings { MultiJson.default_adapter }
+        capture_stderr { MultiJson.default_adapter }
       end
     end
     [loaded, installable]
@@ -853,7 +853,7 @@ class AdapterSelectorFallbackMutationTest < Minitest::Test
   def test_fallback_adapter_returns_ok_json
     clear_default_adapter_warning
 
-    result = silence_warnings { MultiJson.send(:fallback_adapter) }
+    result = capture_stderr { MultiJson.send(:fallback_adapter) }
 
     assert_equal :ok_json, result
   end
@@ -875,7 +875,7 @@ class AdapterSelectorFallbackMutationTest < Minitest::Test
   def test_fallback_adapter_sets_warning_shown_flag
     clear_default_adapter_warning
 
-    silence_warnings { MultiJson.send(:fallback_adapter) }
+    capture_stderr { MultiJson.send(:fallback_adapter) }
 
     assert MultiJson.instance_variable_get(:@default_adapter_warning_shown)
   end
@@ -943,7 +943,7 @@ class AdapterSelectorInstanceMethodMutationTest < Minitest::Test
   def test_instance_default_adapter_computes_when_not_defined
     @instance.remove_instance_variable(:@default_adapter) if @instance.instance_variable_defined?(:@default_adapter)
 
-    result = silence_warnings { @instance.default_adapter }
+    result = capture_stderr { @instance.default_adapter }
 
     refute_nil result
     assert_kind_of Symbol, result
@@ -952,7 +952,7 @@ class AdapterSelectorInstanceMethodMutationTest < Minitest::Test
   def test_instance_default_adapter_caches_computed_value
     @instance.remove_instance_variable(:@default_adapter) if @instance.instance_variable_defined?(:@default_adapter)
 
-    silence_warnings { @instance.default_adapter }
+    capture_stderr { @instance.default_adapter }
 
     assert @instance.instance_variable_defined?(:@default_adapter)
   end
@@ -963,7 +963,7 @@ class AdapterSelectorInstanceMethodMutationTest < Minitest::Test
     simulate_no_adapters do
       @instance.remove_instance_variable(:@default_adapter) if @instance.instance_variable_defined?(:@default_adapter)
 
-      result = silence_warnings { @instance.default_adapter }
+      result = capture_stderr { @instance.default_adapter }
 
       # Should fall back to ok_json
       assert_equal :ok_json, result

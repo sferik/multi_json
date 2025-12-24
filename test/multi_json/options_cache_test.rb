@@ -129,7 +129,7 @@ class OptionsCacheTest < Minitest::Test
         mutex.synchronize { results << value }
       end
     end
-    threads.each(&:join)
+    threads.each(&:value)
     results
   end
 end
@@ -439,6 +439,41 @@ class OptionsCacheLookupTest < Minitest::Test
     result = store.fetch(:preexisting) { "should_not_be_called" }
 
     assert_equal "original", result
+  end
+
+  def test_fetch_fast_path_returns_value_for_correct_key
+    store = MultiJson::OptionsCache::Store.new
+    store.fetch(:key_a) { "value_a" }
+    store.fetch(:key_b) { "value_b" }
+
+    assert_equal "value_a", store.fetch(:key_a)
+    assert_equal "value_b", store.fetch(:key_b)
+    refute_equal store.fetch(:key_a), store.fetch(:key_b)
+  end
+
+  def test_fetch_fast_path_distinguishes_nil_key
+    store = MultiJson::OptionsCache::Store.new
+    store.fetch(:key_a) { "value_a" }
+    store.fetch(nil) { "nil_value" }
+
+    assert_equal "nil_value", store.fetch(nil)
+    refute_equal store.fetch(:key_a), store.fetch(nil)
+  end
+
+  def test_fetch_fast_path_returns_nil_value_correctly
+    store = MultiJson::OptionsCache::Store.new
+    # Block form required to store nil value in cache
+    store.fetch(:nil_val_key) { nil } # rubocop:disable Style/RedundantFetchBlock
+
+    # Fast path should return nil, not re-execute block
+    block_called = false
+    result = store.fetch(:nil_val_key) do
+      block_called = true
+      "new_val"
+    end
+
+    refute block_called
+    assert_nil result
   end
 
   def test_fetch_checks_cache_key_inside_lock

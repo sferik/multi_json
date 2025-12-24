@@ -287,7 +287,7 @@ class MultiJsonBehaviorTest < Minitest::Test
     simulate_no_adapters do
       clear_default_adapter_warning
 
-      silence_warnings { assert_equal :ok_json, MultiJson.default_adapter }
+      capture_stderr { assert_equal :ok_json, MultiJson.default_adapter }
     end
   end
 
@@ -298,7 +298,7 @@ class MultiJsonBehaviorTest < Minitest::Test
       clear_default_adapter_warning
 
       # This will trigger installable_adapter since no constants are defined
-      adapter = silence_warnings { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJson.default_adapter }
 
       # Should find the first installable adapter from REQUIREMENT_MAP
       assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], adapter
@@ -318,7 +318,7 @@ class MultiJsonBehaviorTest < Minitest::Test
       clear_default_adapter_warning
 
       # First call - shows warning and sets @default_adapter_warning_shown
-      silence_warnings { MultiJson.default_adapter }
+      capture_stderr { MultiJson.default_adapter }
 
       # Clear @default_adapter but keep @default_adapter_warning_shown
       MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
@@ -777,7 +777,7 @@ class MultiJsonAdapterDetectionTest < Minitest::Test
     skip unless defined?(::Oj)
     undefine_constants(:FastJsonparser) do
       clear_default_adapter_warning
-      adapter = silence_warnings { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJson.default_adapter }
 
       assert_equal :oj, adapter
     end
@@ -787,7 +787,7 @@ class MultiJsonAdapterDetectionTest < Minitest::Test
     skip unless defined?(::Yajl)
     undefine_constants(:FastJsonparser, :Oj) do
       clear_default_adapter_warning
-      adapter = silence_warnings { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJson.default_adapter }
 
       assert_equal :yajl, adapter
     end
@@ -797,7 +797,7 @@ class MultiJsonAdapterDetectionTest < Minitest::Test
     skip unless defined?(::JSON::Ext::Parser)
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       clear_default_adapter_warning
-      adapter = silence_warnings { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJson.default_adapter }
 
       assert_equal :json_gem, adapter
     end
@@ -807,7 +807,7 @@ class MultiJsonAdapterDetectionTest < Minitest::Test
     undefine_constants(:FastJsonparser, :Oj, :Yajl) do
       with_temporary_constant(:JrJackson) do
         clear_default_adapter_warning
-        adapter = silence_warnings { MultiJson.default_adapter }
+        adapter = capture_stderr { MultiJson.default_adapter }
 
         assert_equal :jr_jackson, adapter
       end
@@ -819,7 +819,7 @@ class MultiJsonAdapterDetectionTest < Minitest::Test
       with_json_ext_parser_removed do
         with_temporary_constant(:Gson) do
           clear_default_adapter_warning
-          adapter = silence_warnings { MultiJson.default_adapter }
+          adapter = capture_stderr { MultiJson.default_adapter }
 
           assert_equal :gson, adapter
         end

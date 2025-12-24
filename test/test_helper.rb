@@ -20,11 +20,23 @@ unless ENV["MUTANT"]
   end
 end
 
+# Capture any warnings during initial load (e.g., ok_json fallback warning)
+require "stringio"
+original_stderr = $stderr
+$stderr = StringIO.new
 require "multi_json"
+$stderr = original_stderr
 require "minitest/autorun"
 require "mutant/minitest/coverage"
+require_relative "support/strict_adapter"
+require_relative "support/stub_helpers"
 
 module TestHelpers
+  include StubHelpers
+
+  # Alias for backward compatibility with tests
+  StrictAdapter = ::StrictAdapter
+
   module_function
 
   def adapter_available?(name)
@@ -43,12 +55,12 @@ module TestHelpers
   def gson? = adapter_available?(:gson)
   def jrjackson? = adapter_available?(:jrjackson)
 
-  def silence_warnings
-    old_verbose = $VERBOSE
-    $VERBOSE = nil
-    yield
+  def capture_stderr(&)
+    original_stderr = $stderr
+    $stderr = StringIO.new
+    silence_warnings(&)
   ensure
-    $VERBOSE = old_verbose
+    $stderr = original_stderr
   end
 
   def undefine_constants(*consts)
@@ -95,79 +107,10 @@ module TestHelpers
     adapter.load_options = adapter.dump_options = MultiJson.load_options = MultiJson.dump_options = nil
   end
 
-  def with_stub(object, method_name, replacement, call_original: false)
-    original = object.method(method_name)
-    metaclass = class << object; self; end
-    define_stub_method(metaclass, method_name, replacement, original, call_original)
-    yield
-  ensure
-    silence_warnings { metaclass.define_method(method_name, original) }
-  end
-
-  def define_stub_method(metaclass, method_name, replacement, original, call_original)
-    silence_warnings do
-      if call_original
-        metaclass.define_method(method_name) do |*a, **k, &b|
-          replacement.call(*a, **k, &b)
-          original.call(*a, **k, &b)
-        end
-      else
-        metaclass.define_method(method_name, replacement)
-      end
-    end
-  end
-
   def clear_default_adapter_warning
     return unless MultiJson.instance_variable_defined?(:@default_adapter_warning_shown)
 
     MultiJson.remove_instance_variable(:@default_adapter_warning_shown)
-  end
-
-  # Custom adapter that verifies exact argument signatures
-  class StrictAdapter
-    class ParseError < StandardError; end
-
-    class << self
-      attr_accessor :load_calls, :dump_calls
-
-      def reset_calls
-        @load_calls = []
-        @dump_calls = []
-      end
-
-      def load(string, options = nil)
-        raise ArgumentError, "load requires exactly 2 arguments" if options.nil?
-        raise ArgumentError, "string cannot be nil" if string.nil?
-
-        @load_calls ||= []
-        @load_calls << {string: string, options: options}
-
-        return symbolize_keys(::JSON.parse(string)) if options[:symbolize_keys]
-
-        ::JSON.parse(string)
-      rescue ::JSON::ParserError => e
-        raise ParseError, e.message
-      end
-
-      def dump(object, options = nil)
-        raise ArgumentError, "dump requires exactly 2 arguments" if options.nil?
-        raise ArgumentError, "object cannot be nil" if object.nil?
-
-        @dump_calls ||= []
-        @dump_calls << {object: object, options: options}
-        ::JSON.generate(object)
-      end
-
-      private
-
-      def symbolize_keys(hash)
-        return hash unless hash.is_a?(Hash)
-
-        hash.each_with_object({}) do |(k, v), h|
-          h[k.to_sym] = symbolize_keys(v)
-        end
-      end
-    end
   end
 
   def expected_default_adapter
