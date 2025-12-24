@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "activesupport", require: false
+gem "activesupport", "~> 7.0.0", require: false
 gem "json", "~> 2.0", require: false
 
 gem "minitest", ">= 5.20"

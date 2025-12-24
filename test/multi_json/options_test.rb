@@ -552,7 +552,7 @@ class OptionsDefinedCheckTest < Minitest::Test
   def test_handle_hashable_calls_to_hash_method
     # Kill mutation: options.to_hash -> options or nil
     hashable = Object.new
-    def hashable.respond_to?(method, *) = method == :to_hash || super
+    def hashable.respond_to?(method, *args) = method == :to_hash || super
     def hashable.to_hash = {from_to_hash_method: true}
 
     @test_class.load_options = hashable
@@ -566,7 +566,7 @@ class OptionsDefinedCheckTest < Minitest::Test
   def test_handle_hashable_returns_to_hash_result_not_nil
     # Kill mutation: options.respond_to?(:to_hash) ? options.to_hash : nil -> nil
     hashable = Object.new
-    def hashable.respond_to?(method, *) = method == :to_hash || super
+    def hashable.respond_to?(method, *args) = method == :to_hash || super
     def hashable.to_hash = {specific_key: "specific_value"}
 
     @test_class.load_options = hashable

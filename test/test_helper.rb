@@ -55,10 +55,10 @@ module TestHelpers
   def gson? = adapter_available?(:gson)
   def jrjackson? = adapter_available?(:jrjackson)
 
-  def capture_stderr(&)
+  def capture_stderr(&block)
     original_stderr = $stderr
     $stderr = StringIO.new
-    silence_warnings(&)
+    silence_warnings(&block)
   ensure
     $stderr = original_stderr
   end
@@ -73,9 +73,9 @@ module TestHelpers
     original_values.each { |const, value| Object.const_set(const, value) unless Object.const_defined?(const) }
   end
 
-  def break_requirements(&)
+  def break_requirements(&block)
     replacements = MultiJson::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
-    stub_constant(MultiJson, :REQUIREMENT_MAP, replacements, &)
+    stub_constant(MultiJson, :REQUIREMENT_MAP, replacements, &block)
   end
 
   def stub_constant(mod, const_name, value)
@@ -122,10 +122,10 @@ module TestHelpers
     end
   end
 
-  def track_current_adapter_options(&)
+  def track_current_adapter_options(&block)
     adapter = nil
     stub = ->(opts = {}) { adapter = opts[:adapter] if opts.is_a?(Hash) }
-    with_stub(MultiJson, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJson, :current_adapter, stub, call_original: true, &block)
     adapter
   end
 end

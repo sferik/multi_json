@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.name = "multi_json"
   spec.require_path = "lib"
-  spec.required_ruby_version = ">= 3.2"
+  spec.required_ruby_version = ">= 3.0"
   spec.summary = "A common interface to multiple JSON libraries."
   spec.version = MultiJson::Version
 

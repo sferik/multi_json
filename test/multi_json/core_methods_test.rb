@@ -434,10 +434,10 @@ class MultiJsonLoadCurrentAdapterTest < Minitest::Test
 
   private
 
-  def with_current_adapter_tracking(&)
+  def with_current_adapter_tracking(&block)
     opts_received = nil
     stub = ->(opts = {}) { opts_received = opts }
-    with_stub(MultiJson, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJson, :current_adapter, stub, call_original: true, &block)
     opts_received
   end
 end
@@ -736,10 +736,10 @@ class MultiJsonDumpCurrentAdapterTest < Minitest::Test
 
   private
 
-  def with_current_adapter_tracking(&)
+  def with_current_adapter_tracking(&block)
     opts_received = nil
     stub = ->(opts = {}) { opts_received = opts }
-    with_stub(MultiJson, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJson, :current_adapter, stub, call_original: true, &block)
     opts_received
   end
 end
@@ -1157,17 +1157,17 @@ class MultiJsonCurrentAdapterLoadTest < Minitest::Test
 
   private
 
-  def with_load_adapter_tracking(&)
+  def with_load_adapter_tracking(&block)
     arg_received = nil
     stub = ->(arg) { arg_received = arg }
-    with_stub(MultiJson, :load_adapter, stub, call_original: true, &)
+    with_stub(MultiJson, :load_adapter, stub, call_original: true, &block)
     arg_received
   end
 
-  def with_adapter_tracking(&)
+  def with_adapter_tracking(&block)
     adapter_called = false
     stub = -> { adapter_called = true }
-    with_stub(MultiJson, :adapter, stub, call_original: true, &)
+    with_stub(MultiJson, :adapter, stub, call_original: true, &block)
     adapter_called
   end
 end

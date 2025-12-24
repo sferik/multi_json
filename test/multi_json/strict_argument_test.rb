@@ -541,14 +541,14 @@ class UseMutationKillerTest < Minitest::Test
 
   private
 
-  def track_load_adapter_calls(&)
+  def track_load_adapter_calls(&block)
     load_adapter_called = false
     original = MultiJson.method(:load_adapter)
     stub = lambda do |arg|
       load_adapter_called = true
       original.call(arg)
     end
-    with_stub(MultiJson, :load_adapter, stub, &)
+    with_stub(MultiJson, :load_adapter, stub, &block)
     load_adapter_called
   end
 
