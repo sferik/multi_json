@@ -45,8 +45,6 @@ class VersionTest < Minitest::Test
   end
 
   def test_to_s_includes_pre_version_when_set
-    # Test that PRE is included in the version string when it's not nil
-    # This kills mutations that replace PRE with nil
     with_pre_version("beta1") do
       assert_equal "1.19.0.beta1", MultiJson::Version.to_s
     end

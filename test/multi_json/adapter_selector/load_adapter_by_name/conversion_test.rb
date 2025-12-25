@@ -1,0 +1,53 @@
+require_relative "../../../test_helper"
+require "multi_json/adapter_selector"
+
+# Tests for load_adapter_by_name method
+class LoadAdapterByNameConversionTest < Minitest::Test
+  cover "MultiJson::AdapterSelector*"
+
+  def test_load_adapter_by_name_uses_aliases_fetch
+    skip "JrJackson not available" unless TestHelpers.jrjackson?
+
+    result = MultiJson.send(:load_adapter_by_name, "jrjackson")
+
+    assert_equal MultiJson::Adapters::JrJackson, result
+  end
+
+  def test_load_adapter_by_name_uses_name_when_not_aliased
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
+
+    assert_equal MultiJson::Adapters::JsonGem, result
+  end
+
+  def test_load_adapter_by_name_downcases_for_require
+    result = MultiJson.send(:load_adapter_by_name, "JSON_GEM")
+
+    assert_equal MultiJson::Adapters::JsonGem, result
+  end
+
+  def test_load_adapter_by_name_capitalizes_segments
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+
+    assert_equal "OkJson", result.name.split("::").last
+  end
+
+  def test_load_adapter_by_name_constructs_correct_class_name
+    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+
+    assert_equal "OkJson", result.name.split("::").last
+  end
+
+  def test_load_adapter_converts_symbol_to_string
+    result = MultiJson.send(:load_adapter, :json_gem)
+
+    assert_equal MultiJson::Adapters::JsonGem, result
+  end
+
+  def test_load_adapter_to_s_is_called_on_symbol
+    symbol_adapter = :ok_json
+
+    result = MultiJson.send(:load_adapter, symbol_adapter)
+
+    assert_equal MultiJson::Adapters::OkJson, result
+  end
+end
