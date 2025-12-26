@@ -163,10 +163,12 @@ module MultiJson
   # Parses a JSON string into a Ruby object
   #
   # @api private
+  # @deprecated Use {.load} instead
   # @return [Object] parsed Ruby object
   # @example
   #   MultiJson.decode('{"foo":"bar"}')  #=> {"foo" => "bar"}
   alias_method :decode, :load
+  module_function :decode
 
   # Returns the adapter to use for the given options
   #
@@ -196,10 +198,12 @@ module MultiJson
   # Serializes a Ruby object to a JSON string
   #
   # @api private
+  # @deprecated Use {.dump} instead
   # @return [String] JSON string
   # @example
   #   MultiJson.encode({foo: "bar"})  #=> '{"foo":"bar"}'
   alias_method :encode, :dump
+  module_function :encode
 
   # Executes a block using the specified adapter
   #
