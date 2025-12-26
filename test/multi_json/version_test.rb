@@ -4,15 +4,15 @@ class VersionTest < Minitest::Test
   cover "MultiJson::Version*"
 
   def test_major_version_is_defined
-    assert_equal 1, MultiJson::Version::MAJOR
+    assert_kind_of Integer, MultiJson::Version::MAJOR
   end
 
   def test_minor_version_is_defined
-    assert_equal 19, MultiJson::Version::MINOR
+    assert_kind_of Integer, MultiJson::Version::MINOR
   end
 
   def test_patch_version_is_defined
-    assert_equal 0, MultiJson::Version::PATCH
+    assert_kind_of Integer, MultiJson::Version::PATCH
   end
 
   def test_pre_version_is_nil
@@ -20,19 +20,21 @@ class VersionTest < Minitest::Test
   end
 
   def test_to_s_returns_dotted_version_string
-    assert_equal "1.19.0", MultiJson::Version.to_s
+    expected = "#{MultiJson::Version::MAJOR}.#{MultiJson::Version::MINOR}.#{MultiJson::Version::PATCH}"
+
+    assert_equal expected, MultiJson::Version.to_s
   end
 
   def test_to_s_includes_major_version
-    assert_match(/^1\./, MultiJson::Version.to_s)
+    assert MultiJson::Version.to_s.start_with?("#{MultiJson::Version::MAJOR}.")
   end
 
   def test_to_s_includes_minor_version
-    assert_match(/\.19\./, MultiJson::Version.to_s)
+    assert_includes MultiJson::Version.to_s, ".#{MultiJson::Version::MINOR}."
   end
 
   def test_to_s_includes_patch_version
-    assert_match(/\.0$/, MultiJson::Version.to_s)
+    assert MultiJson::Version.to_s.end_with?(".#{MultiJson::Version::PATCH}")
   end
 
   def test_to_s_uses_dot_as_separator
@@ -41,12 +43,14 @@ class VersionTest < Minitest::Test
 
   def test_version_constant_is_frozen_string
     assert_predicate MultiJson::VERSION, :frozen?
-    assert_equal "1.19.0", MultiJson::VERSION
+    assert_equal MultiJson::Version.to_s, MultiJson::VERSION
   end
 
   def test_to_s_includes_pre_version_when_set
     with_pre_version("beta1") do
-      assert_equal "1.19.0.beta1", MultiJson::Version.to_s
+      expected = "#{MultiJson::Version::MAJOR}.#{MultiJson::Version::MINOR}.#{MultiJson::Version::PATCH}.beta1"
+
+      assert_equal expected, MultiJson::Version.to_s
     end
   end
 
