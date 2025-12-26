@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.19.1
+* [Restore deprecated encode/decode methods](https://github.com/sferik/multi_json/commit/c5bf2fc95dfdde6b30d63fefb0b2f4aa29633969)
+
 ## 1.19.0
 * [Fix serialization of ActiveSupport-enhanced objects](https://github.com/sferik/multi_json/commit/03a367813ebd7ed87eb22ea05249cc6453bb3c10)
 
