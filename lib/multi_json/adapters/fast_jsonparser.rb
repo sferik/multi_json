@@ -12,6 +12,7 @@ module MultiJson
       defaults :load, symbolize_keys: false
       defaults :dump, mode: :compat, time_format: :ruby, use_to_json: true
 
+      # Exception raised when JSON parsing fails
       ParseError = ::FastJsonparser::ParseError
 
       # Parse a JSON string into a Ruby object

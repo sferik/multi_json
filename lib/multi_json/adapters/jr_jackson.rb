@@ -5,6 +5,7 @@ module MultiJson
   module Adapters
     # Use the jrjackson.rb library to dump/load.
     class JrJackson < Adapter
+      # Exception raised when JSON parsing fails
       ParseError = ::JrJackson::ParseError
 
       # Parse a JSON string into a Ruby object

@@ -8,6 +8,7 @@ module MultiJson
     class OkJson < Adapter
       include ConvertibleHashKeys
 
+      # Exception raised when JSON parsing fails
       ParseError = ::MultiJson::OkJson::Error
 
       # Parse a JSON string into a Ruby object

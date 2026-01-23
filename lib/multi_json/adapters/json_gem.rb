@@ -5,6 +5,7 @@ module MultiJson
   module Adapters
     # Use the JSON gem to dump/load.
     class JsonGem < Adapter
+      # Exception raised when JSON parsing fails
       ParseError = ::JSON::ParserError
 
       defaults :load, create_additions: false, quirks_mode: true

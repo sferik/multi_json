@@ -3,6 +3,10 @@ require_relative "../adapter"
 require_relative "oj_common"
 
 module MultiJson
+  # Namespace for JSON adapter implementations
+  #
+  # Each adapter wraps a specific JSON library and provides a consistent
+  # interface for loading and dumping JSON data.
   module Adapters
     # Use the Oj library to dump/load.
     class Oj < Adapter

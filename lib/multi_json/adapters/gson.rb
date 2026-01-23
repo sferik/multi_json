@@ -5,6 +5,7 @@ module MultiJson
   module Adapters
     # Use the gson.rb library to dump/load.
     class Gson < Adapter
+      # Exception raised when JSON parsing fails
       ParseError = ::Gson::DecodeError
 
       # Parse a JSON string into a Ruby object

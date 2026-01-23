@@ -2,6 +2,12 @@ require "rubygems/version"
 
 module MultiJson
   module Adapters
+    # Shared functionality for Oj-based adapters
+    #
+    # Provides version detection and option preparation for both
+    # the Oj and FastJsonparser adapters.
+    #
+    # @api private
     module OjCommon
       OJ_VERSION = Gem::Version.new(::Oj::VERSION)
       OJ_V2 = OJ_VERSION.segments.first == 2

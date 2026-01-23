@@ -5,6 +5,7 @@ module MultiJson
   module Adapters
     # Use the Yajl-Ruby library to dump/load.
     class Yajl < Adapter
+      # Exception raised when JSON parsing fails
       ParseError = ::Yajl::ParseError
 
       # Parse a JSON string into a Ruby object
