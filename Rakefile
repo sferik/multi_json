@@ -15,6 +15,13 @@ Rake::TestTask.new(:test) do |t|
   t.pattern = "test/**/*_test.rb"
 end
 
+begin
+  require "steep/rake_task"
+  Steep::RakeTask.new
+rescue LoadError
+  # Steep is not available on JRuby
+end
+
 require "yard"
 YARD::Rake::YardocTask.new(:yard)
 
@@ -44,4 +51,6 @@ task :mutant do
 end
 
 desc "Run the default task"
-task default: %i[test lint mutant yardstick]
+default_tasks = %i[test lint mutant yardstick]
+default_tasks << :steep if Rake::Task.task_defined?(:steep)
+task default: default_tasks

@@ -41,8 +41,9 @@ system. Ideally, a bug report should include a pull request with failing tests.
 8.  Run `bundle exec rake mutant` and kill any surviving mutants.
 9.  Run `bundle exec rake lint` and fix any offenses.
 10. Run `bundle exec rake yardstick` and add any missing documentation.
-11. Add, commit, and push your changes.
-12. [Submit a pull request][pr] that summarizes *what* changes you made and
+11. Run `bundle exec rake steep` and ensure that the code typechecks.
+12. Add, commit, and push your changes.
+13. [Submit a pull request][pr] that summarizes *what* changes you made and
     *why* you made them. If you made any significant decisions along the way,
     describe the options you considered and how you thought about the
     tradeoffs.
