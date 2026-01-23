@@ -93,7 +93,9 @@ class AdapterUndefinedTest < Minitest::Test
   def test_adapter_checks_both_defined_and_truthiness
     MultiJson.instance_variable_set(:@adapter, nil)
 
-    use_nil_called = with_use_tracking { |called| capture_stderr { MultiJson.adapter } && called[:nil] }
+    use_nil_called = with_stub(MultiJson, :default_adapter, -> { :json_gem }) do
+      with_use_tracking { |called| capture_stderr { MultiJson.adapter } && called[:nil] }
+    end
 
     assert use_nil_called, "use(nil) should be called when @adapter is nil"
   ensure

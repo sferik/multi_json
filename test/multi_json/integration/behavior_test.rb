@@ -113,12 +113,12 @@ class BehaviorIntegrationTest < Minitest::Test
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
-  def track_ok_json_calls(&block)
+  def track_ok_json_calls(&)
     results = {dump_called: false, load_called: false}
     dump_stub = ->(*) { (results[:dump_called] = true) && "dump_something" }
     load_stub = ->(*) { (results[:load_called] = true) && "load_something" }
     with_stub(MultiJson::Adapters::OkJson, :dump, dump_stub) do
-      with_stub(MultiJson::Adapters::OkJson, :load, load_stub, &block)
+      with_stub(MultiJson::Adapters::OkJson, :load, load_stub, &)
     end
     results
   end
