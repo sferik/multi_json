@@ -1,8 +1,12 @@
 # MultiJSON
 
-[![Gem Version](http://img.shields.io/gem/v/multi_json.svg)][gem]
-[![Build Status](https://github.com/sferik/multi_json/actions/workflows/tests.yml/badge.svg)][build]
+[![Tests](https://github.com/sferik/multi_json/actions/workflows/tests.yml/badge.svg)][tests]
+[![Linter](https://github.com/sferik/multi_json/actions/workflows/linter.yml/badge.svg)][linter]
+[![Mutant](https://github.com/sferik/multi_json/actions/workflows/mutant.yml/badge.svg)][mutant]
+[![Typecheck](https://github.com/sferik/multi_json/actions/workflows/typecheck.yml/badge.svg)][typecheck]
+[![Docs](https://github.com/sferik/multi_json/actions/workflows/docs.yml/badge.svg)][docs]
 [![Maintainability](https://qlty.sh/badges/fde3f4a8-c331-44be-b1e6-45842137def9/maintainability.svg)][qlty]
+[![Gem Version](https://badge.fury.io/rb/multi_json.svg)][gem]
 
 Lots of Ruby libraries parse JSON and everyone has their favorite JSON coder.
 Instead of choosing a single JSON coder and forcing users of your library to be
@@ -98,18 +102,22 @@ spec.add_dependency 'multi_json', '~> 1.0'
 Copyright (c) 2010-2026 Erik Berlin, Michael Bleigh, Josh Kalderimis, and Pavel
 Pravosud. See [LICENSE][license] for details.
 
-[build]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
+[docs]: https://github.com/sferik/multi_json/actions/workflows/docs.yml
+[fast_jsonparser]: https://github.com/anilmaurya/fast_jsonparser
 [gem]: https://rubygems.org/gems/multi_json
 [gson]: https://github.com/avsej/gson.rb
 [jrjackson]: https://github.com/guyboertje/jrjackson
 [jruby]: http://www.jruby.org/
 [json-gem]: https://github.com/flori/json
 [license]: LICENSE.md
+[linter]: https://github.com/sferik/multi_json/actions/workflows/linter.yml
 [macruby]: http://www.macruby.org/
+[mutant]: https://github.com/sferik/multi_json/actions/workflows/mutant.yml
 [oj]: https://github.com/ohler55/oj
 [okjson]: https://github.com/kr/okjson
-[fast_jsonparser]: https://github.com/anilmaurya/fast_jsonparser
 [pvc]: http://docs.rubygems.org/read/chapter/16#page74
 [qlty]: https://qlty.sh/gh/sferik/projects/multi_json
 [semver]: http://semver.org/
+[tests]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
+[typecheck]: https://github.com/sferik/multi_json/actions/workflows/typecheck.yml
 [yajl]: https://github.com/brianmario/yajl-ruby
