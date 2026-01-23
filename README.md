@@ -95,8 +95,8 @@ spec.add_dependency 'multi_json', '~> 1.0'
 
 ## Copyright
 
-Copyright (c) 2010-2025 Michael Bleigh, Josh Kalderimis, Erik Berlin,
-and Pavel Pravosud. See [LICENSE][license] for details.
+Copyright (c) 2010-2026 Erik Berlin, Michael Bleigh, Josh Kalderimis, and Pavel
+Pravosud. See [LICENSE][license] for details.
 
 [build]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
 [gem]: https://rubygems.org/gems/multi_json
