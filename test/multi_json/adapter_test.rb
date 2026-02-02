@@ -1,4 +1,5 @@
 require_relative "../test_helper"
+require "multi_json/adapters/json_gem"
 require "stringio"
 
 class AdapterInheritanceTest < Minitest::Test
@@ -99,6 +100,27 @@ class AdapterDumpTest < Minitest::Test
     result = MultiJson::Adapters::JsonGem.dump({key: "value"}, adapter: :oj)
 
     assert_equal '{"key":"value"}', result
+  end
+
+  def test_dump_with_json_state_options
+    # JSON gem 2.x passes JSON::State objects which don't respond to Hash methods
+    # like #except - ensure we convert to Hash first (GitHub issue #59)
+    state = JSON::State.new(indent: "  ")
+    result = MultiJson::Adapters::JsonGem.dump({key: "value"}, state)
+
+    assert_includes result, "key"
+    assert_includes result, "value"
+  end
+
+  def test_dump_with_object_responding_to_to_h
+    # Test that any object responding to #to_h works as options
+    options_like = Struct.new(:indent).new("  ")
+    def options_like.to_h = {indent: indent}
+
+    result = MultiJson::Adapters::JsonGem.dump({key: "value"}, options_like)
+
+    assert_includes result, "key"
+    assert_includes result, "value"
   end
 end
 

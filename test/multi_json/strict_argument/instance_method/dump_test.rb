@@ -62,6 +62,19 @@ class InstanceMethodDumpTest < Minitest::Test
     assert_empty TestHelpers::StrictAdapter.dump_calls, "StrictAdapter should NOT be called with adapter: :json_gem"
   end
 
+  def test_instance_dump_without_options_passes_empty_hash_not_nil
+    @object.send(:use, TestHelpers::StrictAdapter)
+    TestHelpers::StrictAdapter.reset_calls
+
+    # StrictAdapter raises ArgumentError if options is nil
+    # This test ensures the default parameter is {} not nil
+    @object.send(:dump, {a: 1})
+
+    call = TestHelpers::StrictAdapter.dump_calls.first
+
+    assert_kind_of Hash, call[:options]
+  end
+
   private
 
   def create_multi_json_object

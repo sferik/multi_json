@@ -120,4 +120,19 @@ class LoadBehaviorTest < Minitest::Test
   ensure
     MultiJson.use :json_gem
   end
+
+  def test_load_without_options_passes_empty_hash_not_nil
+    MultiJson.use TestHelpers::StrictAdapter
+    TestHelpers::StrictAdapter.reset_calls
+
+    # StrictAdapter raises ArgumentError if options is nil
+    # This test ensures the default parameter is {} not nil
+    MultiJson.load('{"a":1}')
+
+    call = TestHelpers::StrictAdapter.load_calls.first
+
+    assert_kind_of Hash, call[:options]
+  ensure
+    MultiJson.use :json_gem
+  end
 end

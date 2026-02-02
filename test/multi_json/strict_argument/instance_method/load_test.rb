@@ -94,6 +94,19 @@ class InstanceMethodLoadTest < Minitest::Test
     assert_equal({"test" => true}, result)
   end
 
+  def test_instance_load_without_options_passes_empty_hash_not_nil
+    @object.send(:use, TestHelpers::StrictAdapter)
+    TestHelpers::StrictAdapter.reset_calls
+
+    # StrictAdapter raises ArgumentError if options is nil
+    # This test ensures the default parameter is {} not nil
+    @object.send(:load, '{"a":1}')
+
+    call = TestHelpers::StrictAdapter.load_calls.first
+
+    assert_kind_of Hash, call[:options]
+  end
+
   private
 
   def create_multi_json_object

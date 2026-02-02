@@ -107,9 +107,10 @@ module MultiJson
       # Removes the :adapter key from options for cache key
       #
       # @api private
-      # @param options [Hash] original options
+      # @param options [Hash, #to_h] original options (may be JSON::State or similar)
       # @return [Hash] frozen options without :adapter key
       def strip_adapter_key(options)
+        options = options.to_h unless options.is_a?(Hash)
         options.except(:adapter).freeze
       end
     end
