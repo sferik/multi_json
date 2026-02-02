@@ -29,5 +29,6 @@ jobs:
     - name: Run tests
       run: |
         gem install bundler
+        bundle config set --local path 'vendor/bundle'
         bundle install
         bundle exec rake test
