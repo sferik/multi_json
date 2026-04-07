@@ -2,9 +2,13 @@ require File.expand_path("lib/multi_json/version.rb", __dir__)
 
 Gem::Specification.new do |spec|
   spec.authors = ["Michael Bleigh", "Josh Kalderimis", "Erik Berlin", "Pavel Pravosud"]
-  spec.description = "A common interface to multiple JSON libraries, " \
-                     "including fast_jsonparser, Oj, Yajl, the JSON gem " \
-                     "(with C-extensions), gson, JrJackson, and OkJson."
+  spec.description = if ENV["MULTI_JSON_PLATFORM"] == "java"
+    "A common interface to multiple JSON libraries, " \
+      "including the JSON gem, gson, JrJackson, and OkJson."
+  else
+    "A common interface to multiple JSON libraries, " \
+      "including fast_jsonparser, Oj, Yajl, the JSON gem, and OkJson."
+  end
   spec.email = %w[sferik@gmail.com]
   spec.homepage = "https://github.com/sferik/multi_json"
   spec.license = "MIT"
@@ -28,7 +32,7 @@ Gem::Specification.new do |spec|
   ]
 
   files = Dir["*.md", "lib/**/*"]
-  files -= ENV["MULTI_JSON_PLATFORM"] == "java" ? mri_only_files : jruby_only_files
+  files -= (ENV["MULTI_JSON_PLATFORM"] == "java") ? mri_only_files : jruby_only_files
   spec.files = files
 
   if RUBY_ENGINE == "jruby"
