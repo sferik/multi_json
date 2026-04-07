@@ -69,13 +69,13 @@ module MultiJson
 
       private
 
-      # Checks if the input is blank (nil or whitespace-only)
+      # Checks if the input is blank (nil, empty, or whitespace-only)
       #
       # @api private
       # @param input [String, nil] input to check
       # @return [Boolean] true if input is blank
       def blank?(input)
-        input.nil? || BLANK_PATTERN.match?(input)
+        input.nil? || input.empty? || BLANK_PATTERN.match?(input)
       rescue ArgumentError
         # Invalid byte sequence in UTF-8 - treat as non-blank
         false
