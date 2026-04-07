@@ -49,8 +49,7 @@ module MultiJson
       # @example Parse JSON string
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
-        options[:symbol_keys] = options[:symbolize_keys]
-        ::Oj.load(string, options)
+        ::Oj.load(string, options.merge(symbol_keys: options[:symbolize_keys]))
       end
 
       # Serialize a Ruby object to JSON

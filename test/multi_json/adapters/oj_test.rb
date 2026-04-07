@@ -39,5 +39,18 @@ if TestHelpers.oj?
     ensure
       Oj.default_options = original_options
     end
+
+    def test_load_does_not_mutate_cached_options
+      MultiJson.load_options = nil
+      MultiJson::OptionsCache.reset
+
+      MultiJson.load('{"a":1}', symbolize_keys: true)
+      MultiJson.load('{"a":1}', symbolize_keys: true)
+
+      cached = MultiJson::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
+
+      refute_includes cached.keys, :symbol_keys,
+        "expected cached load options to be unchanged by Oj#load translation"
+    end
   end
 end
