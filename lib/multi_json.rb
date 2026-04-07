@@ -92,7 +92,7 @@ module MultiJson
 
   # Returns the current adapter class
   #
-  # @api private
+  # @api public
   # @return [Class] the current adapter class
   # @example
   #   MultiJson.adapter  #=> MultiJson::Adapters::Oj
@@ -111,7 +111,7 @@ module MultiJson
 
   # Sets the adapter to use for JSON operations
   #
-  # @api private
+  # @api public
   # @param new_adapter [Symbol, String, Module, nil] adapter specification
   # @return [Class] the loaded adapter class
   # @example
@@ -124,7 +124,7 @@ module MultiJson
 
   # Sets the adapter to use for JSON operations
   #
-  # @api private
+  # @api public
   # @return [Class] the loaded adapter class
   # @example
   #   MultiJson.adapter = :json_gem
@@ -146,7 +146,7 @@ module MultiJson
 
   # Parses a JSON string into a Ruby object
   #
-  # @api private
+  # @api public
   # @param string [String, #read] JSON string or IO-like object
   # @param options [Hash] parsing options (adapter-specific)
   # @return [Object] parsed Ruby object
@@ -172,7 +172,7 @@ module MultiJson
 
   # Returns the adapter to use for the given options
   #
-  # @api private
+  # @api public
   # @param options [Hash] options that may contain :adapter key
   # @return [Class] adapter class
   # @example
@@ -185,7 +185,7 @@ module MultiJson
 
   # Serializes a Ruby object to a JSON string
   #
-  # @api private
+  # @api public
   # @param object [Object] object to serialize
   # @param options [Hash] serialization options (adapter-specific)
   # @return [String] JSON string
@@ -207,7 +207,7 @@ module MultiJson
 
   # Executes a block using the specified adapter
   #
-  # @api private
+  # @api public
   # @param new_adapter [Symbol, String, Module] adapter to use
   # @yield block to execute with the temporary adapter
   # @return [Object] result of the block
@@ -232,4 +232,10 @@ module MultiJson
   module_function :with_engine
 
   # @!endgroup
+
+  # Re-publicize instance versions of public-API methods. ``module_function``
+  # makes instance methods private by default; explicitly making them public
+  # both reflects their actual API status and allows YARD/Yardstick to render
+  # them as part of the documented public surface.
+  public :adapter, :use, :adapter=, :load, :current_adapter, :dump, :with_adapter
 end

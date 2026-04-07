@@ -11,9 +11,11 @@ module MultiJson
 
     # Set options for load operations
     #
-    # @api private
+    # @api public
     # @param options [Hash, Proc] options hash or callable
     # @return [Hash, Proc] the options
+    # @example
+    #   MultiJson.load_options = {symbolize_keys: true}
     def load_options=(options)
       OptionsCache.reset
       @load_options = options
@@ -21,9 +23,11 @@ module MultiJson
 
     # Set options for dump operations
     #
-    # @api private
+    # @api public
     # @param options [Hash, Proc] options hash or callable
     # @return [Hash, Proc] the options
+    # @example
+    #   MultiJson.dump_options = {pretty: true}
     def dump_options=(options)
       OptionsCache.reset
       @dump_options = options
@@ -31,16 +35,20 @@ module MultiJson
 
     # Get options for load operations
     #
-    # @api private
+    # @api public
     # @return [Hash] resolved options hash
+    # @example
+    #   MultiJson.load_options  #=> {}
     def load_options(...)
       resolve_options(@load_options, ...) || default_load_options
     end
 
     # Get options for dump operations
     #
-    # @api private
+    # @api public
     # @return [Hash] resolved options hash
+    # @example
+    #   MultiJson.dump_options  #=> {}
     def dump_options(...)
       resolve_options(@dump_options, ...) || default_dump_options
     end
