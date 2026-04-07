@@ -15,6 +15,8 @@ Gem::Specification.new do |spec|
   spec.summary = "A common interface to multiple JSON libraries."
   spec.version = MultiJson::Version
 
+  spec.add_dependency "concurrent-ruby", "~> 1.2"
+
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/sferik/multi_json/issues",
     "changelog_uri" => "https://github.com/sferik/multi_json/blob/v#{spec.version}/CHANGELOG.md",

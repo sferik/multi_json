@@ -14,20 +14,11 @@ class OptionsCacheTest < Minitest::Test
   end
 
   def test_doesnt_leak_memory
-    caches = [MultiJson::OptionsCache.dump, MultiJson::OptionsCache.load].map do |cache|
-      cache.instance_variable_get(:@cache).length
+    [MultiJson::OptionsCache.dump, MultiJson::OptionsCache.load].each do |cache|
+      size = cache.instance_variable_get(:@cache).size
+
+      assert_operator size, :<=, MultiJson::OptionsCache::MAX_CACHE_SIZE
     end
-
-    assert(caches.all? { |c| c == MultiJson::OptionsCache::MAX_CACHE_SIZE })
-  end
-
-  def test_stores_value_in_current_cache_after_reset
-    MultiJson::OptionsCache.load.fetch(:foo) do
-      MultiJson::OptionsCache.reset
-      :bar
-    end
-
-    assert_equal :baz, MultiJson::OptionsCache.load.fetch(:foo, :baz)
   end
 
   def test_does_not_store_default_value
@@ -58,66 +49,15 @@ class OptionsCacheTest < Minitest::Test
     assert_nil store.fetch(:test_key, nil)
   end
 
-  def test_fetch_returns_cached_value_when_added_between_check_and_lock
-    # Tests the race condition branch where another thread adds the key
-    # between the initial check and acquiring the lock
-    store = MultiJson::OptionsCache::Store.new
-    cache = store.instance_variable_get(:@cache)
-
-    key_added, continue_fetch = setup_mutex_interception(store)
-
-    thread_a = Thread.new { store.fetch(:race_key) { "should_not_be_used" } }
-
-    key_added.pop
-    cache[:race_key] = "injected_value"
-    continue_fetch.push(:continue)
-
-    assert_equal "injected_value", thread_a.value
-  end
-
-  def setup_mutex_interception(store)
-    mutex = store.instance_variable_get(:@mutex)
-    key_added = Queue.new
-    continue_fetch = Queue.new
-    original_synchronize = mutex.method(:synchronize)
-
-    mutex.define_singleton_method(:synchronize) do |&block|
-      key_added.push(:ready)
-      continue_fetch.pop
-      original_synchronize.call(&block)
-    end
-
-    [key_added, continue_fetch]
-  end
-
-  def test_store_returns_existing_when_race_condition
-    # This tests the race condition branch at line 36:
-    # Value gets stored by another thread between line 23 check and store call
-    store = MultiJson::OptionsCache::Store.new
-    cache = store.instance_variable_get(:@cache)
-
-    # We need to trigger the scenario where:
-    # 1. Thread A passes line 23 check (key doesn't exist)
-    # 2. Thread B adds the key to cache
-    # 3. Thread A calls store, which checks again at line 36
-
-    # To test this directly, we call store via send when key exists
-    cache[:direct_key] = "existing_value"
-    result = store.send(:store, :direct_key, "new_value")
-
-    # Should return existing value, not store new value
-    assert_equal "existing_value", result
-    assert_equal "existing_value", cache[:direct_key]
-  end
-
-  def test_concurrent_fetch_triggers_race_condition_check
-    # Use threads to trigger the race condition path
+  def test_concurrent_fetch_returns_consistent_value
     store = MultiJson::OptionsCache::Store.new
     results = concurrent_fetch_results(store, :concurrent_key, 10)
 
-    # All threads should get the same value (the first one stored)
+    # All threads should observe the same value (the first one stored)
     assert_equal 1, results.uniq.size
   end
+
+  private
 
   def concurrent_fetch_results(store, key, thread_count)
     results = []

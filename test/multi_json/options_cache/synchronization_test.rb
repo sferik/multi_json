@@ -1,28 +1,10 @@
 require_relative "../../test_helper"
 
-# Tests for synchronization behavior
+# Tests that the cache survives concurrent access without raising or
+# returning corrupt values. The store wraps Concurrent::Map, which
+# handles synchronization internally.
 class OptionsCacheSynchronizationTest < Minitest::Test
   cover "MultiJson::OptionsCache*"
-
-  def test_fetch_synchronize_is_used
-    store = MultiJson::OptionsCache::Store.new
-    sync_called = false
-
-    stub_synchronize(store) { sync_called = true }
-    store.fetch(:sync_test) { "value" }
-
-    assert sync_called
-  end
-
-  def test_reset_uses_mutex_synchronize
-    store = MultiJson::OptionsCache::Store.new
-    sync_called = false
-
-    stub_synchronize(store) { sync_called = true }
-    store.reset
-
-    assert sync_called
-  end
 
   def test_reset_clears_cache
     store = MultiJson::OptionsCache::Store.new
@@ -36,14 +18,17 @@ class OptionsCacheSynchronizationTest < Minitest::Test
     assert_equal 0, cache.size
   end
 
-  private
+  def test_concurrent_fetches_do_not_raise
+    store = MultiJson::OptionsCache::Store.new
 
-  def stub_synchronize(store)
-    mutex = store.instance_variable_get(:@mutex)
-    original_sync = mutex.method(:synchronize)
-
-    silence_warnings do
-      mutex.define_singleton_method(:synchronize) { |&block| yield && original_sync.call(&block) }
+    threads = 10.times.map do |i|
+      Thread.new { 100.times { store.fetch(:"k#{i}") { i } } }
     end
+
+    threads.each(&:join)
+
+    cache = store.instance_variable_get(:@cache)
+
+    assert_operator cache.size, :<=, MultiJson::OptionsCache::MAX_CACHE_SIZE
   end
 end

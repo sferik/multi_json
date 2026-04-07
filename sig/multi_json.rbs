@@ -147,12 +147,11 @@ module MultiJson
       def reset: () -> void
       def fetch: (options key, ?options? default) ?{ () -> options } -> options?
 
-      @cache: Hash[options, options]
-      @mutex: Mutex
+      @cache: untyped
 
       private
 
-      def store: (options key, options value) -> options
+      def evict_one_if_full: () -> void
     end
   end
 

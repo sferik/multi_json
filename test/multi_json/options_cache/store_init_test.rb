@@ -4,18 +4,11 @@ require_relative "../../test_helper"
 class OptionsCacheStoreInitTest < Minitest::Test
   cover "MultiJson::OptionsCache*"
 
-  def test_store_new_initializes_cache_hash
+  def test_store_new_initializes_concurrent_map
     store = MultiJson::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
 
-    assert_kind_of Hash, cache
-  end
-
-  def test_store_new_initializes_mutex
-    store = MultiJson::OptionsCache::Store.new
-    mutex = store.instance_variable_get(:@mutex)
-
-    assert_kind_of Mutex, mutex
+    assert_kind_of Concurrent::Map, cache
   end
 
   def test_fetch_uses_cache_key_method

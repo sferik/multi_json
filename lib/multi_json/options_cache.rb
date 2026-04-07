@@ -1,29 +1,28 @@
+require "concurrent/map"
+
 module MultiJson
-  # Thread-safe LRU-like cache for merged options hashes
+  # Thread-safe bounded cache for merged options hashes
   #
   # Caches are separated for load and dump operations. Each cache is
   # bounded to prevent unbounded memory growth when options are
-  # generated dynamically.
+  # generated dynamically. Uses Concurrent::Map for lock-free reads on
+  # both MRI and JRuby.
   #
   # @api private
   module OptionsCache
-    # Maximum entries before oldest entry is evicted
+    # Maximum entries before an arbitrary entry is evicted
     MAX_CACHE_SIZE = 1000
 
-    # Thread-safe cache store using double-checked locking pattern
+    # Thread-safe cache store backed by Concurrent::Map
     #
     # @api private
     class Store
-      # Sentinel value to detect cache misses (unique object identity)
-      NOT_FOUND = Object.new
-
       # Create a new cache store
       #
       # @api private
       # @return [Store] new store instance
       def initialize
-        @cache = {}
-        @mutex = Mutex.new
+        @cache = Concurrent::Map.new
       end
 
       # Clear all cached entries
@@ -31,42 +30,44 @@ module MultiJson
       # @api private
       # @return [void]
       def reset
-        @mutex.synchronize { @cache.clear }
+        @cache.clear
       end
 
       # Fetch a value from cache or compute it
       #
+      # When called with a block, returns the cached value or computes a
+      # new one. When called without a block, returns the cached value or
+      # the supplied default if the key is missing.
+      #
       # @api private
       # @param key [Object] cache key
-      # @param default [Object] default value if key not found
+      # @param default [Object] value to return when key is missing and no
+      #   block is given
       # @yield block to compute value if not cached
-      # @return [Object] cached or computed value
-      def fetch(key, default = nil)
-        # Fast path: check cache without lock (safe for reads)
-        value = @cache.fetch(key, NOT_FOUND)
-        return value unless value.equal?(NOT_FOUND)
+      # @return [Object] cached, computed, or default value
+      def fetch(key, default = nil, &block)
+        return @cache[key] || default unless block
 
-        # Slow path: acquire lock and compute value
-        @mutex.synchronize do
-          @cache.fetch(key) { block_given? ? store(key, yield) : default }
-        end
+        evict_one_if_full
+        @cache.compute_if_absent(key, &block)
       end
 
       private
 
-      # Stores a value in the cache with LRU eviction
+      # Drop a single arbitrary entry when the cache is at capacity
+      #
+      # Concurrent::Map has no built-in size cap. We approximate LRU by
+      # evicting whichever key Map#keys surfaces first; deterministic
+      # ordering is not required, only memory bounding. Iteration must
+      # happen outside ``compute_if_absent`` because that block holds the
+      # internal cache mutex.
       #
       # @api private
-      # @param key [Object] cache key
-      # @param value [Object] value to store
-      # @return [Object] the stored value
-      def store(key, value)
-        # Double-check in case another thread computed while we waited
-        @cache.fetch(key) do
-          # Evict oldest entry if at capacity (Hash maintains insertion order)
-          @cache.shift if @cache.size >= MAX_CACHE_SIZE
-          @cache[key] = value
-        end
+      # @return [void]
+      def evict_one_if_full
+        return if @cache.size < MAX_CACHE_SIZE
+
+        @cache.delete(@cache.keys.first)
       end
     end
 

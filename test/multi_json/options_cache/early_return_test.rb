@@ -1,17 +1,8 @@
 require_relative "../../test_helper"
 
-# Tests for early return optimization
+# Tests for the no-block fetch path
 class OptionsCacheEarlyReturnTest < Minitest::Test
   cover "MultiJson::OptionsCache*"
-
-  def test_fetch_early_return_skips_synchronize
-    store = MultiJson::OptionsCache::Store.new
-    store.fetch(:early_return_test) { "value" }
-
-    sync_called = track_synchronize_calls(store) { store.fetch(:early_return_test) { "new_value" } }
-
-    refute sync_called, "synchronize should not be called when cache hit on first check"
-  end
 
   def test_fetch_without_block_returns_default
     store = MultiJson::OptionsCache::Store.new
@@ -49,21 +40,4 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
     assert_equal 42, store.fetch(:compute_key) { 999 }
   end
   # rubocop:enable Style/RedundantFetchBlock
-
-  private
-
-  def track_synchronize_calls(store)
-    mutex = store.instance_variable_get(:@mutex)
-    sync_called = false
-    original_sync = mutex.method(:synchronize)
-
-    silence_warnings do
-      mutex.define_singleton_method(:synchronize) { |&block| (sync_called = true) && original_sync.call(&block) }
-    end
-
-    yield
-    sync_called
-  ensure
-    silence_warnings { mutex.define_singleton_method(:synchronize, original_sync) }
-  end
 end
