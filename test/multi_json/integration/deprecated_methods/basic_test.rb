@@ -3,6 +3,10 @@ require_relative "../../../test_helper"
 class DeprecatedMethodsTest < Minitest::Test
   cover "MultiJson*"
 
+  def setup
+    MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
+  end
+
   def test_default_options_setter_is_deprecated
     warned = false
     with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do

@@ -4,6 +4,11 @@ require_relative "../../../test_helper"
 class DeprecatedWarningBehaviorTest < Minitest::Test
   cover "MultiJson*"
 
+  def setup
+    # Clear the per-process deprecation registry so each test starts fresh
+    MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
+  end
+
   def test_default_options_setter_calls_kernel_warn
     warn_called = false
     original_warn = Kernel.method(:warn)
@@ -27,6 +32,21 @@ class DeprecatedWarningBehaviorTest < Minitest::Test
     MultiJson.default_options
 
     assert warn_called
+  ensure
+    silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
+  end
+
+  def test_default_options_warns_only_once_per_process
+    warn_count = 0
+    original_warn = Kernel.method(:warn)
+
+    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg| warn_count += 1 } }
+
+    MultiJson.default_options
+    MultiJson.default_options
+    MultiJson.default_options
+
+    assert_equal 1, warn_count
   ensure
     silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
   end

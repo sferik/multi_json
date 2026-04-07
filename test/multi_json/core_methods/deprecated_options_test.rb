@@ -3,6 +3,10 @@ require_relative "../../test_helper"
 class DeprecatedOptionsTest < Minitest::Test
   cover "MultiJson*"
 
+  def setup
+    MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
+  end
+
   def test_default_options_setter_sets_both_load_and_dump_options
     silence_warnings do
       MultiJson.default_options = {foo: "bar"}

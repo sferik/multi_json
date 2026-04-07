@@ -23,10 +23,44 @@ module MultiJson
   extend Options
   extend AdapterSelector
 
-  # @!visibility private
-  module_function
+  # Tracks which deprecation warnings have already been emitted so each one
+  # fires at most once per process. Stored as a Set rather than a Hash so
+  # presence checks have unambiguous semantics for mutation tests.
+  DEPRECATION_WARNINGS_SHOWN = Set.new
+  private_constant :DEPRECATION_WARNINGS_SHOWN
+
+  class << self
+    private
+
+    # Emit a deprecation warning at most once per process for the given key
+    #
+    # Defined as a singleton method (rather than via module_function) so there
+    # is exactly one definition for mutation tests to target. The deprecated
+    # method bodies invoke this via ``warn_deprecation_once(...)`` (singleton
+    # callers) and via ``MultiJson.default_options`` etc. routing through the
+    # singleton (instance-method delegate path).
+    #
+    # @api private
+    # @param key [Symbol] identifier for the deprecation (typically the method name)
+    # @param message [String] warning message to emit on first call
+    # @return [void]
+    # @example
+    #   MultiJson.send(:warn_deprecation_once, :foo, "MultiJson.foo is deprecated")
+    def warn_deprecation_once(key, message)
+      return if DEPRECATION_WARNINGS_SHOWN.include?(key)
+
+      Kernel.warn(message)
+      DEPRECATION_WARNINGS_SHOWN.add(key)
+    end
+  end
 
   # @!group Configuration
+
+  # The deprecated configuration methods below are defined as singleton methods
+  # (not via ``module_function``) so each has exactly one method definition for
+  # mutation tests to target. Private instance-method delegates are added at
+  # the end of this module so legacy ``include MultiJson`` consumers continue
+  # to work.
 
   # Set default options for both load and dump operations
   #
@@ -36,9 +70,10 @@ module MultiJson
   # @return [Hash] the options hash
   # @example
   #   MultiJson.default_options = {symbolize_keys: true}
-  def default_options=(value)
-    Kernel.warn "MultiJson.default_options setter is deprecated\n" \
-                "Use MultiJson.load_options and MultiJson.dump_options instead"
+  def self.default_options=(value)
+    warn_deprecation_once(:default_options=,
+      "MultiJson.default_options setter is deprecated\n" \
+      "Use MultiJson.load_options and MultiJson.dump_options instead")
     self.load_options = self.dump_options = value
   end
 
@@ -49,18 +84,23 @@ module MultiJson
   # @return [Hash] the current load options
   # @example
   #   MultiJson.default_options  #=> {}
-  def default_options
-    Kernel.warn "MultiJson.default_options is deprecated\n" \
-                "Use MultiJson.load_options or MultiJson.dump_options instead"
+  def self.default_options
+    warn_deprecation_once(:default_options,
+      "MultiJson.default_options is deprecated\n" \
+      "Use MultiJson.load_options or MultiJson.dump_options instead")
     load_options
   end
 
   # @deprecated These methods are no longer used
   %w[cached_options reset_cached_options!].each do |method_name|
-    define_method(method_name) do |*|
-      Kernel.warn "MultiJson.#{method_name} method is deprecated and no longer used."
+    define_singleton_method(method_name) do |*|
+      warn_deprecation_once(method_name.to_sym,
+        "MultiJson.#{method_name} method is deprecated and no longer used.")
     end
   end
+
+  # @!visibility private
+  module_function
 
   # Legacy alias for adapter name mappings
   ALIASES = AdapterSelector::ALIASES
@@ -238,4 +278,35 @@ module MultiJson
   # both reflects their actual API status and allows YARD/Yardstick to render
   # them as part of the documented public surface.
   public :adapter, :use, :adapter=, :load, :current_adapter, :dump, :with_adapter
+
+  # Private instance-method delegates for the deprecated configuration methods
+  # so legacy ``include MultiJson`` consumers continue to work. These delegate
+  # to the canonical singleton-method definitions above so a single source of
+  # truth handles both call paths and mutation tests have a single target.
+  private
+
+  # Instance-method delegate for the deprecated default_options setter
+  #
+  # @api private
+  # @deprecated Use {MultiJson.load_options=} and {MultiJson.dump_options=} instead
+  # @param value [Hash] options hash
+  # @return [Hash] the options hash
+  # @example
+  #   class Foo; include MultiJson; end
+  #   Foo.new.send(:default_options=, symbolize_keys: true)
+  def default_options=(value)
+    MultiJson.default_options = value
+  end
+
+  # Instance-method delegate for the deprecated default_options getter
+  #
+  # @api private
+  # @deprecated Use {MultiJson.load_options} or {MultiJson.dump_options} instead
+  # @return [Hash] the current load options
+  # @example
+  #   class Foo; include MultiJson; end
+  #   Foo.new.send(:default_options)
+  def default_options
+    MultiJson.default_options
+  end
 end

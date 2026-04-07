@@ -3,6 +3,7 @@ module MultiJson
 
   ALIASES: Hash[String, String]
   REQUIREMENT_MAP: Hash[Symbol, String]
+  DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
 
   extend Options
   extend AdapterSelector
@@ -45,6 +46,9 @@ module MultiJson
     def dump: (json_input object, options options) -> String
   end
 
+  # Singleton-only helper (not a module function)
+  private def self.warn_deprecation_once: (Symbol key, String message) -> void
+
   # module_function methods - declared as both self. and instance methods
   def self.default_options=: (options_input value) -> options_input
   def self.default_options: () -> options
@@ -67,8 +71,6 @@ module MultiJson
   # Instance method declarations for module_function
   def default_options=: (options_input value) -> options_input
   def default_options: () -> options
-  def cached_options: (*top) -> void
-  def reset_cached_options!: (*top) -> void
   def adapter: () -> _Adapter
   def engine: () -> _Adapter
   def use: (adapter_spec new_adapter) -> _Adapter
