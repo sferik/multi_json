@@ -48,6 +48,15 @@ class JsonGemAdapterTest < Minitest::Test
     assert object.as_json_called
   end
 
+  def test_load_raises_parse_error_on_invalid_utf8
+    # 0xFF is not a valid UTF-8 byte sequence
+    invalid = (+"\xFF").force_encoding(Encoding::ASCII_8BIT)
+
+    assert_raises(MultiJson::ParseError) do
+      MultiJson.load(invalid, adapter: :json_gem)
+    end
+  end
+
   private
 
   def run_script(script_content)

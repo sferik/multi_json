@@ -24,11 +24,19 @@ module MultiJson
       # @param string [String] JSON string to parse
       # @param options [Hash] parsing options
       # @return [Object] parsed Ruby object
+      # @raise [::JSON::ParserError] when input contains invalid bytes that
+      #   cannot be transcoded to UTF-8
       #
       # @example Parse JSON string
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
-        string = string.dup.force_encoding(Encoding::UTF_8) if string.encoding != Encoding::UTF_8
+        if string.encoding != Encoding::UTF_8
+          begin
+            string = string.encode(Encoding::UTF_8)
+          rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError => e
+            raise ::JSON::ParserError, e.message
+          end
+        end
 
         options[:symbolize_names] = true if options.delete(:symbolize_keys)
         ::JSON.parse(string, options)
