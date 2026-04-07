@@ -19,7 +19,7 @@ require_relative "multi_json/adapter_selector"
 #   MultiJson.load('{"foo":"bar"}', adapter: :json_gem)
 #
 # @api public
-module MultiJson
+module MultiJson # rubocop:disable Metrics/ModuleLength
   extend Options
   extend AdapterSelector
 
@@ -109,15 +109,18 @@ module MultiJson
   # {AdapterSelector::REQUIREMENT_MAP}.
   REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
 
-  class << self
-    # Returns the default adapter name (alias for default_adapter)
-    #
-    # @api public
-    # @deprecated Use {.default_adapter} instead
-    # @return [Symbol] the default adapter name
-    # @example
-    #   MultiJson.default_engine  #=> :oj
-    alias_method :default_engine, :default_adapter
+  # Returns the default adapter name (deprecated alias for default_adapter)
+  #
+  # @api public
+  # @deprecated Use {.default_adapter} instead. Will be removed in v2.0.
+  # @return [Symbol] the default adapter name
+  # @example
+  #   MultiJson.default_engine  #=> :oj
+  def self.default_engine
+    warn_deprecation_once(:default_engine,
+      "MultiJson.default_engine is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.default_adapter instead.")
+    default_adapter
   end
 
   # @!endgroup
@@ -141,14 +144,19 @@ module MultiJson
     @adapter ||= use(nil)
   end
 
-  # Returns the current adapter class (alias for adapter)
+  # Returns the current adapter class (deprecated alias for adapter)
   #
   # @api private
-  # @deprecated Use {.adapter} instead
+  # @deprecated Use {.adapter} instead. Will be removed in v2.0.
   # @return [Class] the current adapter class
   # @example
   #   MultiJson.engine  #=> MultiJson::Adapters::Oj
-  alias_method :engine, :adapter
+  def self.engine
+    warn_deprecation_once(:engine,
+      "MultiJson.engine is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.adapter instead.")
+    adapter
+  end
 
   # Sets the adapter to use for JSON operations
   #
@@ -171,15 +179,22 @@ module MultiJson
   #   MultiJson.adapter = :json_gem
   alias_method :adapter=, :use
 
-  # Sets the adapter to use for JSON operations
+  module_function :adapter=
+
+  # Sets the adapter to use for JSON operations (deprecated)
   #
   # @api private
-  # @deprecated Use {.adapter=} instead
+  # @deprecated Use {.adapter=} instead. Will be removed in v2.0.
+  # @param new_adapter [Symbol, String, Module, nil] adapter specification
   # @return [Class] the loaded adapter class
   # @example
   #   MultiJson.engine = :json_gem
-  alias_method :engine=, :use
-  module_function :adapter=, :engine=
+  def self.engine=(new_adapter)
+    warn_deprecation_once(:engine=,
+      "MultiJson.engine= is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.adapter= instead.")
+    use(new_adapter)
+  end
 
   # @!endgroup
 
@@ -201,15 +216,21 @@ module MultiJson
     raise ParseError.build(e, string)
   end
 
-  # Parses a JSON string into a Ruby object
+  # Parses a JSON string into a Ruby object (deprecated alias for load)
   #
   # @api private
-  # @deprecated Use {.load} instead
+  # @deprecated Use {.load} instead. Will be removed in v2.0.
+  # @param string [String, #read] JSON string or IO-like object
+  # @param options [Hash] parsing options (adapter-specific)
   # @return [Object] parsed Ruby object
   # @example
   #   MultiJson.decode('{"foo":"bar"}')  #=> {"foo" => "bar"}
-  alias_method :decode, :load
-  module_function :decode
+  def self.decode(string, options = {})
+    warn_deprecation_once(:decode,
+      "MultiJson.decode is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.load instead.")
+    load(string, options)
+  end
 
   # Returns the adapter to use for the given options
   #
@@ -236,15 +257,21 @@ module MultiJson
     current_adapter(options).dump(object, options)
   end
 
-  # Serializes a Ruby object to a JSON string
+  # Serializes a Ruby object to a JSON string (deprecated alias for dump)
   #
   # @api private
-  # @deprecated Use {.dump} instead
+  # @deprecated Use {.dump} instead. Will be removed in v2.0.
+  # @param object [Object] object to serialize
+  # @param options [Hash] serialization options (adapter-specific)
   # @return [String] JSON string
   # @example
   #   MultiJson.encode({foo: "bar"})  #=> '{"foo":"bar"}'
-  alias_method :encode, :dump
-  module_function :encode
+  def self.encode(object, options = {})
+    warn_deprecation_once(:encode,
+      "MultiJson.encode is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.dump instead.")
+    dump(object, options)
+  end
 
   # Executes a block using the specified adapter
   #
@@ -268,15 +295,20 @@ module MultiJson
     Fiber[:multi_json_adapter] = previous_override
   end
 
-  # Executes a block using the specified adapter
+  # Executes a block using the specified adapter (deprecated alias for with_adapter)
   #
   # @api private
-  # @deprecated Use {.with_adapter} instead
+  # @deprecated Use {.with_adapter} instead. Will be removed in v2.0.
+  # @param new_adapter [Symbol, String, Module] adapter to use
+  # @yield block to execute with the temporary adapter
   # @return [Object] result of the block
   # @example
   #   MultiJson.with_engine(:json_gem) { MultiJson.dump({}) }
-  class << self
-    alias_method :with_engine, :with_adapter
+  def self.with_engine(new_adapter, &)
+    warn_deprecation_once(:with_engine,
+      "MultiJson.with_engine is deprecated and will be removed in v2.0. " \
+      "Use MultiJson.with_adapter instead.")
+    with_adapter(new_adapter, &)
   end
 
   # @!endgroup

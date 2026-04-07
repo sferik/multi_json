@@ -101,6 +101,7 @@ class DumpArgumentPassingTest < Minitest::Test
       end
     end
 
-    ParseError = Class.new(StandardError)
+    class ParseError < StandardError
+    end
   end
 end
