@@ -52,6 +52,18 @@ class WithAdapterBehaviorTest < Minitest::Test
     assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
   end
 
+  def test_with_adapter_nested_restores_outer_override
+    MultiJson.use :ok_json
+    observed = {}
+    MultiJson.with_adapter(:json_gem) do
+      MultiJson.with_adapter(:ok_json) { observed[:inner] = MultiJson.adapter }
+      observed[:after_inner] = MultiJson.adapter
+    end
+
+    assert_equal MultiJson::Adapters::OkJson, observed[:inner]
+    assert_equal MultiJson::Adapters::JsonGem, observed[:after_inner]
+  end
+
   def test_with_adapter_body_executes_all_statements
     MultiJson.use :json_gem
     block_executed = false

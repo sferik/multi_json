@@ -132,11 +132,18 @@ module MultiJson
 
   # Returns the current adapter class
   #
+  # Honors a fiber-local override set by {.with_adapter} so concurrent
+  # blocks observe their own adapter without clobbering the process-wide
+  # default. Falls back to the process default when no override is set.
+  #
   # @api public
   # @return [Class] the current adapter class
   # @example
   #   MultiJson.adapter  #=> MultiJson::Adapters::Oj
   def adapter
+    override = Fiber[:multi_json_adapter]
+    return override if override
+
     @adapter ||= use(nil)
   end
 
@@ -247,18 +254,24 @@ module MultiJson
 
   # Executes a block using the specified adapter
   #
+  # Defined as a singleton method (rather than module_function) so there is
+  # exactly one definition for mutation testing. The override is stored in
+  # fiber-local storage so concurrent fibers and threads each see their own
+  # adapter without racing on a shared module variable. Nested calls save
+  # and restore the previous fiber-local value.
+  #
   # @api public
   # @param new_adapter [Symbol, String, Module] adapter to use
   # @yield block to execute with the temporary adapter
   # @return [Object] result of the block
   # @example
   #   MultiJson.with_adapter(:json_gem) { MultiJson.dump({}) }
-  def with_adapter(new_adapter)
-    previous_adapter = adapter
-    self.adapter = new_adapter
+  def self.with_adapter(new_adapter)
+    previous_override = Fiber[:multi_json_adapter]
+    Fiber[:multi_json_adapter] = load_adapter(new_adapter)
     yield
   ensure
-    self.adapter = previous_adapter
+    Fiber[:multi_json_adapter] = previous_override
   end
 
   # Executes a block using the specified adapter
@@ -268,8 +281,9 @@ module MultiJson
   # @return [Object] result of the block
   # @example
   #   MultiJson.with_engine(:json_gem) { MultiJson.dump({}) }
-  alias_method :with_engine, :with_adapter
-  module_function :with_engine
+  class << self
+    alias_method :with_engine, :with_adapter
+  end
 
   # @!endgroup
 
@@ -277,13 +291,25 @@ module MultiJson
   # makes instance methods private by default; explicitly making them public
   # both reflects their actual API status and allows YARD/Yardstick to render
   # them as part of the documented public surface.
-  public :adapter, :use, :adapter=, :load, :current_adapter, :dump, :with_adapter
+  public :adapter, :use, :adapter=, :load, :current_adapter, :dump
 
-  # Private instance-method delegates for the deprecated configuration methods
-  # so legacy ``include MultiJson`` consumers continue to work. These delegate
-  # to the canonical singleton-method definitions above so a single source of
-  # truth handles both call paths and mutation tests have a single target.
+  # Private instance-method delegates for methods that are defined as
+  # singleton-only above (so mutation testing has a single target). These
+  # exist so legacy ``include MultiJson`` consumers continue to work.
   private
+
+  # Instance-method delegate for {MultiJson.with_adapter}
+  #
+  # @api private
+  # @param new_adapter [Symbol, String, Module] adapter to use
+  # @yield block to execute with the temporary adapter
+  # @return [Object] result of the block
+  # @example
+  #   class Foo; include MultiJson; end
+  #   Foo.new.send(:with_adapter, :json_gem) { ... }
+  def with_adapter(new_adapter, &)
+    MultiJson.with_adapter(new_adapter, &)
+  end
 
   # Instance-method delegate for the deprecated default_options setter
   #

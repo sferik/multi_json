@@ -68,7 +68,7 @@ module MultiJson
   def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
   def self.with_engine: [T] (adapter_spec new_adapter) { () -> T } -> T
 
-  # Instance method declarations for module_function
+  # Instance method declarations for module_function and explicit delegates
   def default_options=: (options_input value) -> options_input
   def default_options: () -> options
   def adapter: () -> _Adapter
@@ -82,7 +82,6 @@ module MultiJson
   def dump: (json_input object, ?options options) -> String
   def encode: (json_input object, ?options options) -> String
   def with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
-  def with_engine: [T] (adapter_spec new_adapter) { () -> T } -> T
 
   # Module-level instance variable for adapter caching
   @adapter: _Adapter?
