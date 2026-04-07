@@ -13,15 +13,6 @@ module MultiJson
     # Alternate spellings for adapter names
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
-    # Strategy lambdas for loading adapters based on specification type
-    LOADERS = {
-      Module => ->(adapter, _selector) { adapter },
-      String => ->(name, selector) { selector.send(:load_adapter_by_name, name) },
-      Symbol => ->(name, selector) { selector.send(:load_adapter_by_name, name.to_s) },
-      NilClass => ->(_adapter, selector) { selector.send(:load_adapter, selector.default_adapter) },
-      FalseClass => ->(_adapter, selector) { selector.send(:load_adapter, selector.default_adapter) }
-    }.freeze
-
     # Returns the default adapter to use
     #
     # @api private
@@ -103,27 +94,18 @@ module MultiJson
     # Loads an adapter from a specification
     #
     # @api private
-    # @param adapter_spec [Symbol, String, Module, nil] adapter specification
+    # @param adapter_spec [Symbol, String, Module, nil, false] adapter specification
     # @return [Class] the adapter class
     def load_adapter(adapter_spec)
-      loader = find_loader_for(adapter_spec)
-      return loader.call(adapter_spec, self) if loader
-
-      raise ::LoadError, adapter_spec
+      case adapter_spec
+      when ::String then load_adapter_by_name(adapter_spec)
+      when ::Symbol then load_adapter_by_name(adapter_spec.to_s)
+      when nil, false then load_adapter(default_adapter)
+      when ::Module then adapter_spec
+      else raise ::LoadError, adapter_spec
+      end
     rescue ::LoadError => e
       raise AdapterError.build(e)
-    end
-
-    # Finds the appropriate loader for an adapter specification
-    #
-    # @api private
-    # @param adapter_spec [Object] adapter specification
-    # @return [Proc, nil] loader proc if found
-    def find_loader_for(adapter_spec)
-      klass = adapter_spec.class
-      return LOADERS.fetch(klass) if LOADERS.key?(klass)
-
-      LOADERS.fetch(Module) if adapter_spec.is_a?(Module)
     end
 
     # Loads an adapter by its string name

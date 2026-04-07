@@ -160,11 +160,6 @@ module MultiJson
 
     ALIASES: Hash[String, String]
 
-    # Loader proc types - lambdas that take an adapter spec and selector, return an adapter
-    # The hash maps classes to their specific loaders
-    # Value type is untyped because RBS can't express a union of different proc signatures
-    LOADERS: Hash[Class, untyped]
-
     def default_adapter: () -> Symbol
 
     @default_adapter: Symbol?
@@ -178,8 +173,7 @@ module MultiJson
     def try_require: (Symbol adapter_name) -> bool
     def fallback_adapter: () -> Symbol
     def warn_about_fallback: () -> void
-    def load_adapter: (adapter_spec new_adapter) -> _Adapter
-    def find_loader_for: (adapter_spec adapter_spec) -> untyped
+    def load_adapter: (adapter_spec new_adapter) -> (_Adapter | Module)
     def load_adapter_by_name: (String name) -> _Adapter
   end
 
