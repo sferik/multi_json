@@ -52,5 +52,19 @@ if TestHelpers.oj?
       refute_includes cached.keys, :symbol_keys,
         "expected cached load options to be unchanged by Oj#load translation"
     end
+
+    def test_dump_does_not_mutate_cached_options_with_pretty
+      MultiJson.dump_options = MultiJson.adapter.dump_options = nil
+      MultiJson::OptionsCache.reset
+
+      MultiJson.dump({foo: "bar"}, pretty: true)
+
+      cached = MultiJson::OptionsCache.dump.send(:instance_variable_get, :@cache).values.first
+
+      assert_includes cached.keys, :pretty,
+        "expected cached dump options to retain :pretty key"
+      refute_includes cached.keys, :indent,
+        "expected cached dump options to NOT have prototype keys merged in"
+    end
   end
 end

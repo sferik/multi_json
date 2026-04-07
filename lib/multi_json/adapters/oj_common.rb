@@ -30,6 +30,11 @@ module MultiJson
 
       # Prepare options for Oj.dump based on Oj version
       #
+      # The v3 branch returns a fresh hash; never mutates the input. The
+      # input is the cached options hash returned from
+      # Adapter.merged_dump_options, so in-place mutation would pollute
+      # the cache and corrupt subsequent dump calls.
+      #
       # @api private
       # @param options [Hash] serialization options
       # @return [Hash] processed options for Oj.dump
@@ -40,13 +45,12 @@ module MultiJson
         if OJ_V2
           options[:indent] = 2 if options[:pretty]
           options[:indent] = options[:indent].to_i if options[:indent]
+          options
         elsif OJ_V3
-          options.merge!(PRETTY_STATE_PROTOTYPE.dup) if options.delete(:pretty)
+          options.key?(:pretty) ? options.except(:pretty).merge(PRETTY_STATE_PROTOTYPE) : options
         else
           raise "Unsupported Oj version: #{::Oj::VERSION}"
         end
-
-        options
       end
     end
   end
