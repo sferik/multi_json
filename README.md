@@ -49,15 +49,22 @@ load any. When loading, libraries are ordered by speed. First fast_jsonparser,
 then Oj, then Yajl, then the JSON gem. If no other JSON library is available,
 MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 
-## Supported JSON Engines
+## Gem Variants
 
-- [fast_jsonparser][fast_jsonparser] Fast JSON parser by Anil Maurya
-- [Oj][oj] Optimized JSON by Peter Ohler
-- [Yajl][yajl] Yet Another JSON Library by Brian Lopez
-- [JSON][json-gem] The default JSON gem with C-extensions (ships with Ruby 1.9+)
-- [gson.rb][gson] A Ruby wrapper for google-gson library (JRuby only)
-- [JrJackson][jrjackson] JRuby wrapper for Jackson (JRuby only)
-- [OkJson][okjson] A simple, vendorable JSON parser
+MultiJSON ships as two platform-specific gems. Bundler and RubyGems
+automatically select the correct variant for your Ruby implementation:
+
+|                                                | `ruby` platform (MRI, TruffleRuby) | `java` platform (JRuby) |
+| ---------------------------------------------- | :---: | :---: |
+| Runtime dependency                             | none  | [concurrent-ruby][concurrent-ruby] `~> 1.2` |
+| [`fast_jsonparser`][fast_jsonparser] adapter   |   ✓   |       |
+| [`oj`][oj] adapter                             |   ✓   |       |
+| [`yajl`][yajl] adapter                         |   ✓   |       |
+| [`json_gem`][json-gem] adapter                 |   ✓   |   ✓   |
+| [`ok_json`][okjson] adapter (fallback)         |   ✓   |   ✓   |
+| [`gson`][gson] adapter                         |       |   ✓   |
+| [`jr_jackson`][jrjackson] adapter              |       |   ✓   |
+| `OptionsCache` thread-safe store               | `Hash` + `Mutex` | `Concurrent::Map` |
 
 ## Supported Ruby Versions
 
@@ -67,6 +74,7 @@ implementations:
 - Ruby 3.2
 - Ruby 3.3
 - Ruby 3.4
+- Ruby 4.0
 - [JRuby][jruby] 10.0 (targets Ruby 3.4 compatibility)
 
 If something doesn't work in one of these implementations, it's a bug.
@@ -102,6 +110,7 @@ spec.add_dependency 'multi_json', '~> 1.0'
 Copyright (c) 2010-2026 Erik Berlin, Michael Bleigh, Josh Kalderimis, and Pavel
 Pravosud. See [LICENSE][license] for details.
 
+[concurrent-ruby]: https://github.com/ruby-concurrency/concurrent-ruby
 [docs]: https://github.com/sferik/multi_json/actions/workflows/docs.yml
 [fast_jsonparser]: https://github.com/anilmaurya/fast_jsonparser
 [gem]: https://rubygems.org/gems/multi_json

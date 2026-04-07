@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.20.0
+* [Split the gem into `ruby` and `java` platform variants](https://github.com/sferik/multi_json/commit/ca2c747570335f8d3b6b0904aae6ace41329aedd): the `java` variant adds `concurrent-ruby ~> 1.2` as a runtime dependency and ships the `gson` and `jr_jackson` adapters; the `ruby` variant has no runtime dependencies and ships the MRI-only adapters. Bundler selects the correct variant automatically.
+* [Drop Oj 2.x compatibility branch](https://github.com/sferik/multi_json/commit/93897a45e2b2f3f6fa047ee00fc1e879ae137ec1): the Oj adapter now requires Oj `~> 3.0`.
+* [Drop support for Ruby 3.0, Ruby 3.1, and JRuby 9.4](https://github.com/sferik/multi_json/commit/bc4547a5cee4d66294f2a1be04fe61f9d49235cd).
+* [Add Ruby 4.0 to the CI matrix](https://github.com/sferik/multi_json/commit/bdf4999ea0c81f79c208e5fafb63f7474571b687).
+* [Make `with_adapter` overrides fiber-local](https://github.com/sferik/multi_json/commit/7f7ce0e68f094bb9a26bf37a950c4794dc8e7292) so concurrent fibers and threads each observe their own adapter without racing on a shared module variable.
+* [Raise `MultiJson::ParseError` on invalid UTF-8 in the `json_gem` adapter](https://github.com/sferik/multi_json/commit/2b5d14548fc67c5fdcaaee9b14d9f3eefe1f3493) instead of silently reinterpreting bytes with `force_encoding`.
+* [Warn once for deprecated method aliases](https://github.com/sferik/multi_json/commit/5390bf311567388056724743121a665adab8ae8d): `decode`, `encode`, `engine`, `engine=`, `default_engine`, and `with_engine` now emit a one-time deprecation warning on first call and are scheduled for removal in a future major release.
+* [Emit deprecation warnings only once per process](https://github.com/sferik/multi_json/commit/118f608c43aacb2ad36aa5f70b9084d48a9877c9) for `default_options`, `default_options=`, `cached_options`, and `reset_cached_options!` instead of on every call.
+* [Document public API methods as `@api public`](https://github.com/sferik/multi_json/commit/5f3bd5397800cbf4b8f3a522e91364de1ad9079d) so `load`, `dump`, `use`, `with_adapter`, `current_adapter`, `adapter`, `load_options`, and `dump_options` appear in generated docs.
+* [Add YARD documentation for the `Adapters` module and `ParseError` constants](https://github.com/sferik/multi_json/commit/3bc3beb76987a5711bf6c94ab176d5a84a42b063).
+* [Stop mutating cached options in `Oj#load`](https://github.com/sferik/multi_json/commit/091d4f046dfb1d85816b04ef68c0850e5a97acdf): the adapter previously assigned `options[:symbol_keys]` on the shared cached hash, slowly polluting it with extra keys.
+* [Stop mutating cached options in `OjCommon#prepare_dump_options`](https://github.com/sferik/multi_json/commit/089892e387b56036840b58b61593ce2b80fd72d6): `merge!(PRETTY_STATE_PROTOTYPE)` on the cached options hash removed `:pretty` and added prototype keys on every call, producing accidentally-correct results through cache reuse.
+* [Call `to_h` on options to properly handle `JSON::State` objects](https://github.com/sferik/multi_json/commit/821ea32d5cafc223983b24b3260a1d4112aefab9).
+* [Avoid allocating an options hash on the `dump`/`load` hot path](https://github.com/sferik/multi_json/commit/89a397718fff9e6cc5af8b7ef9fa19494894e6ce) by reusing a shared frozen empty hash for the no-options case.
+* [Short-circuit empty input in `Adapter.blank?`](https://github.com/sferik/multi_json/commit/d3081a64eaf7755610a29c602dc6f0c5678643c6) before falling back to the regex match.
+* [Replace the `LOADERS` strategy table with a `case` statement](https://github.com/sferik/multi_json/commit/562331a002dc87052797c53769610a719699c33c) in `AdapterSelector#load_adapter`.
+* [Move `REQUIREMENT_MAP` from `MultiJson` into `AdapterSelector`](https://github.com/sferik/multi_json/commit/ab371e70d63b840386a3cf264611c2298c7c8250); `MultiJson::REQUIREMENT_MAP` remains as a deprecated alias.
+* [Fix Bundler 4.0 permission error in CI](https://github.com/sferik/multi_json/commit/1fe4514e641e34dcf3ec9b62a2a76bfe0120c708).
+* [Revert the Steep removal](https://github.com/sferik/multi_json/commit/883be03219d5178f83381333c3a354f59b4c8117) and restore the Steepfile, sig directory, and typecheck workflow.
+* [Add workflow badges for linter, mutant, steep, and docs](https://github.com/sferik/multi_json/commit/88cf1bea1fb3056ad3a7c0f8ca828e194ee895dd).
+* [Bump `actions/checkout` from 4 to 6](https://github.com/sferik/multi_json/commit/587f246d9ffd6991417af771fa0ce7059b337c40).
+* [Update copyright year and alphabetize contributors by last name](https://github.com/sferik/multi_json/commit/233fb0ee1a375279d83c06ff6f702ec17d695b88).
+
 ## 1.19.1
 * [Restore deprecated encode/decode methods](https://github.com/sferik/multi_json/commit/c5bf2fc95dfdde6b30d63fefb0b2f4aa29633969)
 
