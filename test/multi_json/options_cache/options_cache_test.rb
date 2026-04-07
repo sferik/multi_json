@@ -30,9 +30,13 @@ class OptionsCacheTest < Minitest::Test
   def test_executes_block_only_once_per_key_in_concurrent_access
     MultiJson::OptionsCache.reset
     counter = 0
-    threads = Array.new(5) do
-      Thread.new { MultiJson::OptionsCache.dump.fetch(:foo) { counter += 1 } }
+    # The sleep forces the GVL to yield mid-block so an unsynchronized
+    # fetch is observably wrong: every thread would see an empty cache,
+    # run the block, and increment counter past 1.
+    cache_block = lambda do
+      MultiJson::OptionsCache.dump.fetch(:foo) { sleep(0.01) && counter += 1 }
     end
+    threads = Array.new(5) { Thread.new(&cache_block) }
     threads.each(&:join)
 
     assert_equal 1, counter

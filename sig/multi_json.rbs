@@ -150,10 +150,7 @@ module MultiJson
       def fetch: (options key, ?options? default) ?{ () -> options } -> options?
 
       @cache: untyped
-
-      private
-
-      def evict_one_if_full: () -> void
+      @mutex: Mutex
     end
   end
 

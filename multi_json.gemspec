@@ -6,7 +6,6 @@ Gem::Specification.new do |spec|
                      "including fast_jsonparser, Oj, Yajl, the JSON gem " \
                      "(with C-extensions), gson, JrJackson, and OkJson."
   spec.email = %w[sferik@gmail.com]
-  spec.files = Dir["*.md", "lib/**/*"]
   spec.homepage = "https://github.com/sferik/multi_json"
   spec.license = "MIT"
   spec.name = "multi_json"
@@ -15,7 +14,27 @@ Gem::Specification.new do |spec|
   spec.summary = "A common interface to multiple JSON libraries."
   spec.version = MultiJson::Version
 
-  spec.add_dependency "concurrent-ruby", "~> 1.2"
+  # JRuby-only sources: gson/jr_jackson adapter wrappers and the
+  # Concurrent::Map-backed options cache store. Only shipped in the
+  # java-platform gem.
+  jruby_only_files = %w[
+    lib/multi_json/adapters/gson.rb
+    lib/multi_json/adapters/jr_jackson.rb
+    lib/multi_json/options_cache/concurrent_store.rb
+  ]
+  # MRI/TruffleRuby-only source: the Mutex-backed options cache store.
+  mri_only_files = %w[
+    lib/multi_json/options_cache/mutex_store.rb
+  ]
+
+  files = Dir["*.md", "lib/**/*"]
+  files -= ENV["MULTI_JSON_PLATFORM"] == "java" ? mri_only_files : jruby_only_files
+  spec.files = files
+
+  if RUBY_ENGINE == "jruby"
+    spec.platform = "java" if ENV["MULTI_JSON_PLATFORM"] == "java"
+    spec.add_dependency "concurrent-ruby", "~> 1.2"
+  end
 
   spec.metadata = {
     "bug_tracker_uri" => "https://github.com/sferik/multi_json/issues",

@@ -63,4 +63,29 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
     assert_equal max, cache.size
     assert cache.key?(:below0)
   end
+
+  def test_cache_evicts_when_size_above_max_not_just_equal
+    # Pre-populate the cache above MAX_CACHE_SIZE by writing directly to
+    # @cache, bypassing the fetch eviction. This distinguishes a correct
+    # ``size >= MAX`` check from the equivalent-looking ``size == MAX``
+    # mutation: above-max, ``>=`` evicts on the next fetch but ``==``
+    # does not. Assert the size dropped after fetch (one entry shifted).
+    skip "Concurrent::Map on JRuby does not support direct []=" if RUBY_ENGINE == "jruby"
+
+    store = MultiJson::OptionsCache::Store.new
+    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    cache = store.instance_variable_get(:@cache)
+    (max + 5).times { |i| cache[:"pre#{i}"] = i }
+    size_before = cache.size
+
+    assert_operator size_before, :>, max
+
+    store.fetch(:after_overflow) { "after_overflow" }
+
+    # ``>=`` shifts one existing entry then adds the new one: size stays flat.
+    # ``==`` does nothing (size is not exactly MAX), so the new key would add
+    # one: size would grow by 1.
+    assert_equal size_before, cache.size
+    assert cache.key?(:after_overflow)
+  end
 end

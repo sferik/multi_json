@@ -6,6 +6,9 @@ target :lib do
   check "lib"
   ignore "lib/multi_json/vendor"
   ignore "lib/multi_json/adapters"
+  # JRuby-only Concurrent::Map backend; Steep runs on MRI, where the
+  # MutexStore version defines the ``Store`` class.
+  ignore "lib/multi_json/options_cache/concurrent_store.rb"
 
   library "singleton"
 
