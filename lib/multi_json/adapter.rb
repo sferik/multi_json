@@ -19,7 +19,8 @@ module MultiJson
 
     class << self
       BLANK_PATTERN = /\A\s*\z/
-      private_constant :BLANK_PATTERN
+      EMPTY_OPTIONS = {}.freeze
+      private_constant :BLANK_PATTERN, :EMPTY_OPTIONS
 
       # Hook called when a subclass is created
       #
@@ -106,11 +107,16 @@ module MultiJson
 
       # Removes the :adapter key from options for cache key
       #
+      # Returns a shared frozen empty hash for the common no-options call
+      # path so the hot path avoids allocating a fresh hash on every call.
+      #
       # @api private
       # @param options [Hash, #to_h] original options (may be JSON::State or similar)
       # @return [Hash] frozen options without :adapter key
       def strip_adapter_key(options)
         options = options.to_h unless options.is_a?(Hash)
+        return EMPTY_OPTIONS if options.empty? || (options.size == 1 && options.key?(:adapter))
+
         options.except(:adapter).freeze
       end
     end
