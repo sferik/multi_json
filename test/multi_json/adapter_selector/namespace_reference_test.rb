@@ -14,22 +14,14 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
     remove_conflicting_constants
   end
 
-  def test_installable_adapter_uses_absolute_namespace_for_requirement_map
-    define_conflicting_requirement_map
-
+  def test_installable_adapter_resolves_requirement_map_to_canonical_constant
+    # Now that REQUIREMENT_MAP lives on AdapterSelector itself, the bare
+    # constant lookup IS the canonical reference. Confirm a fresh include
+    # picks up the canonical map.
     result = @instance.send(:installable_adapter)
 
-    refute_nil result, "installable_adapter should use ::MultiJson::REQUIREMENT_MAP, not bare REQUIREMENT_MAP"
-    assert_includes MultiJson::REQUIREMENT_MAP.keys, result
-  end
-
-  def test_installable_adapter_uses_absolute_not_relative_multijson
-    define_nested_multijson_with_requirement_map
-
-    result = @instance.send(:installable_adapter)
-
-    refute_nil result, "installable_adapter should use ::MultiJson (absolute), not relative MultiJson"
-    assert_includes ::MultiJson::REQUIREMENT_MAP.keys, result
+    refute_nil result, "installable_adapter should resolve REQUIREMENT_MAP from AdapterSelector"
+    assert_includes MultiJson::AdapterSelector::REQUIREMENT_MAP.keys, result
   end
 
   def test_load_adapter_by_name_uses_absolute_namespace_for_adapters
@@ -52,12 +44,6 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
 
   private
 
-  def define_conflicting_requirement_map
-    return if MultiJson::AdapterSelector.const_defined?(:REQUIREMENT_MAP, false)
-
-    MultiJson::AdapterSelector.const_set(:REQUIREMENT_MAP, {bad: "nonexistent_gem"}.freeze)
-  end
-
   def define_conflicting_adapters
     return if MultiJson::AdapterSelector.const_defined?(:Adapters, false)
 
@@ -67,14 +53,6 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
       end
     end
     MultiJson::AdapterSelector.const_set(:Adapters, fake_adapters)
-  end
-
-  def define_nested_multijson_with_requirement_map
-    return if MultiJson::AdapterSelector.const_defined?(:MultiJson, false)
-
-    nested = Module.new
-    nested.const_set(:REQUIREMENT_MAP, {bad: "nonexistent_gem"}.freeze)
-    MultiJson::AdapterSelector.const_set(:MultiJson, nested)
   end
 
   def define_nested_multijson_with_adapters
@@ -91,7 +69,6 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
   end
 
   def remove_conflicting_constants
-    remove_const_if_defined(:REQUIREMENT_MAP)
     remove_const_if_defined(:Adapters)
     remove_const_if_defined(:MultiJson)
   end

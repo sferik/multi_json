@@ -105,15 +105,9 @@ module MultiJson
   # Legacy alias for adapter name mappings
   ALIASES = AdapterSelector::ALIASES
 
-  # Maps adapter symbols to their require paths for auto-loading
-  REQUIREMENT_MAP = {
-    fast_jsonparser: "fast_jsonparser",
-    oj: "oj",
-    yajl: "yajl",
-    jr_jackson: "jrjackson",
-    json_gem: "json",
-    gson: "gson"
-  }.freeze
+  # Legacy alias for adapter requirement mappings; the canonical home is
+  # {AdapterSelector::REQUIREMENT_MAP}.
+  REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
 
   class << self
     # Returns the default adapter name (alias for default_adapter)

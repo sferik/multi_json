@@ -5,6 +5,8 @@ module MultiJson
   REQUIREMENT_MAP: Hash[Symbol, String]
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
 
+
+
   extend Options
   extend AdapterSelector
 
@@ -159,6 +161,7 @@ module MultiJson
     extend AdapterSelector
 
     ALIASES: Hash[String, String]
+    REQUIREMENT_MAP: Hash[Symbol, String]
 
     def default_adapter: () -> Symbol
 

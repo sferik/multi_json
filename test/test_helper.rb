@@ -74,8 +74,8 @@ module TestHelpers
   end
 
   def break_requirements(&)
-    replacements = MultiJson::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
-    stub_constant(MultiJson, :REQUIREMENT_MAP, replacements, &)
+    replacements = MultiJson::AdapterSelector::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
+    stub_constant(MultiJson::AdapterSelector, :REQUIREMENT_MAP, replacements, &)
   end
 
   def stub_constant(mod, const_name, value)

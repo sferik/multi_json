@@ -13,6 +13,16 @@ module MultiJson
     # Alternate spellings for adapter names
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
+    # Maps adapter symbols to their require paths for auto-loading
+    REQUIREMENT_MAP = {
+      fast_jsonparser: "fast_jsonparser",
+      oj: "oj",
+      yajl: "yajl",
+      jr_jackson: "jrjackson",
+      json_gem: "json",
+      gson: "gson"
+    }.freeze
+
     # Returns the default adapter to use
     #
     # @api private
@@ -52,7 +62,7 @@ module MultiJson
     # @api private
     # @return [Symbol, nil] adapter name if successfully required
     def installable_adapter
-      ::MultiJson::REQUIREMENT_MAP.each_key do |adapter_name|
+      REQUIREMENT_MAP.each_key do |adapter_name|
         return adapter_name if try_require(adapter_name)
       end
       nil
@@ -64,7 +74,7 @@ module MultiJson
     # @param adapter_name [Symbol] adapter to require
     # @return [Boolean] true if require succeeded
     def try_require(adapter_name)
-      require ::MultiJson::REQUIREMENT_MAP.fetch(adapter_name)
+      require REQUIREMENT_MAP.fetch(adapter_name)
       true
     rescue ::LoadError
       false
