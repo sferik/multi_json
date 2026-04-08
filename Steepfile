@@ -4,7 +4,6 @@ target :lib do
   signature "sig"
 
   check "lib"
-  ignore "lib/multi_json/vendor"
   ignore "lib/multi_json/adapters"
   # JRuby-only Concurrent::Map backend; Steep runs on MRI, where the
   # MutexStore version defines the ``Store`` class.

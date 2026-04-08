@@ -28,18 +28,14 @@ YARD::Rake::YardocTask.new(:yard)
 require "yardstick/rake/measurement"
 Yardstick::Rake::Measurement.new(:yardstick_measure) do |measurement|
   measurement.output = "doc/coverage.txt"
-  measurement.path = Rake::FileList.new("lib/**/*.rb") do |list|
-    list.exclude("lib/multi_json/vendor/**/*.rb")
-  end
+  measurement.path = Rake::FileList.new("lib/**/*.rb")
 end
 
 require "yardstick/rake/verify"
 Yardstick::Rake::Verify.new(:yardstick) do |verify|
   verify.threshold = 100
   verify.require_exact_threshold = true
-  verify.path = Rake::FileList.new("lib/**/*.rb") do |list|
-    list.exclude("lib/multi_json/vendor/**/*.rb")
-  end
+  verify.path = Rake::FileList.new("lib/**/*.rb")
 end
 
 desc "Run linters"
