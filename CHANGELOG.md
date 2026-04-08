@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Empty the mutant ignore list. The `Gson` and `JrJackson` ignores were dead — those adapters ship in the java-platform gem and aren't present when mutant runs on MRI — and `Store#reset`'s mutex wrapper is now directly tested by stubbing `Mutex#synchronize`.
 * Remove the vendored `ok_json` adapter. The json gem has been a Ruby default gem since 1.9, so an external pure-Ruby fallback is no longer needed on any supported Ruby version. The last-resort fallback when no other JSON library can be loaded is now `json_gem`. The `ConvertibleHashKeys` helper module, which only `ok_json` used, is also removed.
 * Surface parse error locations as `error.line` and `error.column` on `MultiJson::ParseError`, extracted from the underlying adapter's message for adapters that include one (Oj, the json gem).
 * Make `MultiJson::OptionsCache.max_cache_size` configurable so applications that generate many distinct option hashes can raise the cache ceiling at runtime.
