@@ -131,6 +131,7 @@ module MultiJson
 
   module Options
     EMPTY_OPTIONS: options
+    DEFAULT_OPTIONS_MUTEX: Mutex
 
     def load_options=: (options_input value) -> options_input
     def dump_options=: (options_input value) -> options_input

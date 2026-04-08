@@ -9,6 +9,14 @@ module MultiJson
     EMPTY_OPTIONS = {}.freeze
     private_constant :EMPTY_OPTIONS
 
+    # Mutex guarding the lazy ``@default_*_options`` initializers. Two
+    # threads accessing an adapter's defaults for the first time would
+    # otherwise both run the ``||=`` initializer; the assigned value is
+    # always frozen so the race is harmless in practice, but the lock
+    # makes the contract explicit.
+    DEFAULT_OPTIONS_MUTEX = Mutex.new
+    private_constant :DEFAULT_OPTIONS_MUTEX
+
     # Set options for load operations
     #
     # @api public
@@ -58,7 +66,7 @@ module MultiJson
     # @api private
     # @return [Hash] frozen empty hash
     def default_load_options
-      @default_load_options ||= EMPTY_OPTIONS
+      DEFAULT_OPTIONS_MUTEX.synchronize { @default_load_options ||= EMPTY_OPTIONS }
     end
 
     # Get default dump options
@@ -66,7 +74,7 @@ module MultiJson
     # @api private
     # @return [Hash] frozen empty hash
     def default_dump_options
-      @default_dump_options ||= EMPTY_OPTIONS
+      DEFAULT_OPTIONS_MUTEX.synchronize { @default_dump_options ||= EMPTY_OPTIONS }
     end
 
     private

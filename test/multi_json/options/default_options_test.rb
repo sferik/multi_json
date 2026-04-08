@@ -50,4 +50,40 @@ class OptionsDefaultOptionsTest < Minitest::Test
 
     assert_equal @test_class.default_dump_options, result
   end
+
+  def test_default_load_options_holds_mutex_during_init
+    flag = stub_default_options_synchronize
+
+    @test_class.default_load_options
+
+    assert flag.value
+  ensure
+    restore_default_options_synchronize
+  end
+
+  def test_default_dump_options_holds_mutex_during_init
+    flag = stub_default_options_synchronize
+
+    @test_class.default_dump_options
+
+    assert flag.value
+  ensure
+    restore_default_options_synchronize
+  end
+
+  private
+
+  def stub_default_options_synchronize
+    @options_mutex = MultiJson::Options.send(:const_get, :DEFAULT_OPTIONS_MUTEX)
+    flag = Struct.new(:value).new(false)
+    @options_mutex.define_singleton_method(:synchronize) do |&block|
+      flag.value = true
+      block.call
+    end
+    flag
+  end
+
+  def restore_default_options_synchronize
+    @options_mutex&.singleton_class&.send(:remove_method, :synchronize)
+  end
 end
