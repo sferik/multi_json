@@ -50,9 +50,16 @@ class LoadAdapterTest < Minitest::Test
   end
 
   def test_load_adapter_raises_for_invalid_type
-    assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, 12_345)
+    custom = Object.new
+    def custom.inspect = "<custom-inspect>"
+    def custom.to_s = "<custom-to-s>"
+
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.send(:load_adapter, custom)
     end
+
+    assert_match(/Symbol, String, or Module/, error.message)
+    assert_match(/<custom-inspect>/, error.message)
   end
 
   def test_load_adapter_raises_for_unknown_string
