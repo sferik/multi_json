@@ -12,6 +12,13 @@ module MultiJson
     # json_gem → gson → ok_json). The parent class is resolved at load
     # time via {MultiJson::AdapterSelector.default_adapter_excluding},
     # so the heavy oj dependency is no longer implied.
+    #
+    # @note The parent class is frozen at file load time. If a library
+    #   loads ``multi_json/adapters/fast_jsonparser`` before ``oj`` is
+    #   required, the dump side locks in to whichever adapter was
+    #   available **at that moment** (e.g. ``json_gem``), not whichever
+    #   is fastest later in the process. Require ``oj`` first (or let
+    #   MultiJson's auto-detection do it) if you want Oj-backed dumping.
     class FastJsonparser < MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
       defaults :load, symbolize_keys: false
 
