@@ -38,12 +38,16 @@ module MultiJson
   end
 end
 
-if RUBY_ENGINE == "jruby"
-  # :nocov:
-  require_relative "options_cache/concurrent_store"
-  # :nocov:
-else
-  require_relative "options_cache/mutex_store"
+module MultiJson
+  module OptionsCache
+    # Dynamic require path so MRI (mutex_store) and JRuby
+    # (concurrent_store) execute the same physical line, avoiding a
+    # dead-branch ``require_relative`` that would otherwise drop
+    # JRuby's line coverage below 100%.
+    BACKENDS = {"jruby" => "concurrent_store"}.freeze
+    private_constant :BACKENDS
+  end
 end
 
+require_relative "options_cache/#{MultiJson::OptionsCache.send(:const_get, :BACKENDS).fetch(RUBY_ENGINE, "mutex_store")}"
 MultiJson::OptionsCache.reset

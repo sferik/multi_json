@@ -94,8 +94,8 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
   # @deprecated These methods are no longer used
   %w[cached_options reset_cached_options!].each do |method_name|
     define_singleton_method(method_name) do |*|
-      warn_deprecation_once(method_name.to_sym,
-        "MultiJson.#{method_name} method is deprecated and no longer used.")
+      message = "MultiJson.#{method_name} method is deprecated and no longer used."
+      warn_deprecation_once(method_name.to_sym, message)
     end
   end
 

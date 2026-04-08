@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Restructure `OptionsCache` backend selection so MRI and JRuby execute the same physical `require_relative` line, restoring JRuby's line coverage threshold to 100%.
 * Drop the `ALIASES` constant in `AdapterSelector` in favor of an inline check; the only entry, `jrjackson` → `jr_jackson`, is now inlined into `load_adapter_by_name`.
 * Document the `fast_jsonparser` adapter's parent class freeze at file load time.
 * Stop mass-requiring adapter gems at the top of `adapter_selection_test.rb`, which polluted the global require cache and let later tests silently depend on adapters they had not explicitly loaded.

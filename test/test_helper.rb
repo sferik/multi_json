@@ -15,10 +15,9 @@ unless ENV["MUTANT"]
       enable_coverage :branch
       minimum_coverage line: 100, branch: 100
     when "jruby"
-      # JRuby's coverage backend doesn't support branch coverage and tracks
-      # multi-line method calls and dead require_relative branches less
-      # precisely than MRI, so the line threshold is relaxed accordingly.
-      minimum_coverage line: 99
+      # JRuby's coverage backend doesn't support branch coverage, but line
+      # coverage is still enforced at 100%.
+      minimum_coverage line: 100
     else
       # TruffleRuby's coverage backend doesn't support branch coverage and
       # misses a handful of tail expressions and assignments that MRI counts
