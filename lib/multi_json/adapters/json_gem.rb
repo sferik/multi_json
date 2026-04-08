@@ -38,8 +38,7 @@ module MultiJson
           end
         end
 
-        options[:symbolize_names] = true if options.delete(:symbolize_keys)
-        ::JSON.parse(string, options)
+        ::JSON.parse(string, translate_load_options(options))
       end
 
       # Serialize a Ruby object to JSON
@@ -62,6 +61,23 @@ module MultiJson
         end
 
         ::JSON.generate(json_object, opts)
+      end
+
+      private
+
+      # Translate ``:symbolize_keys`` into JSON gem's ``:symbolize_names``
+      #
+      # Returns a new hash without mutating the input. ``options`` is the
+      # cached hash returned from {Adapter.merged_load_options}, so in-place
+      # edits would pollute the cache and corrupt subsequent calls.
+      #
+      # @api private
+      # @param options [Hash] merged load options
+      # @return [Hash] options with ``:symbolize_keys`` translated
+      def translate_load_options(options)
+        return options unless options[:symbolize_keys]
+
+        options.except(:symbolize_keys).merge(symbolize_names: true)
       end
     end
   end

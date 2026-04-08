@@ -57,6 +57,22 @@ class JsonGemAdapterTest < Minitest::Test
     end
   end
 
+  def test_load_does_not_mutate_cached_options
+    MultiJson.use :json_gem
+    MultiJson.load_options = nil
+    MultiJson::OptionsCache.reset
+
+    MultiJson.load('{"a":1}', symbolize_keys: true)
+    MultiJson.load('{"a":1}', symbolize_keys: true)
+
+    cached = MultiJson::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
+
+    assert_includes cached.keys, :symbolize_keys,
+      "expected cached load options to retain :symbolize_keys key"
+    refute_includes cached.keys, :symbolize_names,
+      "expected cached load options to NOT have JSON-gem-specific keys merged in"
+  end
+
   private
 
   def run_script(script_content)
