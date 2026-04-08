@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Extract deprecated public API (`decode`, `encode`, `engine`, `engine=`, `default_engine`, `with_engine`, `default_options`, `default_options=`, `cached_options`, `reset_cached_options!`) into `lib/multi_json/deprecated.rb` and drop the matching `Style/Documentation`, `Style/ModuleFunction`, and `Style/OpenStructUse` rubocop opt-outs.
 * Validate the `action` argument in `Adapter.defaults` so a typo (e.g. `defaults :encode, ...`) raises `ArgumentError` at definition time instead of silently producing a no-op default.
 * Drop the stale `ok_json` reference from the `fast_jsonparser` adapter's docstring.
 * Remove the `MultiJson::REQUIREMENT_MAP` legacy alias; the canonical map already lives on `MultiJson::AdapterSelector`.

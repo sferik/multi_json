@@ -10,7 +10,6 @@ plugins:
 AllCops:
   Exclude:
     - ".git/**/*"
-    - "lib/multi_json/vendor/**/*.rb"
     - "tmp/**/*"
     - "vendor/**/*"
   NewCops: enable
@@ -52,17 +51,8 @@ Metrics/ParameterLists:
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 
-Style/Documentation:
-  Enabled: false
-
 Style/FrozenStringLiteralComment:
   EnforcedStyle: never
-
-Style/ModuleFunction:
-  Enabled: false
-
-Style/OpenStructUse:
-  Enabled: false
 
 Style/RescueStandardError:
   EnforcedStyle: implicit
