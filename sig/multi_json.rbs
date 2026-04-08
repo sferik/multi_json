@@ -175,6 +175,7 @@ module MultiJson
   module AdapterSelector
     extend AdapterSelector
 
+    ADAPTERS: Hash[Symbol, Hash[Symbol, untyped]]
     REQUIREMENT_MAP: Hash[Symbol, String]
 
     def default_adapter: () -> Symbol

@@ -10,30 +10,24 @@ module MultiJson
   module AdapterSelector
     extend self
 
-    # Maps adapter symbols to their require paths for auto-loading.
-    # Insertion order is the preference order used by adapter detection
-    # (fastest first).
-    REQUIREMENT_MAP = {
-      fast_jsonparser: "fast_jsonparser",
-      oj: "oj",
-      yajl: "yajl",
-      jr_jackson: "jrjackson",
-      json_gem: "json",
-      gson: "gson"
+    # Per-adapter metadata, in preference order (fastest first). Each
+    # entry maps the adapter symbol to its ``require`` path and a
+    # ``loaded`` lambda that returns truthy when the backing library is
+    # already loaded.
+    ADAPTERS = {
+      fast_jsonparser: {require: "fast_jsonparser", loaded: -> { defined?(::FastJsonparser) }},
+      oj: {require: "oj", loaded: -> { defined?(::Oj) }},
+      yajl: {require: "yajl", loaded: -> { defined?(::Yajl) }},
+      jr_jackson: {require: "jrjackson", loaded: -> { defined?(::JrJackson) }},
+      json_gem: {require: "json", loaded: -> { defined?(::JSON::Ext::Parser) }},
+      gson: {require: "gson", loaded: -> { defined?(::Gson) }}
     }.freeze
+    private_constant :ADAPTERS
 
-    # Callable detectors paired with adapter symbols, in the same
-    # preference order as REQUIREMENT_MAP. Each lambda returns truthy
-    # when its adapter's backing library is already loaded.
-    LOADED_ADAPTER_DETECTORS = {
-      fast_jsonparser: -> { defined?(::FastJsonparser) },
-      oj: -> { defined?(::Oj) },
-      yajl: -> { defined?(::Yajl) },
-      jr_jackson: -> { defined?(::JrJackson) },
-      json_gem: -> { defined?(::JSON::Ext::Parser) },
-      gson: -> { defined?(::Gson) }
-    }.freeze
-    private_constant :LOADED_ADAPTER_DETECTORS
+    # Backwards-compatible view of {ADAPTERS} that exposes only the
+    # require paths. Tests still poke at this constant to stub or break
+    # the require step.
+    REQUIREMENT_MAP = ADAPTERS.transform_values { |meta| meta[:require] }.freeze
 
     # Returns the default adapter to use
     #
@@ -79,9 +73,9 @@ module MultiJson
     # @param excluding [Symbol, nil] adapter name to skip during detection
     # @return [Symbol, nil] adapter name if found
     def loaded_adapter(excluding: nil)
-      LOADED_ADAPTER_DETECTORS.each do |name, detect|
+      ADAPTERS.each do |name, meta|
         next if name == excluding
-        return name if detect.call
+        return name if meta.fetch(:loaded).call
       end
       nil
     end
