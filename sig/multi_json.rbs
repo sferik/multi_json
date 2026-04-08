@@ -195,21 +195,6 @@ module MultiJson
     def load_adapter_by_name: (String name) -> _Adapter
   end
 
-  module ConvertibleHashKeys
-    SIMPLE_OBJECT_CLASSES: Array[Class]
-
-    private
-
-    # These methods work with json but return types that may have symbol keys after symbolize_keys
-    type convertible_value = nil | bool | Integer | Float | String | Symbol | Array[convertible_value] | Hash[String | Symbol, convertible_value]
-
-    def symbolize_keys: (convertible_value value) -> convertible_value
-    def stringify_keys: (convertible_value value) -> convertible_value
-    def convert_hash_keys: (convertible_value value) { (String | Symbol) -> (String | Symbol) } -> convertible_value
-    def convert_simple_object: (convertible_value obj) -> convertible_value
-    def simple_object?: (convertible_value obj) -> bool
-  end
-
   class Adapter
     extend Options
     include Singleton

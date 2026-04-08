@@ -12,9 +12,9 @@ class UseReturnValueAndCacheResetTest < Minitest::Test
   end
 
   def test_use_returns_loaded_adapter
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
     refute_nil result
   end
 
@@ -40,9 +40,9 @@ class UseReturnValueAndCacheResetTest < Minitest::Test
   public
 
   def test_use_stores_adapter
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.instance_variable_get(:@adapter)
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.instance_variable_get(:@adapter)
   end
 
   def test_use_resets_options_cache

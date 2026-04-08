@@ -29,14 +29,14 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
   end
 
-  def test_default_adapter_fallback_to_ok_json
+  def test_default_adapter_fallback_to_json_gem
     simulate_no_adapters do
       clear_default_adapter_state
       clear_default_adapter_warning
 
       result = capture_stderr { MultiJson.default_adapter }
 
-      assert_equal :ok_json, result
+      assert_equal :json_gem, result
     end
   end
 

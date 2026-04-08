@@ -34,7 +34,7 @@ class InstanceMethodDumpTest < Minitest::Test
   end
 
   def test_instance_dump_respects_adapter_option
-    result = @object.send(:dump, {x: 1}, adapter: :ok_json)
+    result = @object.send(:dump, {x: 1}, adapter: :json_gem)
 
     assert_kind_of String, result
   end

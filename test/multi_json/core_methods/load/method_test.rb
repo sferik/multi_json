@@ -21,7 +21,7 @@ class LoadMethodTest < Minitest::Test
 
   def test_load_with_adapter_option_uses_specified_adapter
     MultiJson.use :json_gem
-    result = MultiJson.load('{"key": "value"}', adapter: :ok_json)
+    result = MultiJson.load('{"key": "value"}', adapter: :json_gem)
 
     assert_equal({"key" => "value"}, result)
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter

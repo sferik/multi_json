@@ -1,6 +1,6 @@
 require_relative "../../../test_helper"
 
-class UseMethodTest < Minitest::Test
+class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   cover "MultiJson*"
 
   def setup
@@ -8,10 +8,10 @@ class UseMethodTest < Minitest::Test
   end
 
   def test_use_sets_adapter_and_returns_it
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_use_resets_options_cache
@@ -23,15 +23,15 @@ class UseMethodTest < Minitest::Test
   end
 
   def test_adapter_equals_is_alias_for_use
-    MultiJson.adapter = :ok_json
+    MultiJson.adapter = :json_gem
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_engine_equals_is_alias_for_use
-    MultiJson.engine = :ok_json
+    MultiJson.engine = :json_gem
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_use_always_resets_cache_even_on_error
@@ -45,13 +45,13 @@ class UseMethodTest < Minitest::Test
   end
 
   def test_use_calls_load_adapter_with_argument
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_use_stores_result_of_load_adapter
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
     assert_equal result, MultiJson.adapter
   end
@@ -59,26 +59,27 @@ class UseMethodTest < Minitest::Test
   def test_use_passes_argument_to_load_adapter
     MultiJson.use :json_gem
 
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_use_stores_adapter_not_nil
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
     refute_nil MultiJson.adapter
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_use_body_executes
+    skip unless defined?(::Oj)
     MultiJson.use :json_gem
     original = MultiJson.adapter
 
-    MultiJson.use(:ok_json)
+    MultiJson.use(:oj)
 
     refute_equal original, MultiJson.adapter
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::Oj, MultiJson.adapter
   end
 
   def test_use_resets_cache_via_options_cache_reset
@@ -92,9 +93,9 @@ class UseMethodTest < Minitest::Test
   end
 
   def test_use_returns_loaded_adapter
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_use_calls_options_cache_reset_method
@@ -104,32 +105,33 @@ class UseMethodTest < Minitest::Test
   end
 
   def test_use_returns_loaded_adapter_class
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
     refute_nil result
   end
 
   def test_use_stores_result_in_adapter_ivar
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
     stored = MultiJson.instance_variable_get(:@adapter)
 
-    assert_equal MultiJson::Adapters::OkJson, stored
+    assert_equal MultiJson::Adapters::JsonGem, stored
   end
 
   def test_use_calls_load_adapter
-    result = MultiJson.use(:ok_json)
+    result = MultiJson.use(:json_gem)
 
-    # If load_adapter was not called, result would be :ok_json symbol, not the class
-    assert_equal MultiJson::Adapters::OkJson, result
-    refute_equal :ok_json, result
+    # If load_adapter was not called, result would be :json_gem symbol, not the class
+    assert_equal MultiJson::Adapters::JsonGem, result
+    refute_equal :json_gem, result
   end
 
   def test_use_passes_new_adapter_arg_to_load_adapter
-    result = MultiJson.use(:ok_json)
+    skip unless defined?(::Oj)
+    result = MultiJson.use(:oj)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::Oj, result
     refute_equal MultiJson::Adapters::JsonGem, result
   end
 

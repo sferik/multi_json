@@ -7,7 +7,7 @@ class DeprecatedDecodeAliasTest < Minitest::Test
     @registry = MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN)
     @registry.clear
     @original_adapter = MultiJson.adapter
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
   end
 
   def teardown

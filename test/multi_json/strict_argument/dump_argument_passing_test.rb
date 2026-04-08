@@ -57,7 +57,7 @@ class DumpArgumentPassingTest < Minitest::Test
   def test_dump_passes_options_to_current_adapter
     MultiJson.use :json_gem
 
-    result = MultiJson.dump({x: 1}, adapter: :ok_json)
+    result = MultiJson.dump({x: 1}, adapter: :json_gem)
 
     refute_nil result
     assert_kind_of String, result

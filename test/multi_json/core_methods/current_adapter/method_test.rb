@@ -21,14 +21,14 @@ class CurrentAdapterMethodTest < Minitest::Test
 
   def test_current_adapter_returns_specified_adapter_from_options
     MultiJson.use :json_gem
-    result = MultiJson.current_adapter(adapter: :ok_json)
+    result = MultiJson.current_adapter(adapter: :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_current_adapter_does_not_change_global_adapter
     MultiJson.use :json_gem
-    MultiJson.current_adapter(adapter: :ok_json)
+    MultiJson.current_adapter(adapter: :json_gem)
 
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
@@ -47,8 +47,9 @@ class CurrentAdapterMethodTest < Minitest::Test
   end
 
   def test_current_adapter_returns_different_adapter_than_global
+    skip unless defined?(::Oj)
     MultiJson.use :json_gem
-    result = MultiJson.current_adapter(adapter: :ok_json)
+    result = MultiJson.current_adapter(adapter: :oj)
 
     refute_equal MultiJson.adapter, result
   end

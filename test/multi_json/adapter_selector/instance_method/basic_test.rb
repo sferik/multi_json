@@ -50,7 +50,7 @@ class IncludedAdapterSelectorTest < Minitest::Test
 
       result = capture_stderr { @instance.default_adapter }
 
-      assert_equal :ok_json, result
+      assert_equal :json_gem, result
     end
   end
 

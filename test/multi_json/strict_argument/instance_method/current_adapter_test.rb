@@ -20,9 +20,9 @@ class InstanceMethodCurrentAdapterTest < Minitest::Test
   end
 
   def test_instance_current_adapter_with_adapter_option
-    result = @object.send(:current_adapter, adapter: :ok_json)
+    result = @object.send(:current_adapter, adapter: :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_instance_current_adapter_handles_nil_options

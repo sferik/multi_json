@@ -13,22 +13,22 @@ class InstanceMethodUseTest < Minitest::Test
   end
 
   def test_instance_use_sets_adapter
-    @object.send(:use, :ok_json)
+    @object.send(:use, :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, @object.send(:adapter)
+    assert_equal MultiJson::Adapters::JsonGem, @object.send(:adapter)
   end
 
   def test_instance_use_returns_adapter
-    result = @object.send(:use, :ok_json)
+    result = @object.send(:use, :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_instance_use_resets_options_cache
     key = :"instance_use_test_#{object_id}"
     MultiJson::OptionsCache.dump.fetch(key) { "cached_value" }
 
-    @object.send(:use, :ok_json)
+    @object.send(:use, :json_gem)
 
     assert_nil MultiJson::OptionsCache.dump.fetch(key, nil), "Cache should be cleared after use"
   end

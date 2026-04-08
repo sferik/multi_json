@@ -12,12 +12,13 @@ class WithAdapterThreadIsolationTest < Minitest::Test
   end
 
   def test_with_adapter_isolated_across_threads
+    skip unless defined?(::Oj)
     process_default = MultiJson.adapter
-    observed = run_overlapping_threads(ok_json: MultiJson::Adapters::OkJson,
-      json_gem: MultiJson::Adapters::JsonGem)
+    observed = run_overlapping_threads(json_gem: MultiJson::Adapters::JsonGem,
+      oj: MultiJson::Adapters::Oj)
 
-    assert_equal MultiJson::Adapters::OkJson, observed[:ok_json]
     assert_equal MultiJson::Adapters::JsonGem, observed[:json_gem]
+    assert_equal MultiJson::Adapters::Oj, observed[:oj]
     assert_equal process_default, MultiJson.adapter
   end
 

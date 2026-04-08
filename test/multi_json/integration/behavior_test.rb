@@ -6,11 +6,11 @@ class BehaviorIntegrationTest < Minitest::Test
 
   include IntegrationTestSetup
 
-  def test_defaults_to_ok_json_when_no_adapters_available
+  def test_defaults_to_json_gem_when_no_adapters_available
     simulate_no_adapters do
       clear_default_adapter_warning
 
-      capture_stderr { assert_equal :ok_json, MultiJson.default_adapter }
+      capture_stderr { assert_equal :json_gem, MultiJson.default_adapter }
     end
   end
 
@@ -107,24 +107,24 @@ class BehaviorIntegrationTest < Minitest::Test
   end
 
   def assert_one_shot_adapter_behavior
-    results = track_ok_json_calls { verify_one_shot_dump_and_load }
+    results = track_json_gem_calls { verify_one_shot_dump_and_load }
 
     assert results[:dump_called] && results[:load_called]
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
-  def track_ok_json_calls(&)
+  def track_json_gem_calls(&)
     results = {dump_called: false, load_called: false}
     dump_stub = ->(*) { (results[:dump_called] = true) && "dump_something" }
     load_stub = ->(*) { (results[:load_called] = true) && "load_something" }
-    with_stub(MultiJson::Adapters::OkJson, :dump, dump_stub) do
-      with_stub(MultiJson::Adapters::OkJson, :load, load_stub, &)
+    with_stub(MultiJson::Adapters::JsonGem, :dump, dump_stub) do
+      with_stub(MultiJson::Adapters::JsonGem, :load, load_stub, &)
     end
     results
   end
 
   def verify_one_shot_dump_and_load
-    assert_equal "dump_something", MultiJson.dump("", adapter: :ok_json)
-    assert_equal "load_something", MultiJson.load("", adapter: :ok_json)
+    assert_equal "dump_something", MultiJson.dump("", adapter: :json_gem)
+    assert_equal "load_something", MultiJson.load("", adapter: :json_gem)
   end
 end

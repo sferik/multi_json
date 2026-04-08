@@ -55,10 +55,10 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_by_name_uses_multijson_adapters
-    result = @instance.send(:load_adapter_by_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal MultiJson::Adapters::OkJson, result
-    assert_equal "MultiJson::Adapters::OkJson", result.name
+    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal "MultiJson::Adapters::JsonGem", result.name
   end
 
   def test_instance_loaded_adapter_returns_nil_when_none_defined
@@ -101,7 +101,7 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_require_relative_uses_downcase
-    assert_equal MultiJson::Adapters::OkJson, @instance.send(:load_adapter_by_name, "OK_JSON")
+    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
   end
 
   def test_instance_loaded_adapter_explicit_nil_return

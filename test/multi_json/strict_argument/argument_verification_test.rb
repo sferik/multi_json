@@ -81,9 +81,9 @@ class CurrentAdapterOptionsTest < Minitest::Test
       original_load_adapter.call(arg)
     end
 
-    MultiJson.load('{"a":1}', adapter: :ok_json)
+    MultiJson.load('{"a":1}', adapter: :json_gem)
 
-    assert_equal :ok_json, load_adapter_called_with
+    assert_equal :json_gem, load_adapter_called_with
   ensure
     silence_warnings { MultiJson.define_singleton_method(:load_adapter, original_load_adapter) }
   end
@@ -97,9 +97,9 @@ class CurrentAdapterOptionsTest < Minitest::Test
       original_load_adapter.call(arg)
     end
 
-    MultiJson.dump({a: 1}, adapter: :ok_json)
+    MultiJson.dump({a: 1}, adapter: :json_gem)
 
-    assert_equal :ok_json, load_adapter_called_with
+    assert_equal :json_gem, load_adapter_called_with
   ensure
     silence_warnings { MultiJson.define_singleton_method(:load_adapter, original_load_adapter) }
   end

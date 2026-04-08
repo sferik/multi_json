@@ -32,9 +32,9 @@ class AdapterMethodTest < Minitest::Test
 
   def test_adapter_returns_adapter_when_defined_and_truthy
     # Tests that the condition checks both defined? and truthiness
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_adapter_short_circuits_when_already_set
@@ -53,22 +53,23 @@ class AdapterMethodTest < Minitest::Test
   end
 
   def test_adapter_returns_the_adapter_instance_not_nil
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
 
     result = MultiJson.adapter
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
     refute_nil result
   end
 
   def test_adapter_returns_correct_adapter_class_after_change
+    skip unless defined?(::Oj)
     MultiJson.use :json_gem
 
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
 
-    MultiJson.use :ok_json
+    MultiJson.use :oj
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::Oj, MultiJson.adapter
   end
 end
 
@@ -117,18 +118,18 @@ class AdapterUndefinedTest < Minitest::Test
 
   def test_adapter_with_nil_ivar_loads_default
     MultiJson.instance_variable_set(:@adapter, nil)
-    MultiJson.instance_variable_set(:@default_adapter, :ok_json)
+    MultiJson.instance_variable_set(:@default_adapter, :json_gem)
 
     result = capture_stderr { MultiJson.adapter }
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   ensure
     MultiJson.use :json_gem
     MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
   end
 
   def test_adapter_method_returns_value_from_instance_variable
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
     expected = MultiJson.instance_variable_get(:@adapter)
 
     result = MultiJson.adapter

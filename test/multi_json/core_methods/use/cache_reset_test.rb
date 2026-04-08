@@ -18,7 +18,7 @@ class UseCacheResetTest < Minitest::Test
 
     assert_equal "cached_before", MultiJson::OptionsCache.dump.fetch(key, nil)
 
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
     # After use, cache should be cleared
     # If OptionsCache.reset was replaced with nil, cache would NOT be cleared
@@ -29,7 +29,7 @@ class UseCacheResetTest < Minitest::Test
     key = :"reset_test_#{object_id}"
     MultiJson::OptionsCache.dump.fetch(key) { "cached_before" }
 
-    MultiJson.use(:ok_json)
+    MultiJson.use(:json_gem)
 
     # OptionsCache (the module) would not clear the cache
     # OptionsCache.reset (the method) clears the cache

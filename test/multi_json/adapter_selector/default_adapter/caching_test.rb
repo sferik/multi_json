@@ -44,7 +44,7 @@ class DefaultAdapterCachingTest < Minitest::Test
 
       result = capture_stderr { MultiJson.default_adapter }
 
-      assert_equal :ok_json, result
+      assert_equal :json_gem, result
     end
   end
 
@@ -55,7 +55,7 @@ class DefaultAdapterCachingTest < Minitest::Test
 
         result = capture_stderr { MultiJson.default_adapter }
 
-        assert_equal :ok_json, result
+        assert_equal :json_gem, result
       end
     end
   end

@@ -32,7 +32,7 @@ class InstanceMethodLoadTest < Minitest::Test
   end
 
   def test_instance_load_respects_adapter_option
-    result = @object.send(:load, '{"x":1}', adapter: :ok_json)
+    result = @object.send(:load, '{"x":1}', adapter: :json_gem)
 
     assert_equal({"x" => 1}, result)
   end
@@ -89,7 +89,7 @@ class InstanceMethodLoadTest < Minitest::Test
 
   def test_instance_load_uses_adapter_from_options
     @object.send(:use, :json_gem)
-    result = @object.send(:load, '{"test":true}', adapter: :ok_json)
+    result = @object.send(:load, '{"test":true}', adapter: :json_gem)
 
     assert_equal({"test" => true}, result)
   end

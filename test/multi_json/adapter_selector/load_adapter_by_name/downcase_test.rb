@@ -11,7 +11,7 @@ class AdapterNameDowncaseTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_uses_lowercase_path
-    assert_equal "adapters/ok_json", capture_require_relative_path("OK_JSON")
+    assert_equal "adapters/json_gem", capture_require_relative_path("JSON_GEM")
   end
 
   def test_load_adapter_by_name_downcases_mixed_case
@@ -19,15 +19,15 @@ class AdapterNameDowncaseTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_normalizes_case
-    result = @instance.send(:load_adapter_by_name, "OK_JSON")
+    result = @instance.send(:load_adapter_by_name, "JSON_GEM")
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_load_adapter_by_name_capitalizes_class_name
-    result = @instance.send(:load_adapter_by_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal "OkJson", result.name.split("::").last
+    assert_equal "JsonGem", result.name.split("::").last
   end
 
   def test_load_adapter_by_name_handles_mixed_case

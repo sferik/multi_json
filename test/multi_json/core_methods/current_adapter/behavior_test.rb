@@ -28,27 +28,27 @@ class CurrentAdapterBehaviorTest < Minitest::Test
   def test_current_adapter_uses_passed_options
     MultiJson.use :json_gem
 
-    result = MultiJson.current_adapter(adapter: :ok_json)
+    result = MultiJson.current_adapter(adapter: :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_current_adapter_accesses_options_bracket_adapter
     MultiJson.use :json_gem
 
-    result = MultiJson.current_adapter({adapter: :ok_json})
+    result = MultiJson.current_adapter({adapter: :json_gem})
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_current_adapter_uses_assignment_value
     MultiJson.use :json_gem
 
-    result = MultiJson.current_adapter(adapter: :ok_json)
+    result = MultiJson.current_adapter(adapter: :json_gem)
 
-    refute_equal MultiJson.adapter, result unless MultiJson.adapter == MultiJson::Adapters::OkJson
+    refute_equal MultiJson.adapter, result unless MultiJson.adapter == MultiJson::Adapters::JsonGem
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_current_adapter_does_not_raise
@@ -78,9 +78,9 @@ class CurrentAdapterBehaviorTest < Minitest::Test
     object = Class.new { include MultiJson }.new
     object.define_singleton_method(:load_adapter) { |value| MultiJson.send(:load_adapter, value) }
 
-    result = object.send(:current_adapter, adapter: :ok_json)
+    result = object.send(:current_adapter, adapter: :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_current_adapter_uses_hash_literal_default_argument

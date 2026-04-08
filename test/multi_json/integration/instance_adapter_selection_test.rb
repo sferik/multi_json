@@ -56,6 +56,27 @@ class InstanceAdapterSelectionIntegrationTest < Minitest::Test
     assert_empty calls
   end
 
+  def test_instance_adapter_returns_fiber_local_override
+    object = Class.new { include MultiJson }.new
+    object.instance_variable_set(:@adapter, MultiJson::Adapters::JsonGem)
+    stub_override = Object.new
+    begin
+      Fiber[:multi_json_adapter] = stub_override
+
+      assert_same stub_override, object.send(:adapter)
+    ensure
+      Fiber[:multi_json_adapter] = nil
+    end
+  end
+
+  def test_instance_adapter_ignores_nil_fiber_local
+    object = Class.new { include MultiJson }.new
+    object.instance_variable_set(:@adapter, MultiJson::Adapters::JsonGem)
+    Fiber[:multi_json_adapter] = nil
+
+    assert_equal MultiJson::Adapters::JsonGem, object.send(:adapter)
+  end
+
   def test_gives_access_to_original_error_when_raising_adapter_error
     exception = get_exception(MultiJson::AdapterError) { MultiJson.use "foobar" }
 
@@ -66,8 +87,8 @@ class InstanceAdapterSelectionIntegrationTest < Minitest::Test
 
   def test_can_set_adapter_for_block
     MultiJson.with_adapter(:json_gem) do
-      MultiJson.with_engine(:ok_json) do
-        assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+      MultiJson.with_engine(:json_gem) do
+        assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
       end
 
       assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter

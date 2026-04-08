@@ -74,9 +74,9 @@ class LoadBehaviorTest < Minitest::Test
   end
 
   def test_load_passes_options_containing_adapter_to_current_adapter
-    adapter_received = track_current_adapter_options { MultiJson.load('{"key":"value"}', adapter: :ok_json) }
+    adapter_received = track_current_adapter_options { MultiJson.load('{"key":"value"}', adapter: :json_gem) }
 
-    assert_equal :ok_json, adapter_received
+    assert_equal :json_gem, adapter_received
   end
 
   def test_load_returns_adapter_load_result_not_adapter

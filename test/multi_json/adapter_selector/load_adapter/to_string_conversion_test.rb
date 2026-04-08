@@ -17,10 +17,10 @@ class LoadAdapterToStringConversionTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_receives_string
-    received_arg = track_load_adapter_by_name_arg { MultiJson.send(:load_adapter, :ok_json) }
+    received_arg = track_load_adapter_by_name_arg { MultiJson.send(:load_adapter, :json_gem) }
 
     assert_kind_of String, received_arg
-    assert_equal "ok_json", received_arg
+    assert_equal "json_gem", received_arg
   end
 
   def track_load_adapter_by_name_arg

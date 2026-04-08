@@ -46,24 +46,22 @@ class DefaultAdapterExcludingTest < Minitest::Test
     # installable_adapter takes over, walks REQUIREMENT_MAP excluding the
     # named one, and returns the first installable adapter (Oj, since oj
     # is in the dev Gemfile and ranked first after fast_jsonparser).
-    # Asserting on Oj specifically — and that it is **not** the OkJson
-    # fallback — distinguishes the installable path from the fallback
-    # path so mutation tests can tell them apart.
+    # Asserting on Oj specifically distinguishes the installable path
+    # from the fallback path so mutation tests can tell them apart.
     skip unless defined?(::Oj)
 
     undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
       result = MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
       assert_equal MultiJson::Adapters::Oj, result
-      refute_equal MultiJson::Adapters::OkJson, result
     end
   end
 
-  def test_falls_back_to_ok_json_when_no_other_adapter_is_available
+  def test_falls_back_to_json_gem_when_no_other_adapter_is_available
     simulate_no_adapters do
       result = capture_stderr { MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser) }
 
-      assert_equal MultiJson::Adapters::OkJson, result
+      assert_equal MultiJson::Adapters::JsonGem, result
     end
   end
 end

@@ -46,8 +46,8 @@ which inherits from `ArgumentError`.
 MultiJSON tries to have intelligent defaulting. That is, if you have any of the
 supported engines already loaded, it will utilize them before attempting to
 load any. When loading, libraries are ordered by speed. First fast_jsonparser,
-then Oj, then Yajl, then the JSON gem. If no other JSON library is available,
-MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
+then Oj, then Yajl, then the JSON gem. The JSON gem is a Ruby default gem,
+so it's always available as a last-resort fallback on any supported Ruby.
 
 ## Gem Variants
 
@@ -61,7 +61,6 @@ automatically select the correct variant for your Ruby implementation:
 | [`oj`][oj] adapter                             |   ✓   |       |
 | [`yajl`][yajl] adapter                         |   ✓   |       |
 | [`json_gem`][json-gem] adapter                 |   ✓   |   ✓   |
-| [`ok_json`][okjson] adapter (fallback)         |   ✓   |   ✓   |
 | [`gson`][gson] adapter                         |       |   ✓   |
 | [`jr_jackson`][jrjackson] adapter              |       |   ✓   |
 | `OptionsCache` thread-safe store               | `Hash` + `Mutex` | `Concurrent::Map` |
@@ -124,7 +123,6 @@ Pravosud. See [LICENSE][license] for details.
 [macruby]: http://www.macruby.org/
 [mutant]: https://github.com/sferik/multi_json/actions/workflows/mutant.yml
 [oj]: https://github.com/ohler55/oj
-[okjson]: https://github.com/kr/okjson
 [pvc]: http://docs.rubygems.org/read/chapter/16#page74
 [qlty]: https://qlty.sh/gh/sferik/projects/multi_json
 [semver]: http://semver.org/

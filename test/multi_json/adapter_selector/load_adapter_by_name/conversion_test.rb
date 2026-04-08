@@ -26,15 +26,15 @@ class LoadAdapterByNameConversionTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_capitalizes_segments
-    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal "OkJson", result.name.split("::").last
+    assert_equal "JsonGem", result.name.split("::").last
   end
 
   def test_load_adapter_by_name_constructs_correct_class_name
-    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal "OkJson", result.name.split("::").last
+    assert_equal "JsonGem", result.name.split("::").last
   end
 
   def test_load_adapter_converts_symbol_to_string
@@ -44,10 +44,10 @@ class LoadAdapterByNameConversionTest < Minitest::Test
   end
 
   def test_load_adapter_to_s_is_called_on_symbol
-    symbol_adapter = :ok_json
+    symbol_adapter = :json_gem
 
     result = MultiJson.send(:load_adapter, symbol_adapter)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 end

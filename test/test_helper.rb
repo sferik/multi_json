@@ -4,7 +4,6 @@ unless ENV["MUTANT"]
   require "simplecov"
   SimpleCov.start do
     add_filter "/test/"
-    add_filter "/vendor/"
     # Oj v2 compatibility code - cannot be tested with Oj v3
     add_filter "lib/multi_json/adapters/oj_common.rb"
     # JrJackson arity compatibility code - only one branch can run per version
@@ -27,12 +26,7 @@ unless ENV["MUTANT"]
   end
 end
 
-# Capture any warnings during initial load (e.g., ok_json fallback warning)
-require "stringio"
-original_stderr = $stderr
-$stderr = StringIO.new
 require "multi_json"
-$stderr = original_stderr
 require "minitest/autorun"
 require "mutant/minitest/coverage"
 require_relative "support/strict_adapter"
@@ -58,7 +52,6 @@ module TestHelpers
   # The backing gem is named ``yajl-ruby``, not ``yajl``.
   def yajl? = adapter_available?("yajl-ruby")
   def json? = adapter_available?(:json)
-  def ok_json? = adapter_available?(:ok_json)
   def fast_jsonparser? = adapter_available?(:fast_jsonparser)
   def gson? = adapter_available?(:gson)
   def jrjackson? = adapter_available?(:jrjackson)

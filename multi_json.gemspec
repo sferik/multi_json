@@ -4,10 +4,10 @@ Gem::Specification.new do |spec|
   spec.authors = ["Michael Bleigh", "Josh Kalderimis", "Erik Berlin", "Pavel Pravosud"]
   spec.description = if ENV["MULTI_JSON_PLATFORM"] == "java"
     "A common interface to multiple JSON libraries, " \
-      "including the JSON gem, gson, JrJackson, and OkJson."
+      "including the JSON gem, gson, and JrJackson."
   else
     "A common interface to multiple JSON libraries, " \
-      "including fast_jsonparser, Oj, Yajl, the JSON gem, and OkJson."
+      "including fast_jsonparser, Oj, Yajl, and the JSON gem."
   end
   spec.email = %w[sferik@gmail.com]
   spec.homepage = "https://github.com/sferik/multi_json"

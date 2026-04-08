@@ -86,9 +86,9 @@ class AdapterSelectionIntegrationTest < Minitest::Test
   def test_looks_for_adapter_even_if_adapter_variable_is_nil
     MultiJson.send(:remove_instance_variable, :@adapter) if MultiJson.instance_variable_defined?(:@adapter)
 
-    result = with_stub(MultiJson, :default_adapter, -> { :ok_json }) { MultiJson.adapter }
+    result = with_stub(MultiJson, :default_adapter, -> { :json_gem }) { MultiJson.adapter }
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   private

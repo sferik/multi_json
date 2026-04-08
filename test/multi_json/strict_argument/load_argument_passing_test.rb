@@ -55,7 +55,7 @@ class LoadArgumentPassingTest < Minitest::Test
   def test_load_passes_options_to_current_adapter
     MultiJson.use :json_gem
 
-    result = MultiJson.load('{"x":1}', adapter: :ok_json)
+    result = MultiJson.load('{"x":1}', adapter: :json_gem)
 
     refute_nil result
   end

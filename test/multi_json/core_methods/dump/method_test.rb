@@ -22,7 +22,7 @@ class DumpMethodTest < Minitest::Test
 
   def test_dump_with_adapter_option_uses_specified_adapter
     MultiJson.use :json_gem
-    result = MultiJson.dump({key: "value"}, adapter: :ok_json)
+    result = MultiJson.dump({key: "value"}, adapter: :json_gem)
 
     assert_includes result, "key"
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter

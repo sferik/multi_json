@@ -16,23 +16,23 @@ class InstanceMethodWithAdapterTest < Minitest::Test
   def test_instance_with_adapter_changes_adapter
     inner_adapter = nil
 
-    @object.send(:with_adapter, :ok_json) do
+    @object.send(:with_adapter, :json_gem) do
       inner_adapter = @object.send(:adapter)
     end
 
-    assert_equal MultiJson::Adapters::OkJson, inner_adapter
+    assert_equal MultiJson::Adapters::JsonGem, inner_adapter
   end
 
   def test_instance_with_adapter_restores_adapter
     @object.send(:use, :json_gem)
 
-    @object.send(:with_adapter, :ok_json) { nil }
+    @object.send(:with_adapter, :json_gem) { nil }
 
     assert_equal MultiJson::Adapters::JsonGem, @object.send(:adapter)
   end
 
   def test_instance_with_adapter_returns_block_value
-    result = @object.send(:with_adapter, :ok_json) { "result" }
+    result = @object.send(:with_adapter, :json_gem) { "result" }
 
     assert_equal "result", result
   end

@@ -113,22 +113,27 @@ module MultiJson
 
     # Returns the fallback adapter when no others available
     #
+    # The json gem is a Ruby default gem since Ruby 1.9, so in practice
+    # the installable-adapter step always succeeds before reaching this
+    # fallback on any supported Ruby version. The warning below only
+    # fires in tests that deliberately break the require path.
+    #
     # @api private
-    # @return [Symbol] the ok_json adapter name
+    # @return [Symbol] the json_gem adapter name
     def fallback_adapter
       warn_about_fallback unless @default_adapter_warning_shown
       @default_adapter_warning_shown = true
-      :ok_json
+      :json_gem
     end
 
-    # Warns the user about using the slow fallback adapter
+    # Warns the user about reaching the last-resort fallback
     #
     # @api private
     # @return [void]
     def warn_about_fallback
       Kernel.warn(
-        "[WARNING] MultiJson is using the default adapter (ok_json). " \
-        "We recommend loading a different JSON library to improve performance."
+        "[WARNING] MultiJson is falling back to the json_gem adapter " \
+        "because no other JSON library could be loaded."
       )
     end
 

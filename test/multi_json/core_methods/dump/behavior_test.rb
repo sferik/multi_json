@@ -9,9 +9,9 @@ class DumpBehaviorTest < Minitest::Test
   end
 
   def test_dump_passes_options_containing_adapter_to_current_adapter
-    adapter_received = track_current_adapter_options { MultiJson.dump({key: "value"}, adapter: :ok_json) }
+    adapter_received = track_current_adapter_options { MultiJson.dump({key: "value"}, adapter: :json_gem) }
 
-    assert_equal :ok_json, adapter_received
+    assert_equal :json_gem, adapter_received
   end
 
   def test_dump_returns_string_not_nil
@@ -31,7 +31,7 @@ class DumpBehaviorTest < Minitest::Test
   def test_dump_uses_passed_options_for_adapter_selection
     MultiJson.use :json_gem
 
-    result = MultiJson.dump({key: "value"}, adapter: :ok_json)
+    result = MultiJson.dump({key: "value"}, adapter: :json_gem)
 
     assert_kind_of String, result
     assert_includes result, "key"
@@ -100,15 +100,16 @@ class DumpBehaviorTest < Minitest::Test
   end
 
   def test_dump_uses_adapter_option_via_current_adapter
+    skip unless defined?(::Oj)
     MultiJson.use :json_gem
 
-    # OkJson produces slightly different formatting than JsonGem
-    # We can verify adapter selection works by checking which adapter is used
-    json_gem_result = MultiJson.dump({a: 1})
-    ok_json_result = MultiJson.dump({a: 1}, adapter: :ok_json)
+    # Oj produces slightly different formatting than JsonGem; verify
+    # adapter selection by checking both produce valid JSON strings
+    # through different code paths.
+    default_result = MultiJson.dump({a: 1})
+    override_result = MultiJson.dump({a: 1}, adapter: :oj)
 
-    # Both should return valid JSON strings (the adapter was selected correctly)
-    assert_kind_of String, json_gem_result
-    assert_kind_of String, ok_json_result
+    assert_kind_of String, default_result
+    assert_kind_of String, override_result
   end
 end

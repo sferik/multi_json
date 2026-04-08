@@ -11,17 +11,17 @@ class WithAdapterMethodTest < Minitest::Test
     MultiJson.use :json_gem
     inner_adapter = nil
 
-    MultiJson.with_adapter(:ok_json) do
+    MultiJson.with_adapter(:json_gem) do
       inner_adapter = MultiJson.adapter
     end
 
-    assert_equal MultiJson::Adapters::OkJson, inner_adapter
+    assert_equal MultiJson::Adapters::JsonGem, inner_adapter
   end
 
   def test_with_adapter_restores_original_adapter
     MultiJson.use :json_gem
 
-    MultiJson.with_adapter(:ok_json) { nil }
+    MultiJson.with_adapter(:json_gem) { nil }
 
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
@@ -30,14 +30,14 @@ class WithAdapterMethodTest < Minitest::Test
     MultiJson.use :json_gem
 
     assert_raises(RuntimeError) do
-      MultiJson.with_adapter(:ok_json) { raise "test error" }
+      MultiJson.with_adapter(:json_gem) { raise "test error" }
     end
 
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_with_adapter_returns_block_value
-    result = MultiJson.with_adapter(:ok_json) { "block result" }
+    result = MultiJson.with_adapter(:json_gem) { "block result" }
 
     assert_equal "block result", result
   end
@@ -46,15 +46,15 @@ class WithAdapterMethodTest < Minitest::Test
     MultiJson.use :json_gem
     inner_adapter = nil
 
-    MultiJson.with_engine(:ok_json) do
+    MultiJson.with_engine(:json_gem) do
       inner_adapter = MultiJson.adapter
     end
 
-    assert_equal MultiJson::Adapters::OkJson, inner_adapter
+    assert_equal MultiJson::Adapters::JsonGem, inner_adapter
   end
 
   def test_with_adapter_captures_adapter_before_block
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
     original = MultiJson.adapter
 
     MultiJson.with_adapter(:json_gem) { nil }
@@ -64,7 +64,7 @@ class WithAdapterMethodTest < Minitest::Test
 
   def test_with_adapter_executes_block
     executed = false
-    MultiJson.with_adapter(:ok_json) { executed = true }
+    MultiJson.with_adapter(:json_gem) { executed = true }
 
     assert executed
   end
@@ -72,26 +72,26 @@ class WithAdapterMethodTest < Minitest::Test
   def test_with_adapter_changes_adapter_inside_block
     MultiJson.use :json_gem
 
-    MultiJson.with_adapter(:ok_json) do
-      assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    MultiJson.with_adapter(:json_gem) do
+      assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
     end
   end
 
   def test_with_adapter_restores_different_adapter
-    MultiJson.use :ok_json
+    MultiJson.use :json_gem
     MultiJson.with_adapter(:json_gem) { nil }
 
-    assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
   def test_with_adapter_nested_restores_correctly
     MultiJson.use :json_gem
 
-    MultiJson.with_adapter(:ok_json) do
+    MultiJson.with_adapter(:json_gem) do
       MultiJson.with_adapter(:json_gem) do
         assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
       end
-      assert_equal MultiJson::Adapters::OkJson, MultiJson.adapter
+      assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
     end
 
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter

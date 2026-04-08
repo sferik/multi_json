@@ -11,9 +11,9 @@ class LoadAdapterByNameTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_handles_underscore_names
-    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   end
 
   def test_load_adapter_by_name_handles_aliases
@@ -31,8 +31,8 @@ class LoadAdapterByNameTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_constructs_class_name
-    result = MultiJson.send(:load_adapter_by_name, "ok_json")
+    result = MultiJson.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal "OkJson", result.name.split("::").last
+    assert_equal "JsonGem", result.name.split("::").last
   end
 end

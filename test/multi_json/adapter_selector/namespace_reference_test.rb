@@ -27,19 +27,19 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
   def test_load_adapter_by_name_uses_absolute_namespace_for_adapters
     define_conflicting_adapters
 
-    result = @instance.send(:load_adapter_by_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal ::MultiJson::Adapters::OkJson, result
-    assert_equal "MultiJson::Adapters::OkJson", result.name
+    assert_equal ::MultiJson::Adapters::JsonGem, result
+    assert_equal "MultiJson::Adapters::JsonGem", result.name
   end
 
   def test_load_adapter_by_name_uses_absolute_not_relative_multijson
     define_nested_multijson_with_adapters
 
-    result = @instance.send(:load_adapter_by_name, "ok_json")
+    result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal ::MultiJson::Adapters::OkJson, result
-    assert_equal "MultiJson::Adapters::OkJson", result.name
+    assert_equal ::MultiJson::Adapters::JsonGem, result
+    assert_equal "MultiJson::Adapters::JsonGem", result.name
   end
 
   private
@@ -127,9 +127,9 @@ class ModuleTypeCheckingTest < Minitest::Test
     end
     MultiJson::AdapterSelector.const_set(:String, fake_string)
 
-    result = @instance.send(:load_adapter, "ok_json")
+    result = @instance.send(:load_adapter, "json_gem")
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   ensure
     MultiJson::AdapterSelector.send(:remove_const, :String) if MultiJson::AdapterSelector.const_defined?(:String, false)
   end
@@ -141,9 +141,9 @@ class ModuleTypeCheckingTest < Minitest::Test
     end
     MultiJson::AdapterSelector.const_set(:Symbol, fake_symbol)
 
-    result = @instance.send(:load_adapter, :ok_json)
+    result = @instance.send(:load_adapter, :json_gem)
 
-    assert_equal MultiJson::Adapters::OkJson, result
+    assert_equal MultiJson::Adapters::JsonGem, result
   ensure
     MultiJson::AdapterSelector.send(:remove_const, :Symbol) if MultiJson::AdapterSelector.const_defined?(:Symbol, false)
   end
