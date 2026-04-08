@@ -1,0 +1,42 @@
+# External JSON libraries that the adapters wrap. Declared here as
+# untyped stubs so Steep can check the adapter wrappers without
+# needing full sigs for libraries that don't ship them.
+
+module Yajl
+  class Parser
+    def initialize: (untyped options) -> void
+    def parse: (untyped string) -> untyped
+  end
+
+  class Encoder
+    def self.encode: (untyped object, untyped options) -> String
+  end
+
+  class ParseError < StandardError
+  end
+end
+
+module JrJackson
+  module Json
+    def self.load: (untyped string, untyped options) -> untyped
+    def self.dump: (untyped object, untyped options) -> String
+  end
+
+  class ParseError < StandardError
+  end
+end
+
+module Gson
+  class Decoder
+    def initialize: (untyped options) -> void
+    def decode: (untyped string) -> untyped
+  end
+
+  class Encoder
+    def initialize: (untyped options) -> void
+    def encode: (untyped object) -> String
+  end
+
+  class DecodeError < StandardError
+  end
+end
