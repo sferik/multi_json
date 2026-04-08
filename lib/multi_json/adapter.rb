@@ -41,9 +41,11 @@ module MultiJson
       # @param action [Symbol] :load or :dump
       # @param value [Hash] default options for the action
       # @return [Hash] the frozen options hash
-      # @raise [ArgumentError] when action is anything other than :load or :dump
+      # @raise [ArgumentError] when action is anything other than :load or :dump,
+      #   or when value isn't a Hash
       def defaults(action, value)
         raise ArgumentError, "expected action to be :load or :dump, got #{action.inspect}" unless VALID_DEFAULTS_ACTIONS.include?(action)
+        raise ArgumentError, "expected value to be a Hash, got #{value.class}" unless value.is_a?(Hash)
 
         instance_variable_set(:"@default_#{action}_options", value.freeze)
       end

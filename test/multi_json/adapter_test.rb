@@ -159,6 +159,14 @@ class AdapterDefaultsTest < Minitest::Test
     assert_match(/:load or :dump/, error.message)
     assert_match(/:encode/, error.message)
   end
+
+  def test_defaults_raises_on_non_hash_value
+    error = assert_raises(ArgumentError) do
+      Class.new(MultiJson::Adapter) { defaults :load, "not a hash" }
+    end
+
+    assert_match(/Hash/, error.message)
+  end
 end
 
 class AdapterCachedOptionsTest < Minitest::Test

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Validate the `value` argument in `Adapter.defaults` so a non-Hash (e.g. `defaults :load, "oops"`) raises `ArgumentError` at definition time instead of crashing later in the merge path.
 * Skip `String#scrub` in `Adapter.blank?` when the input is already valid UTF-8 so the common load path no longer allocates a scrubbed copy on every call.
 * Move `Oj#load`'s `:symbolize_keys` translation into a private `translate_load_options` helper that drops the redundant `:symbolize_keys` passthrough alongside `:symbol_keys`, mirroring the cleanup already in `JsonGem#load`.
 * Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option, passing `PRETTY_STATE_PROTOTYPE` directly.
