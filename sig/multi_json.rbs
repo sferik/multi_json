@@ -1,7 +1,6 @@
 module MultiJson
   VERSION: String
 
-  REQUIREMENT_MAP: Hash[Symbol, String]
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
   DEPRECATION_WARNINGS_MUTEX: Mutex
 

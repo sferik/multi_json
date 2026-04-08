@@ -37,7 +37,7 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
     result = @instance.send(:installable_adapter)
 
     refute_nil result
-    assert_includes MultiJson::REQUIREMENT_MAP.keys, result
+    assert_includes MultiJson::AdapterSelector::REQUIREMENT_MAP.keys, result
   end
 
   def test_instance_load_adapter_by_name_with_symbol

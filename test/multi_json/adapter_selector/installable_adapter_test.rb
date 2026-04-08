@@ -39,7 +39,7 @@ class InstallableAdapterRequirementMapTest < Minitest::Test
     result = MultiJson.send(:installable_adapter)
 
     refute_nil result
-    assert_includes MultiJson::REQUIREMENT_MAP.keys, result
+    assert_includes MultiJson::AdapterSelector::REQUIREMENT_MAP.keys, result
   end
 
   def test_installable_adapter_skips_excluded_adapter

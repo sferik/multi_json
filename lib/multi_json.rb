@@ -42,10 +42,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
   extend Options
   extend AdapterSelector
 
-  # Legacy alias for adapter requirement mappings; the canonical home is
-  # {AdapterSelector::REQUIREMENT_MAP}.
-  REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
-
   # Tracks which deprecation warnings have already been emitted so each one
   # fires at most once per process. Stored as a Set rather than a Hash so
   # presence checks have unambiguous semantics for mutation tests.
