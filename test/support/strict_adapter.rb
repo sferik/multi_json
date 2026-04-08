@@ -10,8 +10,7 @@ class StrictAdapter
       @dump_calls = []
     end
 
-    def load(string, options = nil)
-      raise ArgumentError, "load requires exactly 2 arguments" if options.nil?
+    def load(string, options)
       raise ArgumentError, "string cannot be nil" if string.nil?
 
       @load_calls ||= []
@@ -24,8 +23,7 @@ class StrictAdapter
       raise ParseError, e.message
     end
 
-    def dump(object, options = nil)
-      raise ArgumentError, "dump requires exactly 2 arguments" if options.nil?
+    def dump(object, options)
       raise ArgumentError, "object cannot be nil" if object.nil?
 
       @dump_calls ||= []
