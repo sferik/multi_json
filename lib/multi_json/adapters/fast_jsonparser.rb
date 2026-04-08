@@ -9,9 +9,9 @@ module MultiJson
     # FastJsonparser only implements parsing, so the ``dump`` side of the
     # adapter is delegated to whichever adapter MultiJson would pick if
     # FastJsonparser weren't installed (oj → yajl → jr_jackson →
-    # json_gem → gson → ok_json). The parent class is resolved at load
-    # time via {MultiJson::AdapterSelector.default_adapter_excluding},
-    # so the heavy oj dependency is no longer implied.
+    # json_gem → gson). The parent class is resolved at load time via
+    # {MultiJson::AdapterSelector.default_adapter_excluding}, so the
+    # heavy oj dependency is no longer implied.
     #
     # @note The parent class is frozen at file load time. If a library
     #   loads ``multi_json/adapters/fast_jsonparser`` before ``oj`` is

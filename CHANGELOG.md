@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Drop the stale `ok_json` reference from the `fast_jsonparser` adapter's docstring.
 * Remove the `MultiJson::REQUIREMENT_MAP` legacy alias; the canonical map already lives on `MultiJson::AdapterSelector`.
 * Drop the dead `JrJackson` dump arity branch (and its SimpleCov filter). JrJackson 0.4.18+ accepts an options hash as the second argument to `Json.dump`.
 * Drop the redundant `options.except(:adapter)` allocation in `JsonGem#dump`; `Adapter.merged_dump_options` already strips `:adapter` before the cached hash reaches the adapter.
