@@ -71,14 +71,16 @@ module MultiJson
 
       # Checks if the input is blank (nil, empty, or whitespace-only)
       #
+      # ``String#scrub`` replaces invalid UTF-8 bytes with U+FFFD before
+      # the regex runs, so a string with invalid bytes is still treated as
+      # non-blank without needing a broad ``rescue ArgumentError`` to
+      # swallow the encoding error.
+      #
       # @api private
       # @param input [String, nil] input to check
       # @return [Boolean] true if input is blank
       def blank?(input)
-        input.nil? || input.empty? || BLANK_PATTERN.match?(input)
-      rescue ArgumentError
-        # Invalid byte sequence in UTF-8 - treat as non-blank
-        false
+        input.nil? || input.empty? || BLANK_PATTERN.match?(input.scrub)
       end
 
       # Merges dump options from adapter, global, and call-site
