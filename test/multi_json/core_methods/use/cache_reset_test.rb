@@ -36,16 +36,16 @@ class UseCacheResetTest < Minitest::Test
     assert_nil MultiJson::OptionsCache.dump.fetch(key, nil)
   end
 
-  def test_use_ensure_block_runs_and_resets_cache
+  def test_use_preserves_cache_when_load_adapter_raises
     key = :"ensure_test_#{object_id}"
     MultiJson::OptionsCache.dump.fetch(key) { "cached" }
 
-    # Even if load_adapter raises, ensure block should run
     assert_raises(MultiJson::AdapterError) do
       MultiJson.use("nonexistent_adapter_12345")
     end
 
-    # Cache should still be cleared by ensure block
-    assert_nil MultiJson::OptionsCache.dump.fetch(key, nil)
+    # The previous adapter is still active, so its cache must survive the
+    # failed swap.
+    assert_equal "cached", MultiJson::OptionsCache.dump.fetch(key, nil)
   end
 end

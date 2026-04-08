@@ -103,15 +103,19 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
 
   # Sets the adapter to use for JSON operations
   #
+  # The merged-options cache is only reset when the new adapter loads
+  # successfully. A failed ``use(:nonexistent)`` leaves the cache in
+  # place so the previously-active adapter keeps its cached entries.
+  #
   # @api public
   # @param new_adapter [Symbol, String, Module, nil] adapter specification
   # @return [Class] the loaded adapter class
   # @example
   #   MultiJson.use(:oj)
   def use(new_adapter)
-    @adapter = load_adapter(new_adapter)
-  ensure
+    loaded = load_adapter(new_adapter)
     OptionsCache.reset
+    @adapter = loaded
   end
 
   # Sets the adapter to use for JSON operations

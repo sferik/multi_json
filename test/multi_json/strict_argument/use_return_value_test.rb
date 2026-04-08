@@ -53,13 +53,13 @@ class UseReturnValueAndCacheResetTest < Minitest::Test
     assert_nil MultiJson::OptionsCache.dump.fetch(:test_key, nil)
   end
 
-  def test_use_resets_cache_even_on_error
+  def test_use_preserves_cache_on_error
     MultiJson::OptionsCache.dump.fetch(:error_test) { "cached" }
 
     assert_raises(MultiJson::AdapterError) do
       MultiJson.use("nonexistent")
     end
 
-    assert_nil MultiJson::OptionsCache.dump.fetch(:error_test, nil)
+    assert_equal "cached", MultiJson::OptionsCache.dump.fetch(:error_test, nil)
   end
 end

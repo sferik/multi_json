@@ -34,14 +34,14 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
   end
 
-  def test_use_always_resets_cache_even_on_error
+  def test_use_preserves_cache_on_error
     MultiJson::OptionsCache.dump.fetch(:test) { "value" }
 
     assert_raises(MultiJson::AdapterError) do
       MultiJson.use("nonexistent_adapter")
     end
 
-    assert_nil MultiJson::OptionsCache.dump.fetch(:test, nil)
+    assert_equal "value", MultiJson::OptionsCache.dump.fetch(:test, nil)
   end
 
   def test_use_calls_load_adapter_with_argument
