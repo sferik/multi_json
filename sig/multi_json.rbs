@@ -161,6 +161,7 @@ module MultiJson
     REQUIREMENT_MAP: Hash[Symbol, String]
 
     def default_adapter: () -> Symbol
+    def default_adapter_excluding: (Symbol excluded) -> (_Adapter | Module)
 
     @default_adapter: Symbol?
     @default_adapter_warning_shown: bool?
@@ -168,8 +169,8 @@ module MultiJson
     private
 
     def detect_best_adapter: () -> Symbol
-    def loaded_adapter: () -> Symbol?
-    def installable_adapter: () -> Symbol?
+    def loaded_adapter: (?excluding: Symbol?) -> Symbol?
+    def installable_adapter: (?excluding: Symbol?) -> Symbol?
     def try_require: (Symbol adapter_name) -> bool
     def fallback_adapter: () -> Symbol
     def warn_about_fallback: () -> void

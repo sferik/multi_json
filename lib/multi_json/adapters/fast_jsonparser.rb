@@ -1,16 +1,19 @@
 require "fast_jsonparser"
-require "oj"
-require_relative "../adapter"
-require_relative "oj_common"
+require_relative "../adapter_selector"
 
 module MultiJson
   module Adapters
-    # Use the FastJsonparser library to load and Oj to dump.
-    class FastJsonparser < Adapter
-      include OjCommon
-
+    # Use the FastJsonparser library to load, and the fastest other
+    # available adapter to dump.
+    #
+    # FastJsonparser only implements parsing, so the ``dump`` side of the
+    # adapter is delegated to whichever adapter MultiJson would pick if
+    # FastJsonparser weren't installed (oj → yajl → jr_jackson →
+    # json_gem → gson → ok_json). The parent class is resolved at load
+    # time via {MultiJson::AdapterSelector.default_adapter_excluding},
+    # so the heavy oj dependency is no longer implied.
+    class FastJsonparser < MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
       defaults :load, symbolize_keys: false
-      defaults :dump, mode: :compat, time_format: :ruby, use_to_json: true
 
       # Exception raised when JSON parsing fails
       ParseError = ::FastJsonparser::ParseError
@@ -26,19 +29,6 @@ module MultiJson
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
         ::FastJsonparser.parse(string, symbolize_keys: options[:symbolize_keys])
-      end
-
-      # Serialize a Ruby object to JSON
-      #
-      # @api private
-      # @param object [Object] object to serialize
-      # @param options [Hash] serialization options
-      # @return [String] JSON string
-      #
-      # @example Serialize object to JSON
-      #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
-      def dump(object, options = {})
-        ::Oj.dump(object, prepare_dump_options(options))
       end
     end
   end

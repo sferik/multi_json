@@ -13,7 +13,9 @@ module MultiJson
     # Alternate spellings for adapter names
     ALIASES = {"jrjackson" => "jr_jackson"}.freeze
 
-    # Maps adapter symbols to their require paths for auto-loading
+    # Maps adapter symbols to their require paths for auto-loading.
+    # Insertion order is the preference order used by adapter detection
+    # (fastest first).
     REQUIREMENT_MAP = {
       fast_jsonparser: "fast_jsonparser",
       oj: "oj",
@@ -23,6 +25,19 @@ module MultiJson
       gson: "gson"
     }.freeze
 
+    # Callable detectors paired with adapter symbols, in the same
+    # preference order as REQUIREMENT_MAP. Each lambda returns truthy
+    # when its adapter's backing library is already loaded.
+    LOADED_ADAPTER_DETECTORS = {
+      fast_jsonparser: -> { defined?(::FastJsonparser) },
+      oj: -> { defined?(::Oj) },
+      yajl: -> { defined?(::Yajl) },
+      jr_jackson: -> { defined?(::JrJackson) },
+      json_gem: -> { defined?(::JSON::Ext::Parser) },
+      gson: -> { defined?(::Gson) }
+    }.freeze
+    private_constant :LOADED_ADAPTER_DETECTORS
+
     # Returns the default adapter to use
     #
     # @api private
@@ -31,6 +46,24 @@ module MultiJson
     #   AdapterSelector.default_adapter  #=> :oj
     def default_adapter
       @default_adapter ||= detect_best_adapter
+    end
+
+    # Returns the default adapter class, excluding the given adapter name
+    #
+    # Used by adapters that only implement one direction (e.g.
+    # FastJsonparser only parses) so the other direction can be delegated
+    # to whichever library MultiJson would otherwise pick.
+    #
+    # @api private
+    # @param excluded [Symbol] adapter name to skip during detection
+    # @return [Class] the adapter class
+    # @example
+    #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJson::Adapters::Oj
+    def default_adapter_excluding(excluded)
+      name = loaded_adapter(excluding: excluded)
+      name ||= installable_adapter(excluding: excluded)
+      name ||= fallback_adapter
+      load_adapter_by_name(name.to_s)
     end
 
     private
@@ -46,23 +79,24 @@ module MultiJson
     # Finds an already-loaded JSON library
     #
     # @api private
+    # @param excluding [Symbol, nil] adapter name to skip during detection
     # @return [Symbol, nil] adapter name if found
-    def loaded_adapter
-      return :fast_jsonparser if defined?(::FastJsonparser)
-      return :oj if defined?(::Oj)
-      return :yajl if defined?(::Yajl)
-      return :jr_jackson if defined?(::JrJackson)
-      return :json_gem if defined?(::JSON::Ext::Parser)
-
-      :gson if defined?(::Gson)
+    def loaded_adapter(excluding: nil)
+      LOADED_ADAPTER_DETECTORS.each do |name, detect|
+        next if name == excluding
+        return name if detect.call
+      end
+      nil
     end
 
     # Tries to require and use an installable adapter
     #
     # @api private
+    # @param excluding [Symbol, nil] adapter name to skip during detection
     # @return [Symbol, nil] adapter name if successfully required
-    def installable_adapter
+    def installable_adapter(excluding: nil)
       REQUIREMENT_MAP.each_key do |adapter_name|
+        next if adapter_name == excluding
         return adapter_name if try_require(adapter_name)
       end
       nil

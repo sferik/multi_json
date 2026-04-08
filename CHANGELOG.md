@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* [Stop requiring the `oj` gem from the `fast_jsonparser` adapter](https://github.com/sferik/multi_json/issues/63): `fast_jsonparser` only implements parsing, so the adapter's `dump` side now inherits from whichever adapter MultiJson would otherwise pick (oj → yajl → jr_jackson → json_gem → gson → ok_json). Users who install `fast_jsonparser` no longer need to also install `oj`.
 * [Split the gem into `ruby` and `java` platform variants](https://github.com/sferik/multi_json/commit/ca2c747570335f8d3b6b0904aae6ace41329aedd): the `java` variant adds `concurrent-ruby ~> 1.2` as a runtime dependency and ships the `gson` and `jr_jackson` adapters; the `ruby` variant has no runtime dependencies and ships the MRI-only adapters. Bundler selects the correct variant automatically.
 * [Drop Oj 2.x compatibility branch](https://github.com/sferik/multi_json/commit/93897a45e2b2f3f6fa047ee00fc1e879ae137ec1): the Oj adapter now requires Oj `~> 3.0`.
 * [Drop support for Ruby 3.0, Ruby 3.1, and JRuby 9.4](https://github.com/sferik/multi_json/commit/bc4547a5cee4d66294f2a1be04fe61f9d49235cd).

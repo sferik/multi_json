@@ -1,9 +1,9 @@
 module MultiJson
   module Adapters
-    # Shared functionality for Oj-based adapters
+    # Shared functionality for the Oj adapter
     #
-    # Provides option preparation for both the Oj and FastJsonparser
-    # adapters. Targets Oj 3.x; Oj 2.x is no longer supported.
+    # Provides option preparation for Oj.dump. Targets Oj 3.x; Oj 2.x is
+    # no longer supported.
     #
     # @api private
     module OjCommon

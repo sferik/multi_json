@@ -41,4 +41,15 @@ class InstallableAdapterRequirementMapTest < Minitest::Test
     refute_nil result
     assert_includes MultiJson::REQUIREMENT_MAP.keys, result
   end
+
+  def test_installable_adapter_skips_excluded_adapter
+    # The first adapter installable_adapter would normally return is
+    # skipped when it matches ``excluding:``; the call should return a
+    # different adapter.
+    first = MultiJson.send(:installable_adapter)
+    second = MultiJson.send(:installable_adapter, excluding: first)
+
+    refute_nil second
+    refute_equal first, second
+  end
 end
