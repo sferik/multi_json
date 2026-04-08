@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Drop the `ALIASES` constant in `AdapterSelector` in favor of an inline check; the only entry, `jrjackson` → `jr_jackson`, is now inlined into `load_adapter_by_name`.
 * Document the `fast_jsonparser` adapter's parent class freeze at file load time.
 * Stop mass-requiring adapter gems at the top of `adapter_selection_test.rb`, which polluted the global require cache and let later tests silently depend on adapters they had not explicitly loaded.
 * Restore the mutex around `MutexStore#reset` for TruffleRuby, where the unguarded clear could race with concurrent fetches in a way the MRI GVL otherwise prevents.

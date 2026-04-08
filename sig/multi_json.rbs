@@ -1,7 +1,6 @@
 module MultiJson
   VERSION: String
 
-  ALIASES: Hash[String, String]
   REQUIREMENT_MAP: Hash[Symbol, String]
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
 
@@ -157,7 +156,6 @@ module MultiJson
   module AdapterSelector
     extend AdapterSelector
 
-    ALIASES: Hash[String, String]
     REQUIREMENT_MAP: Hash[Symbol, String]
 
     def default_adapter: () -> Symbol

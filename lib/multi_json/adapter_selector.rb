@@ -10,9 +10,6 @@ module MultiJson
   module AdapterSelector
     extend self
 
-    # Alternate spellings for adapter names
-    ALIASES = {"jrjackson" => "jr_jackson"}.freeze
-
     # Maps adapter symbols to their require paths for auto-loading.
     # Insertion order is the preference order used by adapter detection
     # (fastest first).
@@ -154,11 +151,16 @@ module MultiJson
 
     # Loads an adapter by its string name
     #
+    # ``jrjackson`` (the JrJackson gem's name) is normalized to
+    # ``jr_jackson`` (the adapter file/class name) for backwards
+    # compatibility with the original gem-name alias.
+    #
     # @api private
     # @param name [String] adapter name
     # @return [Class] the adapter class
     def load_adapter_by_name(name)
-      normalized = ALIASES.fetch(name, name).downcase
+      normalized = name.downcase
+      normalized = "jr_jackson" if normalized == "jrjackson"
       require_relative "adapters/#{normalized}"
 
       class_name = normalized.split("_").map(&:capitalize).join

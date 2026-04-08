@@ -102,9 +102,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
   # @!visibility private
   module_function
 
-  # Legacy alias for adapter name mappings
-  ALIASES = AdapterSelector::ALIASES
-
   # Legacy alias for adapter requirement mappings; the canonical home is
   # {AdapterSelector::REQUIREMENT_MAP}.
   REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
