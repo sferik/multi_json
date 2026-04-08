@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Restore the mutex around `MutexStore#reset` for TruffleRuby, where the unguarded clear could race with concurrent fetches in a way the MRI GVL otherwise prevents.
 * Fix `TestHelpers.yajl?` to check the actual `yajl-ruby` gem name.
 * [Stop requiring the `oj` gem from the `fast_jsonparser` adapter](https://github.com/sferik/multi_json/issues/63): `fast_jsonparser` only implements parsing, so the adapter's `dump` side now inherits from whichever adapter MultiJson would otherwise pick (oj → yajl → jr_jackson → json_gem → gson → ok_json). Users who install `fast_jsonparser` no longer need to also install `oj`.
 * [Split the gem into `ruby` and `java` platform variants](https://github.com/sferik/multi_json/commit/ca2c747570335f8d3b6b0904aae6ace41329aedd): the `java` variant adds `concurrent-ruby ~> 1.2` as a runtime dependency and ships the `gson` and `jr_jackson` adapters; the `ruby` variant has no runtime dependencies and ships the MRI-only adapters. Bundler selects the correct variant automatically.

@@ -21,15 +21,15 @@ module MultiJson
 
       # Clear all cached entries
       #
-      # ``Hash#clear`` is atomic under the MRI GVL, and a concurrent
-      # fetch holds its own mutex acquire (so it either ran to completion
-      # before reset or will see a cleared cache on its next acquire).
-      # No explicit synchronization is needed here.
+      # Held under the mutex because TruffleRuby (which also uses this
+      # backend via the ruby-platform gem) has true parallelism: a
+      # concurrent ``fetch`` racing with ``Hash#clear`` could corrupt
+      # iteration in a way that MRI's GVL would otherwise prevent.
       #
       # @api private
       # @return [void]
       def reset
-        @cache.clear
+        @mutex.synchronize { @cache.clear }
       end
 
       # Fetch a value from cache or compute it

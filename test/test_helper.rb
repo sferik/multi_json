@@ -10,14 +10,20 @@ unless ENV["MUTANT"]
     # JrJackson arity compatibility code - only one branch can run per version
     add_filter "lib/multi_json/adapters/jr_jackson.rb"
 
-    if RUBY_PLATFORM == "java"
+    case RUBY_ENGINE
+    when "ruby"
+      enable_coverage :branch
+      minimum_coverage line: 100, branch: 100
+    when "jruby"
       # JRuby's coverage backend doesn't support branch coverage and tracks
       # multi-line method calls and dead require_relative branches less
       # precisely than MRI, so the line threshold is relaxed accordingly.
       minimum_coverage line: 99
     else
-      enable_coverage :branch
-      minimum_coverage line: 100, branch: 100
+      # TruffleRuby's coverage backend doesn't support branch coverage and
+      # misses a handful of tail expressions and assignments that MRI counts
+      # as covered, so the line threshold is relaxed for it as well.
+      minimum_coverage line: 98
     end
   end
 end

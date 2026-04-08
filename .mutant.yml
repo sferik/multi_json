@@ -11,6 +11,9 @@ matcher:
     - "MultiJson::Adapters::Gson*"
     - "MultiJson::Adapters::JrJackson*"
     - "MultiJson::Vendor*"
+    # Mutex-wrapper mutation can't be observed on MRI (where mutant runs);
+    # the synchronization is only load-bearing on TruffleRuby.
+    - "MultiJson::OptionsCache::Store#reset"
 
 requires:
   - multi_json

@@ -54,7 +54,7 @@ MultiJSON falls back to [OkJson][], a simple, vendorable JSON parser.
 MultiJSON ships as two platform-specific gems. Bundler and RubyGems
 automatically select the correct variant for your Ruby implementation:
 
-|                                                | `ruby` platform (MRI, TruffleRuby) | `java` platform (JRuby) |
+|                                                | `ruby` platform (MRI) | `java` platform (JRuby) |
 | ---------------------------------------------- | :---: | :---: |
 | Runtime dependency                             | none  | [concurrent-ruby][concurrent-ruby] `~> 1.2` |
 | [`fast_jsonparser`][fast_jsonparser] adapter   |   ✓   |       |
@@ -76,6 +76,7 @@ implementations:
 - Ruby 3.4
 - Ruby 4.0
 - [JRuby][jruby] 10.0 (targets Ruby 3.4 compatibility)
+- [TruffleRuby][truffleruby] 33.0 (native and JVM)
 
 If something doesn't work in one of these implementations, it's a bug.
 
@@ -128,5 +129,6 @@ Pravosud. See [LICENSE][license] for details.
 [qlty]: https://qlty.sh/gh/sferik/projects/multi_json
 [semver]: http://semver.org/
 [tests]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
+[truffleruby]: https://www.graalvm.org/ruby/
 [typecheck]: https://github.com/sferik/multi_json/actions/workflows/typecheck.yml
 [yajl]: https://github.com/brianmario/yajl-ruby
