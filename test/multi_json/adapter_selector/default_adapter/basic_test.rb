@@ -40,7 +40,28 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
     end
   end
 
+  def test_default_adapter_holds_mutex_during_lazy_init
+    clear_default_adapter_state
+    mutex = MultiJson::AdapterSelector.send(:const_get, :DEFAULT_ADAPTER_MUTEX)
+    synchronized = stub_synchronize_flag(mutex)
+
+    capture_stderr { MultiJson.default_adapter }
+
+    assert synchronized.value
+  ensure
+    mutex&.singleton_class&.send(:remove_method, :synchronize)
+  end
+
   private
+
+  def stub_synchronize_flag(mutex)
+    flag = Struct.new(:value).new(false)
+    mutex.define_singleton_method(:synchronize) do |&block|
+      flag.value = true
+      block.call
+    end
+    flag
+  end
 
   def clear_default_adapter_state
     MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)

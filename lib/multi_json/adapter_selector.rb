@@ -29,6 +29,13 @@ module MultiJson
     # the require step.
     REQUIREMENT_MAP = ADAPTERS.transform_values { |meta| meta[:require] }.freeze
 
+    # Mutex guarding the lazy ``@default_adapter`` initializer. Two
+    # threads racing past the unset ivar would otherwise both run
+    # ``detect_best_adapter`` and ``fallback_adapter``'s warning could
+    # fire twice.
+    DEFAULT_ADAPTER_MUTEX = Mutex.new
+    private_constant :DEFAULT_ADAPTER_MUTEX
+
     # Returns the default adapter to use
     #
     # @api private
@@ -36,7 +43,7 @@ module MultiJson
     # @example
     #   AdapterSelector.default_adapter  #=> :oj
     def default_adapter
-      @default_adapter ||= detect_best_adapter
+      DEFAULT_ADAPTER_MUTEX.synchronize { @default_adapter ||= detect_best_adapter }
     end
 
     # Returns the default adapter class, excluding the given adapter name

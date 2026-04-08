@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Make `AdapterSelector#default_adapter`'s lazy `||=` initializer thread-safe so two threads racing past the unset `@default_adapter` ivar can't both run detection (and double-emit the fallback warning in the no-adapters-installed branch).
 * Wrap `MultiJson.use`'s `OptionsCache.reset` and `@adapter` swap in a mutex so two threads calling `use` concurrently can't interleave their cache reset and adapter assignment.
 * Stop relying on `Oj::ParseError`'s `::SyntaxError` ancestor when matching exceptions in `Oj::ParseError.===`. Walk the exception's ancestor chain by class name instead, so a future Oj release that re-parents its error class doesn't silently break our rescue clauses.
 * Improve `AdapterSelector#load_adapter`'s error message for unrecognized adapter specs so it names the expected types and shows the offender's `inspect` output instead of just `to_s`.
