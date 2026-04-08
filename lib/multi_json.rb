@@ -10,6 +10,25 @@ require_relative "multi_json/adapter_selector"
 # MultiJson allows swapping between JSON backends without changing your code.
 # It auto-detects available JSON libraries and uses the fastest one available.
 #
+# ## Method-definition patterns
+#
+# The public API uses two patterns, each chosen for a specific reason:
+#
+# 1. ``module_function`` creates both a class method and a private instance
+#    method from a single ``def``. This is used for the hot-path API
+#    (``adapter``, ``use``, ``adapter=``, ``load``, ``dump``,
+#    ``current_adapter``) so that both ``MultiJson.load(...)`` and legacy
+#    ``Class.new { include MultiJson }.new.send(:load, ...)`` invocations
+#    work through the same body. The instance versions are re-publicized
+#    below so YARD renders them as part of the public API.
+# 2. ``def self.foo`` creates only a singleton method, giving mutation
+#    testing a single canonical definition to target. This is used for
+#    deprecated methods (``decode``, ``encode``, ``engine``, etc.) and
+#    for {.with_adapter}, which needs precise mutation coverage of its
+#    fiber-local save/restore logic. Private instance-method delegates
+#    for the handful of ``def self.foo`` methods that are still tested
+#    via ``obj.send(:foo)`` are added at the bottom of this module.
+#
 # @example Basic usage
 #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
 #   MultiJson.dump({foo: "bar"})     #=> '{"foo":"bar"}'
@@ -23,6 +42,10 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
   extend Options
   extend AdapterSelector
 
+  # Legacy alias for adapter requirement mappings; the canonical home is
+  # {AdapterSelector::REQUIREMENT_MAP}.
+  REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
+
   # Tracks which deprecation warnings have already been emitted so each one
   # fires at most once per process. Stored as a Set rather than a Hash so
   # presence checks have unambiguous semantics for mutation tests.
@@ -34,11 +57,11 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
 
     # Emit a deprecation warning at most once per process for the given key
     #
-    # Defined as a singleton method (rather than via module_function) so there
-    # is exactly one definition for mutation tests to target. The deprecated
-    # method bodies invoke this via ``warn_deprecation_once(...)`` (singleton
-    # callers) and via ``MultiJson.default_options`` etc. routing through the
-    # singleton (instance-method delegate path).
+    # Defined as a singleton method (rather than via module_function) so
+    # there is exactly one definition for mutation tests to target. The
+    # deprecated method bodies invoke this via ``warn_deprecation_once(...)``
+    # (singleton callers) and via the private instance delegates routing
+    # through the singleton for legacy ``include MultiJson`` consumers.
     #
     # @api private
     # @param key [Symbol] identifier for the deprecation (typically the method name)
@@ -54,13 +77,127 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     end
   end
 
-  # @!group Configuration
+  # ===========================================================================
+  # Public API (module_function: class + private instance method)
+  # ===========================================================================
 
-  # The deprecated configuration methods below are defined as singleton methods
-  # (not via ``module_function``) so each has exactly one method definition for
-  # mutation tests to target. Private instance-method delegates are added at
-  # the end of this module so legacy ``include MultiJson`` consumers continue
-  # to work.
+  # @!visibility private
+  module_function
+
+  # Returns the current adapter class
+  #
+  # Honors a fiber-local override set by {.with_adapter} so concurrent
+  # blocks observe their own adapter without clobbering the process-wide
+  # default. Falls back to the process default when no override is set.
+  #
+  # @api public
+  # @return [Class] the current adapter class
+  # @example
+  #   MultiJson.adapter  #=> MultiJson::Adapters::Oj
+  def adapter
+    override = Fiber[:multi_json_adapter]
+    return override if override
+
+    @adapter ||= use(nil)
+  end
+
+  # Sets the adapter to use for JSON operations
+  #
+  # @api public
+  # @param new_adapter [Symbol, String, Module, nil] adapter specification
+  # @return [Class] the loaded adapter class
+  # @example
+  #   MultiJson.use(:oj)
+  def use(new_adapter)
+    @adapter = load_adapter(new_adapter)
+  ensure
+    OptionsCache.reset
+  end
+
+  # Sets the adapter to use for JSON operations
+  #
+  # @api public
+  # @return [Class] the loaded adapter class
+  # @example
+  #   MultiJson.adapter = :json_gem
+  alias_method :adapter=, :use
+  module_function :adapter=
+
+  # Parses a JSON string into a Ruby object
+  #
+  # @api public
+  # @param string [String, #read] JSON string or IO-like object
+  # @param options [Hash] parsing options (adapter-specific)
+  # @return [Object] parsed Ruby object
+  # @raise [ParseError] if parsing fails
+  # @example
+  #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
+  def load(string, options = {})
+    adapter_class = current_adapter(options)
+    adapter_class.load(string, options)
+  rescue adapter_class::ParseError => e
+    raise ParseError.build(e, string)
+  end
+
+  # Returns the adapter to use for the given options
+  #
+  # @api public
+  # @param options [Hash] options that may contain :adapter key
+  # @return [Class] adapter class
+  # @example
+  #   MultiJson.current_adapter(adapter: :oj)  #=> MultiJson::Adapters::Oj
+  def current_adapter(options = {})
+    options ||= {}
+    adapter_override = options[:adapter]
+    adapter_override ? load_adapter(adapter_override) : adapter
+  end
+
+  # Serializes a Ruby object to a JSON string
+  #
+  # @api public
+  # @param object [Object] object to serialize
+  # @param options [Hash] serialization options (adapter-specific)
+  # @return [String] JSON string
+  # @example
+  #   MultiJson.dump({foo: "bar"})  #=> '{"foo":"bar"}'
+  def dump(object, options = {})
+    current_adapter(options).dump(object, options)
+  end
+
+  # Re-publicize the instance versions of the module_function methods so
+  # YARD/yardstick render them as part of the public API and legacy
+  # ``include MultiJson`` consumers can call them without ``.send``.
+  public :adapter, :use, :adapter=, :load, :current_adapter, :dump
+
+  # ===========================================================================
+  # Public API (def self.foo: singleton-only, for mutation-test precision)
+  # ===========================================================================
+
+  # Executes a block using the specified adapter
+  #
+  # Defined as a singleton method so mutation testing has exactly one
+  # definition to target. The override is stored in fiber-local storage
+  # so concurrent fibers and threads each see their own adapter without
+  # racing on a shared module variable; nested calls save and restore
+  # the previous fiber-local value.
+  #
+  # @api public
+  # @param new_adapter [Symbol, String, Module] adapter to use
+  # @yield block to execute with the temporary adapter
+  # @return [Object] result of the block
+  # @example
+  #   MultiJson.with_adapter(:json_gem) { MultiJson.dump({}) }
+  def self.with_adapter(new_adapter)
+    previous_override = Fiber[:multi_json_adapter]
+    Fiber[:multi_json_adapter] = load_adapter(new_adapter)
+    yield
+  ensure
+    Fiber[:multi_json_adapter] = previous_override
+  end
+
+  # ===========================================================================
+  # Deprecated class methods (def self.foo: singleton-only)
+  # ===========================================================================
 
   # Set default options for both load and dump operations
   #
@@ -99,13 +236,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     end
   end
 
-  # @!visibility private
-  module_function
-
-  # Legacy alias for adapter requirement mappings; the canonical home is
-  # {AdapterSelector::REQUIREMENT_MAP}.
-  REQUIREMENT_MAP = AdapterSelector::REQUIREMENT_MAP
-
   # Returns the default adapter name (deprecated alias for default_adapter)
   #
   # @api public
@@ -118,27 +248,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
       "MultiJson.default_engine is deprecated and will be removed in v2.0. " \
       "Use MultiJson.default_adapter instead.")
     default_adapter
-  end
-
-  # @!endgroup
-
-  # @!group Adapter Management
-
-  # Returns the current adapter class
-  #
-  # Honors a fiber-local override set by {.with_adapter} so concurrent
-  # blocks observe their own adapter without clobbering the process-wide
-  # default. Falls back to the process default when no override is set.
-  #
-  # @api public
-  # @return [Class] the current adapter class
-  # @example
-  #   MultiJson.adapter  #=> MultiJson::Adapters::Oj
-  def adapter
-    override = Fiber[:multi_json_adapter]
-    return override if override
-
-    @adapter ||= use(nil)
   end
 
   # Returns the current adapter class (deprecated alias for adapter)
@@ -155,29 +264,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     adapter
   end
 
-  # Sets the adapter to use for JSON operations
-  #
-  # @api public
-  # @param new_adapter [Symbol, String, Module, nil] adapter specification
-  # @return [Class] the loaded adapter class
-  # @example
-  #   MultiJson.use(:oj)
-  def use(new_adapter)
-    @adapter = load_adapter(new_adapter)
-  ensure
-    OptionsCache.reset
-  end
-
-  # Sets the adapter to use for JSON operations
-  #
-  # @api public
-  # @return [Class] the loaded adapter class
-  # @example
-  #   MultiJson.adapter = :json_gem
-  alias_method :adapter=, :use
-
-  module_function :adapter=
-
   # Sets the adapter to use for JSON operations (deprecated)
   #
   # @api private
@@ -191,26 +277,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
       "MultiJson.engine= is deprecated and will be removed in v2.0. " \
       "Use MultiJson.adapter= instead.")
     use(new_adapter)
-  end
-
-  # @!endgroup
-
-  # @!group JSON Operations
-
-  # Parses a JSON string into a Ruby object
-  #
-  # @api public
-  # @param string [String, #read] JSON string or IO-like object
-  # @param options [Hash] parsing options (adapter-specific)
-  # @return [Object] parsed Ruby object
-  # @raise [ParseError] if parsing fails
-  # @example
-  #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
-  def load(string, options = {})
-    adapter_class = current_adapter(options)
-    adapter_class.load(string, options)
-  rescue adapter_class::ParseError => e
-    raise ParseError.build(e, string)
   end
 
   # Parses a JSON string into a Ruby object (deprecated alias for load)
@@ -229,31 +295,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     load(string, options)
   end
 
-  # Returns the adapter to use for the given options
-  #
-  # @api public
-  # @param options [Hash] options that may contain :adapter key
-  # @return [Class] adapter class
-  # @example
-  #   MultiJson.current_adapter(adapter: :oj)  #=> MultiJson::Adapters::Oj
-  def current_adapter(options = {})
-    options ||= {}
-    adapter_override = options[:adapter]
-    adapter_override ? load_adapter(adapter_override) : adapter
-  end
-
-  # Serializes a Ruby object to a JSON string
-  #
-  # @api public
-  # @param object [Object] object to serialize
-  # @param options [Hash] serialization options (adapter-specific)
-  # @return [String] JSON string
-  # @example
-  #   MultiJson.dump({foo: "bar"})  #=> '{"foo":"bar"}'
-  def dump(object, options = {})
-    current_adapter(options).dump(object, options)
-  end
-
   # Serializes a Ruby object to a JSON string (deprecated alias for dump)
   #
   # @api private
@@ -268,28 +309,6 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
       "MultiJson.encode is deprecated and will be removed in v2.0. " \
       "Use MultiJson.dump instead.")
     dump(object, options)
-  end
-
-  # Executes a block using the specified adapter
-  #
-  # Defined as a singleton method (rather than module_function) so there is
-  # exactly one definition for mutation testing. The override is stored in
-  # fiber-local storage so concurrent fibers and threads each see their own
-  # adapter without racing on a shared module variable. Nested calls save
-  # and restore the previous fiber-local value.
-  #
-  # @api public
-  # @param new_adapter [Symbol, String, Module] adapter to use
-  # @yield block to execute with the temporary adapter
-  # @return [Object] result of the block
-  # @example
-  #   MultiJson.with_adapter(:json_gem) { MultiJson.dump({}) }
-  def self.with_adapter(new_adapter)
-    previous_override = Fiber[:multi_json_adapter]
-    Fiber[:multi_json_adapter] = load_adapter(new_adapter)
-    yield
-  ensure
-    Fiber[:multi_json_adapter] = previous_override
   end
 
   # Executes a block using the specified adapter (deprecated alias for with_adapter)
@@ -308,17 +327,10 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     with_adapter(new_adapter, &)
   end
 
-  # @!endgroup
+  # ===========================================================================
+  # Private instance-method delegates for the singleton-only methods above
+  # ===========================================================================
 
-  # Re-publicize instance versions of public-API methods. ``module_function``
-  # makes instance methods private by default; explicitly making them public
-  # both reflects their actual API status and allows YARD/Yardstick to render
-  # them as part of the documented public surface.
-  public :adapter, :use, :adapter=, :load, :current_adapter, :dump
-
-  # Private instance-method delegates for methods that are defined as
-  # singleton-only above (so mutation testing has a single target). These
-  # exist so legacy ``include MultiJson`` consumers continue to work.
   private
 
   # Instance-method delegate for {MultiJson.with_adapter}
