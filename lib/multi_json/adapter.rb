@@ -25,12 +25,17 @@ module MultiJson
 
       # Hook called when a subclass is created
       #
+      # Propagates the parent's current default load/dump options into
+      # the subclass at inheritance time. This is a one-shot copy: if
+      # the parent later calls {.defaults} again, the change does not
+      # flow into already-defined subclasses. Define adapter defaults
+      # before subclassing if you need them to flow through.
+      #
       # @api private
       # @param subclass [Class] the new subclass
       # @return [void]
       def inherited(subclass)
         super
-        # Propagate default options to subclasses
         subclass.instance_variable_set(:@default_load_options, @default_load_options) if defined?(@default_load_options)
         subclass.instance_variable_set(:@default_dump_options, @default_dump_options) if defined?(@default_dump_options)
       end
