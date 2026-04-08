@@ -14,27 +14,42 @@ stuck with it, you can use MultiJSON instead, which will simply choose the
 fastest available JSON coder. Here's how to use it:
 
 ```ruby
-require 'multi_json'
+require "multi_json"
 
-MultiJson.load('{"abc":"def"}') #=> {"abc" => "def"}
-MultiJson.load('{"abc":"def"}', :symbolize_keys => true) #=> {:abc => "def"}
-MultiJson.dump({:abc => 'def'}) # convert Ruby back to JSON
-MultiJson.dump({:abc => 'def'}, :pretty => true) # encoded in a pretty form (if supported by the coder)
+MultiJson.load('{"abc":"def"}')                       #=> {"abc" => "def"}
+MultiJson.load('{"abc":"def"}', symbolize_keys: true) #=> {abc: "def"}
+MultiJson.dump({abc: "def"})                          # convert Ruby back to JSON
+MultiJson.dump({abc: "def"}, pretty: true)            # encoded in a pretty form (if supported by the coder)
 ```
 
 When loading invalid JSON, MultiJSON will throw a `MultiJson::ParseError`. `MultiJson::DecodeError` and `MultiJson::LoadError` are aliases for backwards compatibility.
 
 ```ruby
 begin
-  MultiJson.load('{invalid json}')
+  MultiJson.load("{invalid json}")
 rescue MultiJson::ParseError => exception
-  exception.data # => "{invalid json}"
-  exception.cause # => JSON::ParserError: 795: unexpected token at '{invalid json}'
+  exception.data    #=> "{invalid json}"
+  exception.cause   #=> JSON::ParserError: ...
+  exception.line    #=> 1 (for adapters that report a location, e.g. Oj or the json gem)
+  exception.column  #=> 2
 end
 ```
 
 `ParseError` instance has `cause` reader which contains the original exception.
-It also has `data` reader with the input that caused the problem.
+It also has `data` reader with the input that caused the problem, and `line`/`column`
+readers populated for adapters whose error messages include a location (Oj and the
+json gem). Adapters that don't include one (Yajl, fast_jsonparser) leave both nil.
+
+### Tuning the options cache
+
+MultiJSON memoizes the merged option hash for each `load`/`dump` call so identical
+option hashes don't trigger repeated work. The cache is bounded — defaulting to 1000
+entries per direction — and applications that generate many distinct option hashes
+can raise the ceiling at runtime:
+
+```ruby
+MultiJson::OptionsCache.max_cache_size = 5000
+```
 
 The `use` method, which sets the MultiJSON adapter, takes either a symbol or a
 class (to allow for custom JSON parsers) that responds to both `.load` and `.dump`
