@@ -18,7 +18,7 @@ module MultiJson
       # @example Parse JSON string
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
-        ::Yajl::Parser.new(symbolize_keys: options[:symbolize_keys]).parse(string)
+        ::Yajl::Parser.new(options).parse(string)
       end
 
       # Serialize a Ruby object to JSON

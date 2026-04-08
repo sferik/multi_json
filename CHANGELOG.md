@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Forward all merged options through `Yajl#load` instead of honoring only `:symbolize_keys`.
 * Tighten `Adapter.blank?` so it scrubs invalid UTF-8 bytes up front instead of swallowing every `ArgumentError` from the underlying `String` calls.
 * Guard `ConcurrentStore` eviction against a TOCTOU race so two concurrent JRuby threads cannot both pass the size check and briefly exceed `OptionsCache.max_cache_size`.
 * Synchronize `warn_deprecation_once` so concurrent fibers and threads cannot race past the membership check and emit the same one-time deprecation warning twice.
