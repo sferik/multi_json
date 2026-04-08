@@ -1,5 +1,7 @@
 # Changelog
 
+## Unreleased
+
 ## 1.20.0
 * Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option, passing `PRETTY_STATE_PROTOTYPE` directly.
 * Type-check the `Yajl`, `JrJackson`, and `Gson` adapter wrappers under Steep, with stubbed RBS sigs for the underlying libraries living in `sig/external_libraries.rbs`.
