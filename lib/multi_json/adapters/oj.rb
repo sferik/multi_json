@@ -15,13 +15,13 @@ module MultiJson
       defaults :load, mode: :strict, symbolize_keys: false
       defaults :dump, mode: :compat, time_format: :ruby, use_to_json: true
 
-      # In certain cases OJ gem may throw JSON::ParserError exception instead
-      # of its own class. Also, we can't expect ::JSON::ParserError and
-      # ::Oj::ParseError to always be defined, since it's often not the case.
-      # Because of this, we can't reference those classes directly and have to
-      # do string comparison instead. This will not catch subclasses, but it
-      # shouldn't be a problem since the library is not known to be using it
-      # (at least for now).
+      # In certain cases the Oj gem may throw a ``JSON::ParserError``
+      # exception instead of its own class. Neither ``::JSON::ParserError``
+      # nor ``::Oj::ParseError`` is guaranteed to be defined, so we can't
+      # reference them directly — match by walking the exception's
+      # ancestry by class name instead. This will not catch subclasses
+      # of those classes, which shouldn't be a problem since neither
+      # library is known to subclass them.
       class ParseError < ::SyntaxError
         WRAPPED_CLASSES = %w[Oj::ParseError JSON::ParserError].freeze
         private_constant :WRAPPED_CLASSES
@@ -35,7 +35,7 @@ module MultiJson
         # @example Match parse errors in rescue
         #   rescue ParseError => e
         def self.===(exception)
-          exception.is_a?(::SyntaxError) || WRAPPED_CLASSES.include?(exception.class.to_s)
+          exception.class.ancestors.any? { |ancestor| WRAPPED_CLASSES.include?(ancestor.to_s) }
         end
       end
 

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Stop relying on `Oj::ParseError`'s `::SyntaxError` ancestor when matching exceptions in `Oj::ParseError.===`. Walk the exception's ancestor chain by class name instead, so a future Oj release that re-parents its error class doesn't silently break our rescue clauses.
 * Improve `AdapterSelector#load_adapter`'s error message for unrecognized adapter specs so it names the expected types and shows the offender's `inspect` output instead of just `to_s`.
 * Validate the `value` argument in `Adapter.defaults` so a non-Hash (e.g. `defaults :load, "oops"`) raises `ArgumentError` at definition time instead of crashing later in the merge path.
 * Skip `String#scrub` in `Adapter.blank?` when the input is already valid UTF-8 so the common load path no longer allocates a scrubbed copy on every call.
