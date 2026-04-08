@@ -52,6 +52,13 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
   DEPRECATION_WARNINGS_SHOWN = Set.new
   private_constant :DEPRECATION_WARNINGS_SHOWN
 
+  # Mutex guarding {DEPRECATION_WARNINGS_SHOWN}. The check-then-add pair in
+  # {warn_deprecation_once} would otherwise race under concurrent fibers or
+  # threads, allowing two callers to both pass the membership check and emit
+  # the same warning twice.
+  DEPRECATION_WARNINGS_MUTEX = Mutex.new
+  private_constant :DEPRECATION_WARNINGS_MUTEX
+
   class << self
     private
 
@@ -70,10 +77,12 @@ module MultiJson # rubocop:disable Metrics/ModuleLength
     # @example
     #   MultiJson.send(:warn_deprecation_once, :foo, "MultiJson.foo is deprecated")
     def warn_deprecation_once(key, message)
-      return if DEPRECATION_WARNINGS_SHOWN.include?(key)
+      DEPRECATION_WARNINGS_MUTEX.synchronize do
+        return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
-      Kernel.warn(message)
-      DEPRECATION_WARNINGS_SHOWN.add(key)
+        Kernel.warn(message)
+        DEPRECATION_WARNINGS_SHOWN.add(key)
+      end
     end
   end
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Synchronize `warn_deprecation_once` so concurrent fibers and threads cannot race past the membership check and emit the same one-time deprecation warning twice.
 * Stop resetting `OptionsCache` when `MultiJson.use` raises so a failed `use(:nonexistent)` no longer discards the cached entries belonging to the still-active previous adapter.
 * Stop mutating cached options in `JsonGem#load`, mirroring the cache-pollution fix already in place for `Oj#load`.
 * Empty the mutant ignore list. The `Gson` and `JrJackson` ignores were dead — those adapters ship in the java-platform gem and aren't present when mutant runs on MRI — and `Store#reset`'s mutex wrapper is now directly tested by stubbing `Mutex#synchronize`.

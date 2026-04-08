@@ -102,4 +102,19 @@ class DeprecatedWarningBehaviorTest < Minitest::Test
   ensure
     silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
   end
+
+  def test_warn_deprecation_once_is_thread_safe
+    warn_count = 0
+    original_warn = Kernel.method(:warn)
+    # The sleep gives concurrent threads a real chance of racing past the
+    # include? check before either calls add, exposing an unsynchronized
+    # warn_deprecation_once.
+    racing_warn = ->(_msg) { sleep(0.01) && (warn_count += 1) }
+    silence_warnings { Kernel.define_singleton_method(:warn, &racing_warn) }
+    Array.new(10) { Thread.new { MultiJson.cached_options } }.each(&:join)
+
+    assert_equal 1, warn_count
+  ensure
+    silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
+  end
 end
