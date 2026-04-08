@@ -37,7 +37,8 @@ task lint: %i[rubocop standard]
 
 desc "Run mutation testing"
 task :mutant do
-  system({"MUTANT" => "1"}, "bundle", "exec", "mutant", "run") || abort("Mutant failed")
+  ENV["MUTANT"] = "1"
+  sh "bundle", "exec", "mutant", "run"
 end
 
 desc "Run the default task"

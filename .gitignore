@@ -34,6 +34,9 @@ gemfiles/*.lock
 ## RCOV
 coverage.data
 
+## MUTANT
+.mutant
+
 tmp
 
 ## RUBINIUS
