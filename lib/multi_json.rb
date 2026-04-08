@@ -151,8 +151,13 @@ module MultiJson
 
   # Returns the adapter to use for the given options
   #
+  # ``nil`` is accepted as a no-options sentinel — explicit
+  # ``current_adapter(nil)`` calls fall through to the process default
+  # adapter without raising.
+  #
   # @api public
-  # @param options [Hash] options that may contain :adapter key
+  # @param options [Hash, nil] options that may contain :adapter key, or
+  #   nil to use the process default
   # @return [Class] adapter class
   # @example
   #   MultiJson.current_adapter(adapter: :oj)  #=> MultiJson::Adapters::Oj
