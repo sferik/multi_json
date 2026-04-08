@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Guard `ConcurrentStore` eviction against a TOCTOU race so two concurrent JRuby threads cannot both pass the size check and briefly exceed `OptionsCache.max_cache_size`.
 * Synchronize `warn_deprecation_once` so concurrent fibers and threads cannot race past the membership check and emit the same one-time deprecation warning twice.
 * Stop resetting `OptionsCache` when `MultiJson.use` raises so a failed `use(:nonexistent)` no longer discards the cached entries belonging to the still-active previous adapter.
 * Stop mutating cached options in `JsonGem#load`, mirroring the cache-pollution fix already in place for `Oj#load`.

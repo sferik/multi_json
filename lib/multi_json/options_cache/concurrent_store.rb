@@ -18,6 +18,7 @@ module MultiJson
       # @return [Store] new store instance
       def initialize
         @cache = Concurrent::Map.new
+        @eviction_mutex = Mutex.new
       end
 
       # Clear all cached entries
@@ -34,6 +35,10 @@ module MultiJson
       # new one. When called without a block, returns the cached value or
       # the supplied default if the key is missing.
       #
+      # The fast path (cache hit) is lock-free. The miss path takes a small
+      # mutex around the evict-then-insert sequence so concurrent inserts
+      # cannot both pass the size check and exceed ``max_cache_size``.
+      #
       # @api private
       # @param key [Object] cache key
       # @param default [Object] value to return when key is missing and no
@@ -43,8 +48,13 @@ module MultiJson
       def fetch(key, default = nil, &block)
         return @cache[key] || default unless block
 
-        evict_one_if_full
-        @cache.compute_if_absent(key, &block)
+        cached = @cache[key]
+        return cached if cached
+
+        @eviction_mutex.synchronize do
+          evict_one_if_full
+          @cache.compute_if_absent(key, &block)
+        end
       end
 
       private
