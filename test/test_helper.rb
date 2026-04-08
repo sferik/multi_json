@@ -43,7 +43,7 @@ module TestHelpers
   end
 
   def java?
-    RUBY_PLATFORM == "java"
+    RUBY_ENGINE == "jruby"
   end
 
   def oj? = adapter_available?(:oj)
