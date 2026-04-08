@@ -102,11 +102,27 @@ module MultiJson
   end
 
   class ParseError < StandardError
+    LOCATION_PATTERN: Regexp
+
     # The raw data that failed to parse (string or IO-like object)
     attr_reader data: string_input?
 
+    # 1-based line number extracted from the adapter's error message
+    attr_reader line: Integer?
+
+    # 1-based column number extracted from the adapter's error message
+    attr_reader column: Integer?
+
+    @data: string_input?
+    @line: Integer?
+    @column: Integer?
+
     def initialize: (?String? message, ?data: string_input?, ?cause: Exception?) -> void
     def self.build: (Exception original_exception, string_input data) -> ParseError
+
+    private
+
+    def location_match: (String? message) -> MatchData?
   end
 
   DecodeError: singleton(ParseError)

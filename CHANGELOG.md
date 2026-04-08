@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Surface parse error locations as `error.line` and `error.column` on `MultiJson::ParseError`, extracted from the underlying adapter's message for adapters that include one (Oj, the json gem).
 * Make `MultiJson::OptionsCache.max_cache_size` configurable so applications that generate many distinct option hashes can raise the cache ceiling at runtime.
 * Reorganize `lib/multi_json.rb` into clearer sections and document why both the `module_function` and singleton-only definition patterns coexist.
 * Restructure `OptionsCache` backend selection so MRI and JRuby execute the same physical `require_relative` line, restoring JRuby's line coverage threshold to 100%.
