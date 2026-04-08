@@ -50,7 +50,8 @@ module TestHelpers
   end
 
   def oj? = adapter_available?(:oj)
-  def yajl? = adapter_available?(:yajl)
+  # The backing gem is named ``yajl-ruby``, not ``yajl``.
+  def yajl? = adapter_available?("yajl-ruby")
   def json? = adapter_available?(:json)
   def ok_json? = adapter_available?(:ok_json)
   def fast_jsonparser? = adapter_available?(:fast_jsonparser)
