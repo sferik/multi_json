@@ -135,7 +135,31 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     refute_equal MultiJson::Adapters::JsonGem, result
   end
 
+  def test_use_holds_adapter_mutex_during_swap
+    mutex = MultiJson.send(:const_get, :ADAPTER_MUTEX)
+    calls = stub_synchronize_tracker(mutex)
+    object = Class.new { include MultiJson }.new
+    object.define_singleton_method(:load_adapter) { |arg| MultiJson.send(:load_adapter, arg) }
+
+    object.send(:use, :json_gem)
+
+    assert_equal %i[synchronize_start synchronize_end], calls
+  ensure
+    mutex&.singleton_class&.send(:remove_method, :synchronize)
+  end
+
   private
+
+  def stub_synchronize_tracker(mutex)
+    calls = []
+    mutex.define_singleton_method(:synchronize) do |&block|
+      calls << :synchronize_start
+      result = block.call
+      calls << :synchronize_end
+      result
+    end
+    calls
+  end
 
   def track_cache_reset
     reset_called = false

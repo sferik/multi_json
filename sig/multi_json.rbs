@@ -3,6 +3,7 @@ module MultiJson
 
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
   DEPRECATION_WARNINGS_MUTEX: Mutex
+  ADAPTER_MUTEX: Mutex
 
 
 

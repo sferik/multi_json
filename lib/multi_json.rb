@@ -56,6 +56,14 @@ module MultiJson
   DEPRECATION_WARNINGS_MUTEX = Mutex.new
   private_constant :DEPRECATION_WARNINGS_MUTEX
 
+  # Mutex guarding the process-wide ``@adapter`` swap in {.use}. Two threads
+  # calling ``use(:foo)`` and ``use(:bar)`` concurrently could otherwise
+  # interleave their ``load_adapter`` / ``OptionsCache.reset`` /
+  # ``@adapter =`` steps and leave the cache out of sync with the active
+  # adapter.
+  ADAPTER_MUTEX = Mutex.new
+  private_constant :ADAPTER_MUTEX
+
   class << self
     private
 
@@ -120,8 +128,10 @@ module MultiJson
   #   MultiJson.use(:oj)
   def use(new_adapter)
     loaded = load_adapter(new_adapter)
-    OptionsCache.reset
-    @adapter = loaded
+    ADAPTER_MUTEX.synchronize do
+      OptionsCache.reset
+      @adapter = loaded
+    end
   end
 
   # Sets the adapter to use for JSON operations
