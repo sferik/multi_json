@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Drop the redundant `options.except(:adapter)` allocation in `JsonGem#dump`; `Adapter.merged_dump_options` already strips `:adapter` before the cached hash reaches the adapter.
 * Forward all merged options through `Yajl#load` instead of honoring only `:symbolize_keys`.
 * Tighten `Adapter.blank?` so it scrubs invalid UTF-8 bytes up front instead of swallowing every `ArgumentError` from the underlying `String` calls.
 * Guard `ConcurrentStore` eviction against a TOCTOU race so two concurrent JRuby threads cannot both pass the size check and briefly exceed `OptionsCache.max_cache_size`.

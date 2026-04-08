@@ -51,16 +51,11 @@ module MultiJson
       # @example Serialize object to JSON
       #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
       def dump(object, options = {})
-        opts = options.except(:adapter)
         json_object = object.respond_to?(:as_json) ? object.as_json : object
-        return ::JSON.dump(json_object) if opts.empty?
+        return ::JSON.dump(json_object) if options.empty?
+        return ::JSON.generate(json_object, options) unless options.key?(:pretty)
 
-        if opts.delete(:pretty)
-          opts = PRETTY_STATE_PROTOTYPE.merge(opts)
-          return ::JSON.pretty_generate(json_object, opts)
-        end
-
-        ::JSON.generate(json_object, opts)
+        ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE.merge(options.except(:pretty)))
       end
 
       private
