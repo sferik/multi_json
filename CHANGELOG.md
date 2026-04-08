@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Validate the `action` argument in `Adapter.defaults` so a typo (e.g. `defaults :encode, ...`) raises `ArgumentError` at definition time instead of silently producing a no-op default.
 * Drop the stale `ok_json` reference from the `fast_jsonparser` adapter's docstring.
 * Remove the `MultiJson::REQUIREMENT_MAP` legacy alias; the canonical map already lives on `MultiJson::AdapterSelector`.
 * Drop the dead `JrJackson` dump arity branch (and its SimpleCov filter). JrJackson 0.4.18+ accepts an options hash as the second argument to `Json.dump`.

@@ -150,6 +150,15 @@ class AdapterDefaultsTest < Minitest::Test
 
     assert_predicate adapter.default_load_options, :frozen?
   end
+
+  def test_defaults_raises_on_unknown_action
+    error = assert_raises(ArgumentError) do
+      Class.new(MultiJson::Adapter) { defaults :encode, {foo: :bar} }
+    end
+
+    assert_match(/:load or :dump/, error.message)
+    assert_match(/:encode/, error.message)
+  end
 end
 
 class AdapterCachedOptionsTest < Minitest::Test

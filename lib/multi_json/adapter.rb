@@ -20,7 +20,8 @@ module MultiJson
     class << self
       BLANK_PATTERN = /\A\s*\z/
       EMPTY_OPTIONS = {}.freeze
-      private_constant :BLANK_PATTERN, :EMPTY_OPTIONS
+      VALID_DEFAULTS_ACTIONS = %i[load dump].freeze
+      private_constant :BLANK_PATTERN, :EMPTY_OPTIONS, :VALID_DEFAULTS_ACTIONS
 
       # Hook called when a subclass is created
       #
@@ -40,7 +41,10 @@ module MultiJson
       # @param action [Symbol] :load or :dump
       # @param value [Hash] default options for the action
       # @return [Hash] the frozen options hash
+      # @raise [ArgumentError] when action is anything other than :load or :dump
       def defaults(action, value)
+        raise ArgumentError, "expected action to be :load or :dump, got #{action.inspect}" unless VALID_DEFAULTS_ACTIONS.include?(action)
+
         instance_variable_set(:"@default_#{action}_options", value.freeze)
       end
 

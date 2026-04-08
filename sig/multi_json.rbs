@@ -216,6 +216,7 @@ module MultiJson
     def self.strip_adapter_key: (options options) -> options
 
     BLANK_PATTERN: Regexp
+    VALID_DEFAULTS_ACTIONS: Array[Symbol]
   end
 
   module Adapters
