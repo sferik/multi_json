@@ -21,32 +21,20 @@ module MultiJson
         ::JrJackson::Json.load(string, options)
       end
 
-      if ::JrJackson::Json.method(:dump).arity == 1
-        # Serialize a Ruby object to JSON
-        #
-        # @api private
-        # @param object [Object] object to serialize
-        # @param _ [Hash] serialization options (unused in this version)
-        # @return [String] JSON string
-        #
-        # @example Serialize object to JSON
-        #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
-        def dump(object, _)
-          ::JrJackson::Json.dump(object)
-        end
-      else
-        # Serialize a Ruby object to JSON
-        #
-        # @api private
-        # @param object [Object] object to serialize
-        # @param options [Hash] serialization options
-        # @return [String] JSON string
-        #
-        # @example Serialize object to JSON
-        #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
-        def dump(object, options = {})
-          ::JrJackson::Json.dump(object, options)
-        end
+      # Serialize a Ruby object to JSON
+      #
+      # Requires JrJackson >= 0.4.18, which accepts an options hash as
+      # the second argument to ``Json.dump``.
+      #
+      # @api private
+      # @param object [Object] object to serialize
+      # @param options [Hash] serialization options
+      # @return [String] JSON string
+      #
+      # @example Serialize object to JSON
+      #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
+      def dump(object, options = {})
+        ::JrJackson::Json.dump(object, options)
       end
     end
   end

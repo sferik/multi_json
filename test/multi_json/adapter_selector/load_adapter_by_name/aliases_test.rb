@@ -12,16 +12,24 @@ class JrJacksonAliasTest < Minitest::Test
   end
 
   def test_load_adapter_by_name_normalizes_jrjackson_to_jr_jackson
-    skip "jrjackson gem is available on JRuby so no LoadError is raised" if java?
-    error = assert_raises(LoadError) { @instance.send(:load_adapter_by_name, "jrjackson") }
+    captured_path = nil
+    spy = path_capturing_module(->(path) { captured_path = path })
+    instance = Object.new.extend(spy)
+    assert_raises(::LoadError) { instance.send(:load_adapter_by_name, "jrjackson") }
 
-    refute_includes(
-      error.message, "adapters/jrjackson",
-      "Should normalize 'jrjackson' to 'jr_jackson' for the file path"
-    )
-    # The LoadError comes from jr_jackson.rb's ``require "jrjackson"`` at
-    # the top of the file — which means load_adapter_by_name got far
-    # enough to load adapters/jr_jackson.rb, not adapters/jrjackson.
-    assert_match(/jrjackson/, error.message)
+    assert_equal "adapters/jr_jackson", captured_path
+  end
+
+  private
+
+  def path_capturing_module(callback)
+    ::Module.new do
+      include MultiJson::AdapterSelector
+
+      define_method(:require_relative) do |path|
+        callback.call(path)
+        raise ::LoadError, "stubbed - #{path}"
+      end
+    end
   end
 end
