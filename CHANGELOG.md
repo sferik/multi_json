@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Stop mass-requiring adapter gems at the top of `adapter_selection_test.rb`, which polluted the global require cache and let later tests silently depend on adapters they had not explicitly loaded.
 * Restore the mutex around `MutexStore#reset` for TruffleRuby, where the unguarded clear could race with concurrent fetches in a way the MRI GVL otherwise prevents.
 * Fix `TestHelpers.yajl?` to check the actual `yajl-ruby` gem name.
 * [Stop requiring the `oj` gem from the `fast_jsonparser` adapter](https://github.com/sferik/multi_json/issues/63): `fast_jsonparser` only implements parsing, so the adapter's `dump` side now inherits from whichever adapter MultiJson would otherwise pick (oj → yajl → jr_jackson → json_gem → gson → ok_json). Users who install `fast_jsonparser` no longer need to also install `oj`.

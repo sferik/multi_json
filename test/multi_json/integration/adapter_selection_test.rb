@@ -1,12 +1,5 @@
 require_relative "../../test_helper"
 
-# Load all available adapters
-MultiJson::REQUIREMENT_MAP.each_value do |library|
-  require library
-rescue LoadError
-  next
-end
-
 # Shared setup for integration tests requiring Oj adapter
 module IntegrationTestSetup
   def setup
