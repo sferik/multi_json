@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Move `Oj#load`'s `:symbolize_keys` translation into a private `translate_load_options` helper that drops the redundant `:symbolize_keys` passthrough alongside `:symbol_keys`, mirroring the cleanup already in `JsonGem#load`.
 * Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option, passing `PRETTY_STATE_PROTOTYPE` directly.
 * Type-check the `Yajl`, `JrJackson`, and `Gson` adapter wrappers under Steep, with stubbed RBS sigs for the underlying libraries living in `sig/external_libraries.rbs`.
 * Unify `LOADED_ADAPTER_DETECTORS` and `REQUIREMENT_MAP` in `AdapterSelector` into a single `ADAPTERS` source-of-truth so the require path and detection lambda for each adapter live in one place.

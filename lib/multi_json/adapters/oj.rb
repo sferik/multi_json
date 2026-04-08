@@ -49,7 +49,7 @@ module MultiJson
       # @example Parse JSON string
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
-        ::Oj.load(string, options.merge(symbol_keys: options[:symbolize_keys]))
+        ::Oj.load(string, translate_load_options(options))
       end
 
       # Serialize a Ruby object to JSON
@@ -63,6 +63,24 @@ module MultiJson
       #   adapter.dump({key: "value"}) #=> '{"key":"value"}'
       def dump(object, options = {})
         ::Oj.dump(object, prepare_dump_options(options))
+      end
+
+      private
+
+      # Translate ``:symbolize_keys`` into Oj's ``:symbol_keys``
+      #
+      # Returns a new hash without mutating the input.
+      # ``:symbol_keys`` is always set (true or false) so MultiJson's
+      # behavior is independent of any global ``Oj.default_options``
+      # the host application may have set. The input is the cached hash
+      # returned from {Adapter.merged_load_options}, so in-place edits
+      # would pollute the cache.
+      #
+      # @api private
+      # @param options [Hash] merged load options
+      # @return [Hash] options with ``:symbolize_keys`` translated
+      def translate_load_options(options)
+        options.except(:symbolize_keys).merge(symbol_keys: options[:symbolize_keys] == true)
       end
     end
   end
