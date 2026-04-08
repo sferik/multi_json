@@ -5,7 +5,7 @@ if TestHelpers.gson?
   require "multi_json/adapters/gson"
 
   class GsonAdapterTest < Minitest::Test
-    cover "MultiJson*"
+    cover "MultiJson::Adapters::Gson*"
 
     include AdapterTests
 

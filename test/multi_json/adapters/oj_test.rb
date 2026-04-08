@@ -5,7 +5,7 @@ if TestHelpers.oj?
   require "multi_json/adapters/oj"
 
   class OjAdapterTest < Minitest::Test
-    cover "MultiJson*"
+    cover "MultiJson::Adapters::Oj*"
 
     include AdapterTests
 
