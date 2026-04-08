@@ -60,7 +60,7 @@ module MultiJson
       # @api private
       # @return [void]
       def evict_one_if_full
-        return if @cache.size < MAX_CACHE_SIZE
+        return if @cache.size < OptionsCache.max_cache_size
 
         @cache.delete(@cache.keys.first)
       end

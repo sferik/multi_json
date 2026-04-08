@@ -51,7 +51,7 @@ module MultiJson
           return @cache.fetch(key) { default } unless block_given?
 
           @cache.fetch(key) do
-            @cache.shift if @cache.size >= MAX_CACHE_SIZE
+            @cache.shift if @cache.size >= OptionsCache.max_cache_size
             @cache[key] = yield
           end
         end

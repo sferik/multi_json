@@ -29,6 +29,6 @@ class OptionsCacheSynchronizationTest < Minitest::Test
 
     cache = store.instance_variable_get(:@cache)
 
-    assert_operator cache.size, :<=, MultiJson::OptionsCache::MAX_CACHE_SIZE
+    assert_operator cache.size, :<=, MultiJson::OptionsCache.max_cache_size
   end
 end

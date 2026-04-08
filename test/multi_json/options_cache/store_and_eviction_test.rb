@@ -28,7 +28,7 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
 
   def test_cache_size_bounded_at_max
     store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    max = MultiJson::OptionsCache.max_cache_size
 
     (max + 1).times { |i| store.fetch(:"k#{i}") { i } }
 
@@ -39,7 +39,7 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
 
   def test_cache_evicts_some_entry_when_at_max
     store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    max = MultiJson::OptionsCache.max_cache_size
     max.times { |i| store.fetch(:"k#{i}") { i } }
 
     cache = store.instance_variable_get(:@cache)
@@ -54,7 +54,7 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
 
   def test_cache_no_eviction_below_max
     store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    max = MultiJson::OptionsCache.max_cache_size
     (max - 1).times { |i| store.fetch(:"below#{i}") { i } }
 
     cache = store.instance_variable_get(:@cache)
@@ -73,7 +73,7 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
     skip "Concurrent::Map on JRuby does not support direct []=" if RUBY_ENGINE == "jruby"
 
     store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    max = MultiJson::OptionsCache.max_cache_size
     cache = store.instance_variable_get(:@cache)
     (max + 5).times { |i| cache[:"pre#{i}"] = i }
     size_before = cache.size

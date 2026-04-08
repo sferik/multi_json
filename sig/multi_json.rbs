@@ -134,14 +134,17 @@ module MultiJson
   end
 
   module OptionsCache
-    MAX_CACHE_SIZE: Integer
+    DEFAULT_MAX_CACHE_SIZE: Integer
 
     def self.dump: () -> Store
     def self.load: () -> Store
     def self.reset: () -> void
+    def self.max_cache_size: () -> Integer
+    def self.max_cache_size=: (Integer value) -> Integer
 
     self.@dump: Store
     self.@load: Store
+    self.@max_cache_size: Integer
 
     class Store
       def initialize: () -> void

@@ -10,8 +10,10 @@ module MultiJson
   #
   # @api private
   module OptionsCache
-    # Maximum entries before an arbitrary entry is evicted
-    MAX_CACHE_SIZE = 1000
+    # Default bound on the number of cached entries per store. Applications
+    # that dynamically generate many distinct option hashes can raise this
+    # via {.max_cache_size=}.
+    DEFAULT_MAX_CACHE_SIZE = 1000
 
     class << self
       # Get the dump options cache
@@ -26,6 +28,19 @@ module MultiJson
       # @return [Store] load cache store
       attr_reader :load
 
+      # Maximum number of entries per cache store
+      #
+      # Applies to both the dump and load caches. Existing entries are
+      # left in place until normal eviction trims them below a lowered
+      # limit; call {.reset} if you need to evict immediately.
+      #
+      # @api public
+      # @return [Integer] current cache size limit
+      # @example
+      #   MultiJson::OptionsCache.max_cache_size = 5000
+      #   MultiJson::OptionsCache.max_cache_size  #=> 5000
+      attr_accessor :max_cache_size
+
       # Reset both caches
       #
       # @api private
@@ -35,6 +50,8 @@ module MultiJson
         @load = Store.new
       end
     end
+
+    self.max_cache_size = DEFAULT_MAX_CACHE_SIZE
   end
 end
 

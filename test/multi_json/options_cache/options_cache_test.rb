@@ -5,7 +5,7 @@ class OptionsCacheTest < Minitest::Test
 
   def setup
     MultiJson::OptionsCache.reset
-    max = MultiJson::OptionsCache::MAX_CACHE_SIZE
+    max = MultiJson::OptionsCache.max_cache_size
 
     (max + 1).times do |i|
       MultiJson::OptionsCache.dump.fetch(key: i) { {foo: i} }
@@ -17,7 +17,7 @@ class OptionsCacheTest < Minitest::Test
     [MultiJson::OptionsCache.dump, MultiJson::OptionsCache.load].each do |cache|
       size = cache.instance_variable_get(:@cache).size
 
-      assert_operator size, :<=, MultiJson::OptionsCache::MAX_CACHE_SIZE
+      assert_operator size, :<=, MultiJson::OptionsCache.max_cache_size
     end
   end
 
