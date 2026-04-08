@@ -25,12 +25,6 @@ end
 require "yard"
 YARD::Rake::YardocTask.new(:yard)
 
-require "yardstick/rake/measurement"
-Yardstick::Rake::Measurement.new(:yardstick_measure) do |measurement|
-  measurement.output = "doc/coverage.txt"
-  measurement.path = Rake::FileList.new("lib/**/*.rb")
-end
-
 require "yardstick/rake/verify"
 Yardstick::Rake::Verify.new(:yardstick) do |verify|
   verify.threshold = 100
