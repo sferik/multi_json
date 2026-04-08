@@ -55,6 +55,10 @@ module MultiJson
         return ::JSON.dump(json_object) if options.empty?
         return ::JSON.generate(json_object, options) unless options.key?(:pretty)
 
+        # Common case: ``pretty: true`` is the only option, so the merge
+        # would just produce a copy of PRETTY_STATE_PROTOTYPE.
+        return ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE) if options.size == 1
+
         ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE.merge(options.except(:pretty)))
       end
 

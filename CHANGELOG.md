@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.20.0
+* Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option, passing `PRETTY_STATE_PROTOTYPE` directly.
 * Type-check the `Yajl`, `JrJackson`, and `Gson` adapter wrappers under Steep, with stubbed RBS sigs for the underlying libraries living in `sig/external_libraries.rbs`.
 * Unify `LOADED_ADAPTER_DETECTORS` and `REQUIREMENT_MAP` in `AdapterSelector` into a single `ADAPTERS` source-of-truth so the require path and detection lambda for each adapter live in one place.
 * Extract deprecated public API (`decode`, `encode`, `engine`, `engine=`, `default_engine`, `with_engine`, `default_options`, `default_options=`, `cached_options`, `reset_cached_options!`) into `lib/multi_json/deprecated.rb` and drop the matching `Style/Documentation`, `Style/ModuleFunction`, and `Style/OpenStructUse` rubocop opt-outs.
