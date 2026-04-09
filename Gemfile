@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "activesupport", "~> 8.0", require: false
+gem "concurrent-ruby", "~> 1.2", require: false
 gem "json", "~> 2.0", require: false
 
 gem "minitest", ">= 5.20"
