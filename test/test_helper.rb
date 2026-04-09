@@ -30,6 +30,16 @@ require "mutant/minitest/coverage"
 require_relative "support/strict_adapter"
 require_relative "support/stub_helpers"
 
+# Most test files declare ``cover "MultiJson*"`` because the public API
+# methods (load, dump, use, with_adapter, etc.) cross subject boundaries
+# at runtime — a single MultiJson.load call exercises MultiJson.load,
+# MultiJson.current_adapter, MultiJson::Adapter.load, and the underlying
+# adapter's instance #load. Narrower covers risk skipping tests that
+# would have killed mutations in the called subjects. Adapter-specific
+# tests under test/multi_json/adapters/ use a tighter
+# ``cover "MultiJson::Adapters::<Name>*"`` because they have an
+# unambiguous single-subject focus.
+
 module TestHelpers
   include StubHelpers
 
