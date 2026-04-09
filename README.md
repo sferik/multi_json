@@ -94,11 +94,25 @@ merging, the `defaults :load, ...` / `defaults :dump, ...` DSL, and the
 blank-input short-circuit. The built-in adapters in
 `lib/multi_json/adapters/` are working examples.
 
-MultiJSON tries to have intelligent defaulting. That is, if you have any of the
-supported engines already loaded, it will utilize them before attempting to
-load any. When loading, libraries are ordered by speed. First fast_jsonparser,
-then Oj, then Yajl, then the JSON gem. The JSON gem is a Ruby default gem,
-so it's always available as a last-resort fallback on any supported Ruby.
+MultiJSON tries to have intelligent defaulting. If any supported library is
+already loaded, MultiJSON uses it before attempting to load others. When no
+backend is preloaded, MultiJSON walks its preference list and uses the first
+one that loads successfully:
+
+1. `fast_jsonparser`
+2. `oj`
+3. `yajl-ruby`
+4. `jrjackson`
+5. The JSON gem
+6. `gson`
+
+This order is a best-effort historical ranking by typical parse/dump
+throughput on representative workloads, not a guaranteed benchmark. Real-world
+performance depends on the document shape, the Ruby implementation, and
+whether you're calling `load` or `dump`. The JSON gem is a Ruby default gem,
+so it's always available as a last-resort fallback on any supported Ruby. If
+you have a workload where a different backend is faster, set it explicitly
+with `MultiJson.use(:your_adapter)`.
 
 ## Gem Variants
 
