@@ -11,16 +11,17 @@ module MultiJson
     extend self
 
     # Per-adapter metadata, in preference order (fastest first). Each
-    # entry maps the adapter symbol to its ``require`` path and a
-    # ``loaded`` lambda that returns truthy when the backing library is
-    # already loaded.
+    # entry maps the adapter symbol to its ``require`` path and the
+    # constant whose presence indicates the backing library is already
+    # loaded. ``loaded`` is a ``::``-separated path so we can walk it
+    # without an explicit ``defined?`` check.
     ADAPTERS = {
-      fast_jsonparser: {require: "fast_jsonparser", loaded: -> { defined?(::FastJsonparser) }},
-      oj: {require: "oj", loaded: -> { defined?(::Oj) }},
-      yajl: {require: "yajl", loaded: -> { defined?(::Yajl) }},
-      jr_jackson: {require: "jrjackson", loaded: -> { defined?(::JrJackson) }},
-      json_gem: {require: "json", loaded: -> { defined?(::JSON::Ext::Parser) }},
-      gson: {require: "gson", loaded: -> { defined?(::Gson) }}
+      fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
+      oj: {require: "oj", loaded: "Oj"},
+      yajl: {require: "yajl", loaded: "Yajl"},
+      jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
+      json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
+      gson: {require: "gson", loaded: "Gson"}
     }.freeze
     private_constant :ADAPTERS
 
@@ -85,7 +86,7 @@ module MultiJson
     def loaded_adapter(excluding: nil)
       ADAPTERS.each do |name, meta|
         next if name == excluding
-        return name if meta.fetch(:loaded).call
+        return name if Object.const_defined?(meta.fetch(:loaded))
       end
       nil
     end

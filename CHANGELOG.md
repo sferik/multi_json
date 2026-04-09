@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Replace the per-adapter `loaded` lambdas in `AdapterSelector::ADAPTERS` with constant name strings, walked through `Object.const_defined?` directly. The lookup table is half as large and no longer holds six closure objects whose only job was to call `defined?`.
 * Wrap `AdapterSelector#default_adapter_excluding` in `DEFAULT_ADAPTER_MUTEX` so concurrent callers can't both walk the detection chain and double-fire `fallback_adapter`'s one-time warning.
 * Raise a clear `MultiJson::AdapterError` when a custom adapter passed to `MultiJson.load` does not define a `ParseError` constant, instead of letting the bare `NameError` from the rescue clause propagate.
 * Drop the duplicate `Adapter::EMPTY_OPTIONS` constant in favor of the `MultiJson::Options::EMPTY_OPTIONS` it was shadowing.
