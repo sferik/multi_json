@@ -66,7 +66,7 @@ class DefaultAdapterExcludingTest < Minitest::Test
   end
 
   def test_default_adapter_excluding_holds_mutex_during_detection
-    mutex = MultiJson::AdapterSelector.send(:const_get, :DEFAULT_ADAPTER_MUTEX)
+    mutex = MultiJson::Concurrency::DEFAULT_ADAPTER
     synchronized = false
     mutex.define_singleton_method(:synchronize) do |&block|
       synchronized = true

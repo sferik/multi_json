@@ -1,3 +1,4 @@
+require_relative "multi_json/concurrency"
 require_relative "multi_json/options"
 require_relative "multi_json/version"
 require_relative "multi_json/adapter_error"
@@ -49,21 +50,6 @@ module MultiJson
   DEPRECATION_WARNINGS_SHOWN = Set.new
   private_constant :DEPRECATION_WARNINGS_SHOWN
 
-  # Mutex guarding {DEPRECATION_WARNINGS_SHOWN}. The check-then-add pair in
-  # {warn_deprecation_once} would otherwise race under concurrent fibers or
-  # threads, allowing two callers to both pass the membership check and emit
-  # the same warning twice.
-  DEPRECATION_WARNINGS_MUTEX = Mutex.new
-  private_constant :DEPRECATION_WARNINGS_MUTEX
-
-  # Mutex guarding the process-wide ``@adapter`` swap in {.use}. Two threads
-  # calling ``use(:foo)`` and ``use(:bar)`` concurrently could otherwise
-  # interleave their ``load_adapter`` / ``OptionsCache.reset`` /
-  # ``@adapter =`` steps and leave the cache out of sync with the active
-  # adapter.
-  ADAPTER_MUTEX = Mutex.new
-  private_constant :ADAPTER_MUTEX
-
   class << self
     private
 
@@ -82,7 +68,7 @@ module MultiJson
     # @example
     #   MultiJson.send(:warn_deprecation_once, :foo, "MultiJson.foo is deprecated")
     def warn_deprecation_once(key, message)
-      DEPRECATION_WARNINGS_MUTEX.synchronize do
+      Concurrency::DEPRECATION_WARNINGS.synchronize do
         return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
         Kernel.warn(message)
@@ -148,7 +134,7 @@ module MultiJson
   #   MultiJson.use(:oj)
   def use(new_adapter)
     loaded = load_adapter(new_adapter)
-    ADAPTER_MUTEX.synchronize do
+    Concurrency::ADAPTER.synchronize do
       OptionsCache.reset
       @adapter = loaded
     end

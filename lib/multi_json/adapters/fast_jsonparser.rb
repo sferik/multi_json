@@ -21,10 +21,6 @@ module MultiJson
       # Exception raised when JSON parsing fails
       ParseError = ::FastJsonparser::ParseError
 
-      # Mutex guarding the lazy ``@dump_delegate`` initializer.
-      DUMP_DELEGATE_MUTEX = Mutex.new
-      private_constant :DUMP_DELEGATE_MUTEX
-
       class << self
         # Serialize a Ruby object to JSON via the lazy delegate
         #
@@ -45,7 +41,7 @@ module MultiJson
         # @api private
         # @return [Class] delegate adapter class
         def dump_delegate
-          DUMP_DELEGATE_MUTEX.synchronize do
+          MultiJson::Concurrency::DUMP_DELEGATE.synchronize do
             @dump_delegate ||= MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
           end
         end

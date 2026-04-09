@@ -136,7 +136,7 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def test_use_holds_adapter_mutex_during_swap
-    mutex = MultiJson.send(:const_get, :ADAPTER_MUTEX)
+    mutex = MultiJson::Concurrency::ADAPTER
     calls = stub_synchronize_tracker(mutex)
     object = Class.new { include MultiJson }.new
     object.define_singleton_method(:load_adapter) { |arg| MultiJson.send(:load_adapter, arg) }

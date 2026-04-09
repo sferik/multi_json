@@ -2,8 +2,14 @@ module MultiJson
   VERSION: String
 
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
-  DEPRECATION_WARNINGS_MUTEX: Mutex
-  ADAPTER_MUTEX: Mutex
+
+  module Concurrency
+    DEPRECATION_WARNINGS: Mutex
+    ADAPTER: Mutex
+    DEFAULT_ADAPTER: Mutex
+    DEFAULT_OPTIONS: Mutex
+    DUMP_DELEGATE: Mutex
+  end
 
 
 
@@ -132,7 +138,6 @@ module MultiJson
 
   module Options
     EMPTY_OPTIONS: options
-    DEFAULT_OPTIONS_MUTEX: Mutex
 
     def load_options=: (options_input value) -> options_input
     def dump_options=: (options_input value) -> options_input
@@ -181,7 +186,6 @@ module MultiJson
 
     ADAPTERS: Hash[Symbol, Hash[Symbol, String]]
     REQUIREMENT_MAP: Hash[Symbol, String]
-    DEFAULT_ADAPTER_MUTEX: Mutex
 
     def default_adapter: () -> Symbol
     def default_adapter_excluding: (Symbol excluded) -> (_Adapter | Module)
