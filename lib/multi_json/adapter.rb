@@ -22,21 +22,25 @@ module MultiJson
       VALID_DEFAULTS_ACTIONS = %i[load dump].freeze
       private_constant :BLANK_PATTERN, :VALID_DEFAULTS_ACTIONS
 
-      # Hook called when a subclass is created
+      # Get default load options, walking the superclass chain
       #
-      # Propagates the parent's current default load/dump options into
-      # the subclass at inheritance time. This is a one-shot copy: if
-      # the parent later calls {.defaults} again, the change does not
-      # flow into already-defined subclasses. Define adapter defaults
-      # before subclassing if you need them to flow through.
+      # Returns the closest ancestor's `@default_load_options` ivar so a
+      # parent class calling {.defaults} after a subclass has been
+      # defined still propagates to the subclass. Falls back to the
+      # shared frozen empty hash when no ancestor has defaults set.
       #
       # @api private
-      # @param subclass [Class] the new subclass
-      # @return [void]
-      def inherited(subclass)
-        super
-        subclass.instance_variable_set(:@default_load_options, @default_load_options) if defined?(@default_load_options)
-        subclass.instance_variable_set(:@default_dump_options, @default_dump_options) if defined?(@default_dump_options)
+      # @return [Hash] frozen options hash
+      def default_load_options
+        walk_default_options(:@default_load_options)
+      end
+
+      # Get default dump options, walking the superclass chain
+      #
+      # @api private
+      # @return [Hash] frozen options hash
+      def default_dump_options
+        walk_default_options(:@default_dump_options)
       end
 
       # DSL for setting adapter-specific default options
@@ -87,6 +91,25 @@ module MultiJson
       end
 
       private
+
+      # Walk the superclass chain looking for a default options ivar
+      #
+      # Stops at the first ancestor whose ``ivar`` is set and returns
+      # that value. Returns {Options::EMPTY_OPTIONS} when no ancestor
+      # has the ivar set, so adapters without defaults always observe a
+      # frozen empty hash instead of nil.
+      #
+      # @api private
+      # @param ivar [Symbol] ivar name (`:@default_load_options` or `:@default_dump_options`)
+      # @return [Hash] frozen options hash
+      def walk_default_options(ivar)
+        ancestors.each do |klass|
+          next unless klass.is_a?(Class) && klass.instance_variable_defined?(ivar)
+
+          return klass.instance_variable_get(ivar)
+        end
+        Options::EMPTY_OPTIONS
+      end
 
       # Checks if the input is blank (nil, empty, or whitespace-only)
       #

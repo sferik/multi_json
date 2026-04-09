@@ -5,7 +5,7 @@ require "stringio"
 class AdapterInheritanceTest < Minitest::Test
   cover "MultiJson::Adapter*"
 
-  def test_inherited_copies_default_load_options
+  def test_subclass_inherits_parent_default_load_options
     parent = Class.new(MultiJson::Adapter) do
       defaults :load, {symbolize_keys: true}
     end
@@ -15,7 +15,7 @@ class AdapterInheritanceTest < Minitest::Test
     assert_equal({symbolize_keys: true}, child.default_load_options)
   end
 
-  def test_inherited_copies_default_dump_options
+  def test_subclass_inherits_parent_default_dump_options
     parent = Class.new(MultiJson::Adapter) do
       defaults :dump, {pretty: true}
     end
@@ -25,12 +25,36 @@ class AdapterInheritanceTest < Minitest::Test
     assert_equal({pretty: true}, child.default_dump_options)
   end
 
-  def test_inherited_without_default_options
+  def test_subclass_without_default_options_falls_back_to_empty
     parent = Class.new(MultiJson::Adapter)
     child = Class.new(parent)
 
     assert_empty(child.default_load_options)
     assert_empty(child.default_dump_options)
+  end
+
+  def test_default_load_options_propagates_after_subclass_definition
+    parent = Class.new(MultiJson::Adapter)
+    child = Class.new(parent)
+    parent.defaults :load, {symbolize_keys: true}
+
+    assert_equal({symbolize_keys: true}, child.default_load_options)
+  end
+
+  def test_default_dump_options_propagates_after_subclass_definition
+    parent = Class.new(MultiJson::Adapter)
+    child = Class.new(parent)
+    parent.defaults :dump, {pretty: true}
+
+    assert_equal({pretty: true}, child.default_dump_options)
+  end
+
+  def test_subclass_default_load_options_overrides_parent
+    parent = Class.new(MultiJson::Adapter) { defaults :load, {symbolize_keys: true} }
+    child = Class.new(parent) { defaults :load, {symbolize_keys: false} }
+
+    assert_equal({symbolize_keys: false}, child.default_load_options)
+    assert_equal({symbolize_keys: true}, parent.default_load_options)
   end
 end
 

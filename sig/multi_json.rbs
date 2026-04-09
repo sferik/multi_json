@@ -209,7 +209,8 @@ module MultiJson
     extend Options
     include Singleton
 
-    def self.inherited: (singleton(Adapter) subclass) -> void
+    def self.default_load_options: () -> options
+    def self.default_dump_options: () -> options
     def self.defaults: (:load | :dump action, options value) -> void
     def self.load: (string_input string, ?options options) -> json
     def self.dump: (json_input object, ?options options) -> String
@@ -220,6 +221,7 @@ module MultiJson
 
     private
 
+    def self.walk_default_options: (Symbol ivar) -> options
     def self.blank?: (String? input) -> bool
     def self.merged_dump_options: (options options) -> options?
     def self.merged_load_options: (options options) -> options?

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Walk the superclass chain in `Adapter.default_load_options` / `default_dump_options` instead of copying the parent's defaults into the subclass at inheritance time, so a parent calling `defaults :load, ...` after a subclass has been defined now propagates to the subclass.
 * Hold `@eviction_mutex` around `ConcurrentStore#reset`'s `@cache.clear` so a JRuby fetcher in the middle of its evict-then-insert sequence cannot interleave with a concurrent reset, mirroring `MutexStore#reset`'s mutex usage.
 * Collect the five process-wide mutexes that protect MultiJson's lazy initializers and adapter swap into a new `MultiJson::Concurrency` module so the library's concurrency surface is documented in one place.
 * Replace the per-adapter `loaded` lambdas in `AdapterSelector::ADAPTERS` with constant name strings, walked through `Object.const_defined?` directly. The lookup table is half as large and no longer holds six closure objects whose only job was to call `defined?`.
