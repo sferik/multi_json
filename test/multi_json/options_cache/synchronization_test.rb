@@ -19,13 +19,9 @@ class OptionsCacheSynchronizationTest < Minitest::Test
   end
 
   def test_reset_holds_mutex_during_clear
-    # Concurrent::Map (JRuby) handles synchronization internally; only
-    # the MutexStore variant takes the mutex explicitly, and only on
-    # that path is there anything to observe.
-    skip "JRuby store uses Concurrent::Map" if RUBY_ENGINE == "jruby"
-
     store = MultiJson::OptionsCache::Store.new
-    mutex = store.instance_variable_get(:@mutex)
+    mutex_ivar = (RUBY_ENGINE == "jruby") ? :@eviction_mutex : :@mutex
+    mutex = store.instance_variable_get(mutex_ivar)
     calls = stub_mutex_synchronize(mutex)
 
     store.reset

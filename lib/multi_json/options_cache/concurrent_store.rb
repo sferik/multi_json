@@ -23,10 +23,15 @@ module MultiJson
 
       # Clear all cached entries
       #
+      # Held under {@eviction_mutex} so a concurrent JRuby thread inside
+      # the {fetch} miss path cannot interleave its evict-then-insert
+      # sequence with a clear and leave the cache in a partially
+      # populated state. Mirrors {MutexStore#reset}'s mutex usage.
+      #
       # @api private
       # @return [void]
       def reset
-        @cache.clear
+        @eviction_mutex.synchronize { @cache.clear }
       end
 
       # Fetch a value from cache or compute it
