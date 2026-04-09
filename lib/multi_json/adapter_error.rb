@@ -18,6 +18,12 @@ module MultiJson
 
     # Build an AdapterError from an original exception
     #
+    # The original exception's class name is included in the message
+    # so a downstream consumer reading just the AdapterError can tell
+    # whether the underlying failure was a `LoadError`, an
+    # `ArgumentError` from the spec validator, or some other class
+    # without having to look at `error.cause` separately.
+    #
     # @api public
     # @param original_exception [Exception] the original load error
     # @return [AdapterError] new error with formatted message
@@ -25,7 +31,8 @@ module MultiJson
     #   AdapterError.build(LoadError.new("cannot load such file"))
     def self.build(original_exception)
       new(
-        "Did not recognize your adapter specification (#{original_exception.message}).",
+        "Did not recognize your adapter specification " \
+        "(#{original_exception.class}: #{original_exception.message}).",
         cause: original_exception
       )
     end

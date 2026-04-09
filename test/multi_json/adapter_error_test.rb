@@ -95,7 +95,16 @@ class AdapterErrorTest < Minitest::Test
     error = MultiJson::AdapterError.build(cause)
 
     # Should interpolate the message string, not the exception object
-    assert_includes error.message, "(specific error text)"
+    assert_includes error.message, "specific error text"
     refute_includes error.message, "#<StandardError"
+  end
+
+  def test_build_includes_exception_class_name
+    cause = LoadError.new("cannot load such file -- foo")
+
+    error = MultiJson::AdapterError.build(cause)
+
+    assert_includes error.message, "LoadError"
+    assert_includes error.message, "cannot load such file -- foo"
   end
 end

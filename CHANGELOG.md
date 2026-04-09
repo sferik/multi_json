@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Include the original exception's class name in `MultiJson::AdapterError.build`'s formatted message so a downstream consumer reading just the wrapped error can distinguish a `LoadError` from a validator `ArgumentError` without having to inspect `error.cause` separately.
 * Mark the five `MultiJson::Concurrency` mutex constants as `private_constant` and add matching `synchronize_*` wrapper methods so callers don't reach into the module's internals.
 * DRY up `lib/multi_json/deprecated.rb` with a small `deprecate_alias` / `deprecate_method` DSL so adding or removing a deprecation is a one-liner instead of a 4-line copy of the warn-then-delegate template.
 * Hoist a shared `Gson::Decoder` and `Gson::Encoder` to handle the empty-options case in the JRuby `Gson` adapter so the dominant `MultiJson.load(json)` / `MultiJson.dump(obj)` call path no longer allocates a fresh decoder/encoder per call.
