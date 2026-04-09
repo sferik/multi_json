@@ -158,14 +158,20 @@ module MultiJson
 
   # Parses a JSON string into a Ruby object
   #
+  # Returns ``nil`` for ``nil``, empty, and whitespace-only inputs
+  # instead of raising. Pass an explicit non-blank string if you want
+  # to surface a {ParseError} for empty payloads at the call site.
+  #
   # @api public
   # @param string [String, #read] JSON string or IO-like object
   # @param options [Hash] parsing options (adapter-specific)
-  # @return [Object] parsed Ruby object
+  # @return [Object, nil] parsed Ruby object, or nil for blank input
   # @raise [ParseError] if parsing fails
   # @raise [AdapterError] if the adapter doesn't define a ``ParseError`` constant
   # @example
   #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
+  #   MultiJson.load("")               #=> nil
+  #   MultiJson.load("   \n")          #=> nil
   def load(string, options = {})
     adapter_class = current_adapter(options)
     parse_error_class = MultiJson.parse_error_class_for(adapter_class)

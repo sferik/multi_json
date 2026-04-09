@@ -22,7 +22,11 @@ MultiJson.dump({abc: "def"})                          # convert Ruby back to JSO
 MultiJson.dump({abc: "def"}, pretty: true)            # encoded in a pretty form (if supported by the coder)
 ```
 
-When loading invalid JSON, MultiJSON will throw a `MultiJson::ParseError`. `MultiJson::DecodeError` and `MultiJson::LoadError` are aliases for backwards compatibility.
+`MultiJson.load` returns `nil` for `nil`, empty, and whitespace-only inputs
+instead of raising, so a missing or blank payload is observable as a `nil`
+return value rather than an exception. When loading invalid JSON, MultiJSON
+will throw a `MultiJson::ParseError`. `MultiJson::DecodeError` and
+`MultiJson::LoadError` are aliases for backwards compatibility.
 
 ```ruby
 begin
