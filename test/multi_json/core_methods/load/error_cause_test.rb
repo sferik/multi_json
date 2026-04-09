@@ -68,6 +68,37 @@ class LoadErrorCauseTest < Minitest::Test
     refute inherit_argument
   end
 
+  def test_parse_error_class_for_returns_cached_value_when_present
+    custom = adapter_with_parse_error
+    sentinel = Class.new(StandardError)
+    custom.instance_variable_set(:@_multi_json_parse_error, sentinel)
+
+    assert_same sentinel, MultiJson.parse_error_class_for(custom)
+  end
+
+  def test_parse_error_class_for_skips_const_get_on_cache_hit
+    custom = adapter_with_parse_error
+    custom.instance_variable_set(:@_multi_json_parse_error, custom::ParseError)
+    const_get_called = false
+    custom.define_singleton_method(:const_get) do |*args|
+      const_get_called = true
+      super(*args)
+    end
+
+    MultiJson.parse_error_class_for(custom)
+
+    refute const_get_called
+  end
+
+  def test_parse_error_class_for_caches_resolved_class_on_adapter
+    custom = adapter_with_parse_error
+
+    resolved = MultiJson.parse_error_class_for(custom)
+
+    assert_same resolved, custom.instance_variable_get(:@_multi_json_parse_error)
+    assert_same custom::ParseError, resolved
+  end
+
   private
 
   def adapter_without_parse_error

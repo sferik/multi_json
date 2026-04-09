@@ -79,20 +79,27 @@ module MultiJson
 
   # Resolve the ``ParseError`` constant for an adapter class
   #
-  # Custom adapters that don't define their own ``ParseError`` get a
-  # clear {AdapterError} instead of the bare ``NameError`` Ruby would
-  # raise from the rescue clause. The lookup is performed with
-  # ``inherit: false`` so a stray top-level ``::ParseError`` constant
-  # in the host process is correctly ignored on every supported Ruby
-  # implementation — TruffleRuby's ``::`` operator walks the ancestor
-  # chain and would otherwise pick up the top-level constant.
+  # The result is memoized on the adapter class itself in a
+  # ``@_multi_json_parse_error`` ivar so subsequent ``MultiJson.load``
+  # calls skip the constant lookup entirely. The lookup is performed
+  # with ``inherit: false`` so a stray top-level ``::ParseError``
+  # constant in the host process is correctly ignored on every
+  # supported Ruby implementation — TruffleRuby's ``::`` operator
+  # walks the ancestor chain and would otherwise pick up the top-level
+  # constant. Custom adapters that don't define their own
+  # ``ParseError`` get a clear {AdapterError} instead of the bare
+  # ``NameError`` Ruby would raise from the rescue clause.
   #
   # @api private
   # @param adapter_class [Class] adapter class to inspect
   # @return [Class] the adapter's ParseError class
   # @raise [AdapterError] when the adapter doesn't define ParseError
   def self.parse_error_class_for(adapter_class)
-    adapter_class.const_get(:ParseError, false)
+    cached = adapter_class.instance_variable_get(:@_multi_json_parse_error)
+    return cached if cached
+
+    resolved = adapter_class.const_get(:ParseError, false)
+    adapter_class.instance_variable_set(:@_multi_json_parse_error, resolved)
   rescue NameError
     raise AdapterError, "Adapter #{adapter_class} must define a ParseError constant"
   end
