@@ -53,9 +53,15 @@ module MultiJson
 
       # Parse a JSON string into a Ruby object
       #
+      # FastJsonparser.parse only accepts ``symbolize_keys`` and raises
+      # on unknown keyword arguments, so the adapter explicitly forwards
+      # only that option and silently drops the rest. Pass other options
+      # through ``MultiJson.load_options=`` and they'll apply to whichever
+      # adapter MultiJson selects when fast_jsonparser isn't installed.
+      #
       # @api private
       # @param string [String] JSON string to parse
-      # @param options [Hash] parsing options
+      # @param options [Hash] parsing options (only :symbolize_keys is honored)
       # @return [Object] parsed Ruby object
       #
       # @example Parse JSON string
