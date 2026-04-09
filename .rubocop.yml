@@ -65,6 +65,15 @@ Style/RedundantFetchBlock:
   Exclude:
     - "test/**/*"
 
+# `MultiJson::Options` deliberately uses named `*args` for the
+# callable-forwarding signature so the parameter is self-documenting.
+# Rubocop's anonymous `*` rewrite would make the signature opaque about
+# what's being forwarded, defeating the documentation that motivated
+# the rewrite away from `(...)` in the first place.
+Style/ArgumentsForwarding:
+  Exclude:
+    - "lib/multi_json/options.rb"
+
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
