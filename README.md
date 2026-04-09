@@ -63,6 +63,37 @@ at the class level.
 When MultiJSON fails to load the specified adapter, it'll throw `MultiJson::AdapterError`
 which inherits from `ArgumentError`.
 
+### Writing a custom adapter
+
+A custom adapter is any class that responds to two class methods plus
+defines a `ParseError` constant:
+
+```ruby
+class MyAdapter
+  ParseError = Class.new(StandardError)
+
+  def self.load(string, options)
+    # parse string into a Ruby object, raising ParseError on failure
+  end
+
+  def self.dump(object, options)
+    # serialize object to a JSON string
+  end
+end
+
+MultiJson.use(MyAdapter)
+```
+
+`ParseError` is required: `MultiJson.load` rescues `MyAdapter::ParseError`
+to wrap parse failures in `MultiJson::ParseError`, and an adapter that
+omits the constant raises `MultiJson::AdapterError` on the first parse
+attempt instead of producing a confusing `NameError`.
+
+For more, inherit from `MultiJson::Adapter` to pick up shared option
+merging, the `defaults :load, ...` / `defaults :dump, ...` DSL, and the
+blank-input short-circuit. The built-in adapters in
+`lib/multi_json/adapters/` are working examples.
+
 MultiJSON tries to have intelligent defaulting. That is, if you have any of the
 supported engines already loaded, it will utilize them before attempting to
 load any. When loading, libraries are ordered by speed. First fast_jsonparser,
