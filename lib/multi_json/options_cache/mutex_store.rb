@@ -40,7 +40,9 @@ module MultiJson
       # new one. When called without a block, returns the cached value or
       # the supplied default if the key is missing. Nil cached values are
       # preserved because ``Hash#fetch`` only falls through to the default
-      # block when the key is truly missing.
+      # block when the key is truly missing. The ``block_given?`` check
+      # is hoisted out of the mutex so the no-block read path runs the
+      # check once per call instead of once inside the critical section.
       #
       # @api private
       # @param key [Object] cache key
@@ -49,9 +51,9 @@ module MultiJson
       # @yield block to compute value if not cached
       # @return [Object] cached, computed, or default value
       def fetch(key, default = nil)
-        @mutex.synchronize do
-          return @cache.fetch(key) { default } unless block_given?
+        return @mutex.synchronize { @cache.fetch(key) { default } } unless block_given?
 
+        @mutex.synchronize do
           @cache.fetch(key) do
             @cache.shift if @cache.size >= OptionsCache.max_cache_size
             @cache[key] = yield

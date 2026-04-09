@@ -31,6 +31,18 @@ class OptionsCacheSynchronizationTest < Minitest::Test
     assert_equal %i[synchronize_start synchronize_end], calls
   end
 
+  def test_fetch_without_block_holds_mutex_during_lookup
+    skip "JRuby ConcurrentStore uses lock-free reads" if RUBY_ENGINE == "jruby"
+
+    store = MultiJson::OptionsCache::Store.new
+    mutex = store.instance_variable_get(:@mutex)
+    calls = stub_mutex_synchronize(mutex)
+
+    store.fetch(:missing_key, "default")
+
+    assert_equal %i[synchronize_start synchronize_end], calls
+  end
+
   def test_concurrent_fetches_do_not_raise
     store = MultiJson::OptionsCache::Store.new
 
