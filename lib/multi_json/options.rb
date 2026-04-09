@@ -59,7 +59,7 @@ module MultiJson
     # @api private
     # @return [Hash] frozen empty hash
     def default_load_options
-      Concurrency.synchronize_default_options { @default_load_options ||= EMPTY_OPTIONS }
+      Concurrency.synchronize(:default_options) { @default_load_options ||= EMPTY_OPTIONS }
     end
 
     # Get default dump options
@@ -67,7 +67,7 @@ module MultiJson
     # @api private
     # @return [Hash] frozen empty hash
     def default_dump_options
-      Concurrency.synchronize_default_options { @default_dump_options ||= EMPTY_OPTIONS }
+      Concurrency.synchronize(:default_options) { @default_dump_options ||= EMPTY_OPTIONS }
     end
 
     private

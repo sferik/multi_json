@@ -4,17 +4,9 @@ module MultiJson
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
 
   module Concurrency
-    DEPRECATION_WARNINGS: Mutex
-    ADAPTER: Mutex
-    DEFAULT_ADAPTER: Mutex
-    DEFAULT_OPTIONS: Mutex
-    DUMP_DELEGATE: Mutex
+    MUTEXES: Hash[Symbol, Mutex]
 
-    def self.synchronize_deprecation_warnings: [T] () { () -> T } -> T
-    def self.synchronize_adapter: [T] () { () -> T } -> T
-    def self.synchronize_default_adapter: [T] () { () -> T } -> T
-    def self.synchronize_default_options: [T] () { () -> T } -> T
-    def self.synchronize_dump_delegate: [T] () { () -> T } -> T
+    def self.synchronize: [T] (Symbol name) { () -> T } -> T
   end
 
 

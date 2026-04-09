@@ -70,7 +70,7 @@ module MultiJson
     # @example
     #   MultiJson.send(:warn_deprecation_once, :foo, "MultiJson.foo is deprecated")
     def warn_deprecation_once(key, message)
-      Concurrency.synchronize_deprecation_warnings do
+      Concurrency.synchronize(:deprecation_warnings) do
         return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
         Kernel.warn(message)
@@ -143,7 +143,7 @@ module MultiJson
   #   MultiJson.use(:oj)
   def use(new_adapter)
     loaded = load_adapter(new_adapter)
-    Concurrency.synchronize_adapter do
+    Concurrency.synchronize(:adapter) do
       OptionsCache.reset
       @adapter = loaded
     end

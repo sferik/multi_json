@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Collapse the five `MultiJson::Concurrency.synchronize_*` wrapper methods into a single `Concurrency.synchronize(name, &block)` keyed by symbol, with the mutex catalog in a `MUTEXES` hash. The synchronization surface is now one method instead of five and adding a new mutex is a one-line entry.
 * Walk the superclass chain manually in `Adapter.walk_default_options` instead of allocating an `ancestors` array on every call. The dump/load hot path no longer pays for an iteration over the (mostly module) ancestor list when looking up an adapter's defaults.
 * Add a `# frozen_string_literal: true` magic comment to every Ruby file in `lib/` and `test/`, and flip the `Style/FrozenStringLiteralComment` rubocop cop to `EnforcedStyle: always` so future files inherit the freeze.
 * Include the original exception's class name in `MultiJson::AdapterError.build`'s formatted message so a downstream consumer reading just the wrapped error can distinguish a `LoadError` from a validator `ArgumentError` without having to inspect `error.cause` separately.

@@ -43,7 +43,7 @@ module MultiJson
         # @api private
         # @return [Class] delegate adapter class
         def dump_delegate
-          MultiJson::Concurrency.synchronize_dump_delegate do
+          MultiJson::Concurrency.synchronize(:dump_delegate) do
             @dump_delegate ||= MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
           end
         end

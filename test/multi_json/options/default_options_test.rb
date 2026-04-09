@@ -76,7 +76,7 @@ class OptionsDefaultOptionsTest < Minitest::Test
   private
 
   def stub_default_options_synchronize
-    @options_mutex = MultiJson::Concurrency.const_get(:DEFAULT_OPTIONS)
+    @options_mutex = MultiJson::Concurrency.const_get(:MUTEXES).fetch(:default_options)
     flag = Struct.new(:value).new(false)
     @options_mutex.define_singleton_method(:synchronize) do |&block|
       flag.value = true

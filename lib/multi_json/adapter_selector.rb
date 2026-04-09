@@ -39,7 +39,7 @@ module MultiJson
     # @example
     #   AdapterSelector.default_adapter  #=> :oj
     def default_adapter
-      Concurrency.synchronize_default_adapter { @default_adapter ||= detect_best_adapter }
+      Concurrency.synchronize(:default_adapter) { @default_adapter ||= detect_best_adapter }
     end
 
     # Returns the default adapter class, excluding the given adapter name
@@ -54,7 +54,7 @@ module MultiJson
     # @example
     #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJson::Adapters::Oj
     def default_adapter_excluding(excluded)
-      Concurrency.synchronize_default_adapter do
+      Concurrency.synchronize(:default_adapter) do
         name = loaded_adapter(excluding: excluded)
         name ||= installable_adapter(excluding: excluded)
         name ||= fallback_adapter

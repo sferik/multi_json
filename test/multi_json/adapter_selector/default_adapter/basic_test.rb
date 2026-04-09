@@ -44,7 +44,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
 
   def test_default_adapter_holds_mutex_during_lazy_init
     clear_default_adapter_state
-    mutex = MultiJson::Concurrency.const_get(:DEFAULT_ADAPTER)
+    mutex = MultiJson::Concurrency.const_get(:MUTEXES).fetch(:default_adapter)
     synchronized = stub_synchronize_flag(mutex)
 
     capture_stderr { MultiJson.default_adapter }
