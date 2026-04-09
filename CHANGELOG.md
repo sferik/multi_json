@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* DRY up `lib/multi_json/deprecated.rb` with a small `deprecate_alias` / `deprecate_method` DSL so adding or removing a deprecation is a one-liner instead of a 4-line copy of the warn-then-delegate template.
 * Hoist a shared `Gson::Decoder` and `Gson::Encoder` to handle the empty-options case in the JRuby `Gson` adapter so the dominant `MultiJson.load(json)` / `MultiJson.dump(obj)` call path no longer allocates a fresh decoder/encoder per call.
 * Memoize the per-adapter `ParseError` lookup in `MultiJson.parse_error_class_for` so the constant resolution runs at most once per adapter, instead of on every `MultiJson.load` call.
 * Walk the superclass chain in `Adapter.default_load_options` / `default_dump_options` instead of copying the parent's defaults into the subclass at inheritance time, so a parent calling `defaults :load, ...` after a subclass has been defined now propagates to the subclass.

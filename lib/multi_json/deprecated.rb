@@ -7,132 +7,76 @@
 #
 # @api private
 module MultiJson
-  # Set default options for both load and dump operations
-  #
-  # @api private
-  # @deprecated Use {.load_options=} and {.dump_options=} instead
-  # @param value [Hash] options hash
-  # @return [Hash] the options hash
-  # @example
-  #   MultiJson.default_options = {symbolize_keys: true}
-  def self.default_options=(value)
-    warn_deprecation_once(:default_options=,
-      "MultiJson.default_options setter is deprecated\n" \
-      "Use MultiJson.load_options and MultiJson.dump_options instead")
-    self.load_options = self.dump_options = value
-  end
+  class << self
+    private
 
-  # Get the default options
-  #
-  # @api private
-  # @deprecated Use {.load_options} or {.dump_options} instead
-  # @return [Hash] the current load options
-  # @example
-  #   MultiJson.default_options  #=> {}
-  def self.default_options
-    warn_deprecation_once(:default_options,
-      "MultiJson.default_options is deprecated\n" \
-      "Use MultiJson.load_options or MultiJson.dump_options instead")
-    load_options
-  end
+    # Define a deprecated alias that delegates to a new method name
+    #
+    # The generated singleton method emits a one-time deprecation
+    # warning naming the replacement, then forwards all positional and
+    # keyword arguments plus any block to ``replacement``. Used for the
+    # ``decode`` / ``encode`` / ``engine*`` / ``with_engine`` /
+    # ``default_engine`` aliases that are scheduled for removal in v2.0.
+    #
+    # @api private
+    # @param name [Symbol] deprecated method name
+    # @param replacement [Symbol] current-API method to delegate to
+    # @return [Symbol] the defined method name
+    # @example
+    #   deprecate_alias :decode, :load
+    def deprecate_alias(name, replacement)
+      message = "MultiJson.#{name} is deprecated and will be removed in v2.0. Use MultiJson.#{replacement} instead."
+      define_singleton_method(name) do |*args, **kwargs, &block|
+        warn_deprecation_once(name, message)
+        public_send(replacement, *args, **kwargs, &block)
+      end
+    end
 
-  # @deprecated These methods are no longer used
-  %w[cached_options reset_cached_options!].each do |method_name|
-    define_singleton_method(method_name) do |*|
-      message = "MultiJson.#{method_name} method is deprecated and no longer used."
-      warn_deprecation_once(method_name.to_sym, message)
+    # Define a deprecated method whose body needs custom delegation
+    #
+    # Used for the ``default_options`` / ``default_options=`` pair
+    # whose body fans out to multiple replacement methods, and for the
+    # ``cached_options`` / ``reset_cached_options!`` no-op stubs that
+    # have no current-API counterpart at all. The block runs in its
+    # own lexical ``self``, which is the ``MultiJson`` module since
+    # every call site sits inside ``module MultiJson`` below.
+    #
+    # @api private
+    # @param name [Symbol] deprecated method name
+    # @param message [String] warning to emit on first call
+    # @yield body to evaluate after the warning
+    # @return [Symbol] the defined method name
+    # @example
+    #   deprecate_method(:cached_options, "...") { nil }
+    def deprecate_method(name, message, &body)
+      define_singleton_method(name) do |*args, **kwargs|
+        warn_deprecation_once(name, message)
+        body.call(*args, **kwargs)
+      end
     end
   end
 
-  # Returns the default adapter name (deprecated alias for default_adapter)
-  #
-  # @api public
-  # @deprecated Use {.default_adapter} instead. Will be removed in v2.0.
-  # @return [Symbol] the default adapter name
-  # @example
-  #   MultiJson.default_engine  #=> :oj
-  def self.default_engine
-    warn_deprecation_once(:default_engine,
-      "MultiJson.default_engine is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.default_adapter instead.")
-    default_adapter
-  end
+  deprecate_alias :decode, :load
+  deprecate_alias :encode, :dump
+  deprecate_alias :engine, :adapter
+  deprecate_alias :engine=, :adapter=
+  deprecate_alias :default_engine, :default_adapter
+  deprecate_alias :with_engine, :with_adapter
 
-  # Returns the current adapter class (deprecated alias for adapter)
-  #
-  # @api private
-  # @deprecated Use {.adapter} instead. Will be removed in v2.0.
-  # @return [Class] the current adapter class
-  # @example
-  #   MultiJson.engine  #=> MultiJson::Adapters::Oj
-  def self.engine
-    warn_deprecation_once(:engine,
-      "MultiJson.engine is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.adapter instead.")
-    adapter
-  end
+  deprecate_method(
+    :default_options=,
+    "MultiJson.default_options setter is deprecated\n" \
+    "Use MultiJson.load_options and MultiJson.dump_options instead"
+  ) { |value| self.load_options = self.dump_options = value }
 
-  # Sets the adapter to use for JSON operations (deprecated)
-  #
-  # @api private
-  # @deprecated Use {.adapter=} instead. Will be removed in v2.0.
-  # @param new_adapter [Symbol, String, Module, nil] adapter specification
-  # @return [Class] the loaded adapter class
-  # @example
-  #   MultiJson.engine = :json_gem
-  def self.engine=(new_adapter)
-    warn_deprecation_once(:engine=,
-      "MultiJson.engine= is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.adapter= instead.")
-    use(new_adapter)
-  end
+  deprecate_method(
+    :default_options,
+    "MultiJson.default_options is deprecated\n" \
+    "Use MultiJson.load_options or MultiJson.dump_options instead"
+  ) { load_options }
 
-  # Parses a JSON string into a Ruby object (deprecated alias for load)
-  #
-  # @api private
-  # @deprecated Use {.load} instead. Will be removed in v2.0.
-  # @param string [String, #read] JSON string or IO-like object
-  # @param options [Hash] parsing options (adapter-specific)
-  # @return [Object] parsed Ruby object
-  # @example
-  #   MultiJson.decode('{"foo":"bar"}')  #=> {"foo" => "bar"}
-  def self.decode(string, options = {})
-    warn_deprecation_once(:decode,
-      "MultiJson.decode is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.load instead.")
-    load(string, options)
-  end
-
-  # Serializes a Ruby object to a JSON string (deprecated alias for dump)
-  #
-  # @api private
-  # @deprecated Use {.dump} instead. Will be removed in v2.0.
-  # @param object [Object] object to serialize
-  # @param options [Hash] serialization options (adapter-specific)
-  # @return [String] JSON string
-  # @example
-  #   MultiJson.encode({foo: "bar"})  #=> '{"foo":"bar"}'
-  def self.encode(object, options = {})
-    warn_deprecation_once(:encode,
-      "MultiJson.encode is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.dump instead.")
-    dump(object, options)
-  end
-
-  # Executes a block using the specified adapter (deprecated alias for with_adapter)
-  #
-  # @api private
-  # @deprecated Use {.with_adapter} instead. Will be removed in v2.0.
-  # @param new_adapter [Symbol, String, Module] adapter to use
-  # @yield block to execute with the temporary adapter
-  # @return [Object] result of the block
-  # @example
-  #   MultiJson.with_engine(:json_gem) { MultiJson.dump({}) }
-  def self.with_engine(new_adapter, &)
-    warn_deprecation_once(:with_engine,
-      "MultiJson.with_engine is deprecated and will be removed in v2.0. " \
-      "Use MultiJson.with_adapter instead.")
-    with_adapter(new_adapter, &)
+  %i[cached_options reset_cached_options!].each do |name|
+    deprecate_method(name, "MultiJson.#{name} method is deprecated and no longer used.") { nil }
   end
 
   private

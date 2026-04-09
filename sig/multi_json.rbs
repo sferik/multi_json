@@ -56,6 +56,8 @@ module MultiJson
 
   # Singleton-only helpers (not module functions)
   private def self.warn_deprecation_once: (Symbol key, String message) -> void
+  private def self.deprecate_alias: (Symbol name, Symbol replacement) -> Symbol
+  private def self.deprecate_method: (Symbol name, String message) { (*untyped, **untyped) -> untyped } -> Symbol
   def self.parse_error_class_for: (untyped adapter_class) -> untyped
 
   # module_function methods - declared as both self. and instance methods
