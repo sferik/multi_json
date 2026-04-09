@@ -105,10 +105,12 @@ module MultiJson
       # @param ivar [Symbol] ivar name (`:@default_load_options` or `:@default_dump_options`)
       # @return [Hash] frozen options hash
       def walk_default_options(ivar)
-        ancestors.each do |klass|
-          next unless klass.is_a?(Class) && klass.instance_variable_defined?(ivar)
+        # @type var klass: Class?
+        klass = self
+        while klass
+          return klass.instance_variable_get(ivar) if klass.instance_variable_defined?(ivar)
 
-          return klass.instance_variable_get(ivar)
+          klass = klass.superclass
         end
         Options::EMPTY_OPTIONS
       end
