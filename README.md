@@ -51,6 +51,11 @@ can raise the ceiling at runtime:
 MultiJson::OptionsCache.max_cache_size = 5000
 ```
 
+Lowering the limit only takes effect for *new* inserts; existing cache
+entries are left in place until normal eviction trims them below the
+new ceiling. Call `MultiJson::OptionsCache.reset` if you want to evict
+immediately.
+
 The `use` method, which sets the MultiJSON adapter, takes either a symbol or a
 class (to allow for custom JSON parsers) that responds to both `.load` and `.dump`
 at the class level.
