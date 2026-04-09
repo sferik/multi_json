@@ -41,12 +41,21 @@ module MultiJson
 
       # DSL for setting adapter-specific default options
       #
+      # ``action`` must be ``:load`` or ``:dump``; ``value`` must be a
+      # Hash. Both arguments are validated up front so a typo at the
+      # adapter's class definition fails fast instead of producing a
+      # silent no-op default that crashes later in the merge path.
+      #
       # @api private
       # @param action [Symbol] :load or :dump
       # @param value [Hash] default options for the action
       # @return [Hash] the frozen options hash
-      # @raise [ArgumentError] when action is anything other than :load or :dump,
-      #   or when value isn't a Hash
+      # @raise [ArgumentError] when action is anything other than :load
+      #   or :dump, or when value isn't a Hash
+      # @example Set load defaults for an adapter
+      #   class MyAdapter < MultiJson::Adapter
+      #     defaults :load, symbolize_keys: false
+      #   end
       def defaults(action, value)
         raise ArgumentError, "expected action to be :load or :dump, got #{action.inspect}" unless VALID_DEFAULTS_ACTIONS.include?(action)
         raise ArgumentError, "expected value to be a Hash, got #{value.class}" unless value.is_a?(Hash)
