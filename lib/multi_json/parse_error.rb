@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MultiJson
   # Raised when JSON parsing fails
   #

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 # Tests for load method's current_adapter interaction

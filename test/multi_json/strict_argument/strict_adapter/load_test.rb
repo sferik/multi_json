@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 # These tests use a strict adapter that fails if options are missing/nil.

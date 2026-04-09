@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 # Tests that deprecation warnings honor the per-process registry: when a key

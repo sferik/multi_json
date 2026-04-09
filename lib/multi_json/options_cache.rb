@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MultiJson
   # Thread-safe bounded cache for merged options hashes
   #

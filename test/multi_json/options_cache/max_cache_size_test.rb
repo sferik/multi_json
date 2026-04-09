@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../test_helper"
 
 # Tests that the cache size limit is configurable at runtime via

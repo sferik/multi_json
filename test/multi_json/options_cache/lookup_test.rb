@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../test_helper"
 
 # Tests for cache lookup behavior
@@ -36,7 +38,7 @@ class OptionsCacheLookupTest < Minitest::Test
   def test_fetch_fast_path_returns_nil_value_correctly
     store = MultiJson::OptionsCache::Store.new
     # Block form required to store nil value in cache
-    store.fetch(:nil_val_key) { nil } # rubocop:disable Style/RedundantFetchBlock
+    store.fetch(:nil_val_key) { nil }
 
     # Fast path should return nil, not re-execute block
     block_called = false

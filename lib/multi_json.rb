@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "multi_json/concurrency"
 require_relative "multi_json/options"
 require_relative "multi_json/version"

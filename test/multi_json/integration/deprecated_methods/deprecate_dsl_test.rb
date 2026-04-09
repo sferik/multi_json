@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 # Tests the private deprecate_alias / deprecate_method helpers in

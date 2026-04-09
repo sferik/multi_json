@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "fast_jsonparser"
 require_relative "../adapter"
 require_relative "../adapter_selector"

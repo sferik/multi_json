@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "jrjackson" unless defined?(JrJackson)
 require_relative "../adapter"
 

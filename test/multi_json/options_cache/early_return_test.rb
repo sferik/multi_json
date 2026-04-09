@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../test_helper"
 
 # Tests for the no-block fetch path
@@ -29,7 +31,6 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
     assert_equal "computed", result
   end
 
-  # rubocop:disable Style/RedundantFetchBlock
   def test_fetch_stores_and_returns_block_result
     store = MultiJson::OptionsCache::Store.new
 
@@ -39,5 +40,4 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
     assert_equal 42, result
     assert_equal 42, store.fetch(:compute_key) { 999 }
   end
-  # rubocop:enable Style/RedundantFetchBlock
 end

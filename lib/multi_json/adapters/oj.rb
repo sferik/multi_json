@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "oj"
 require_relative "../adapter"
 require_relative "oj_common"

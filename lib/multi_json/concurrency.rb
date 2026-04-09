@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MultiJson
   # Catalog of process-wide mutexes used to serialize MultiJson's lazy
   # initializers and adapter swaps. Each mutex protects a distinct

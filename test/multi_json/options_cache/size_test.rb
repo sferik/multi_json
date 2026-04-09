@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../test_helper"
 
 # Tests for cache size management. Concurrent::Map is unordered so we

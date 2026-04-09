@@ -52,7 +52,18 @@ Style/Alias:
   EnforcedStyle: prefer_alias_method
 
 Style/FrozenStringLiteralComment:
-  EnforcedStyle: never
+  EnforcedStyle: always
+
+# OptionsCache::Store#fetch has block/no-block semantic asymmetry — the
+# block path stores the computed value, the no-block path returns the
+# default without writing it. The tests reach into Store#fetch with the
+# block form to populate the cache, so the rubocop cop's "redundant
+# block" rewrite is wrong for this receiver. The cop only reliably
+# fires once frozen_string_literals make every value-block hashable, so
+# disable it across the test tree rather than file-by-file.
+Style/RedundantFetchBlock:
+  Exclude:
+    - "test/**/*"
 
 Style/RescueStandardError:
   EnforcedStyle: implicit

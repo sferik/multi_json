@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "stringio"
 require_relative "options_tests"
 require_relative "adapter_dump_tests"

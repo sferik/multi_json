@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 # Tests that use instance methods (via include MultiJson)

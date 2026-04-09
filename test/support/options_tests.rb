@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module OptionsTests
   def test_dump_options_returns_default_if_not_set
     subject.dump_options = nil

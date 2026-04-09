@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MultiJson
   # Handles adapter discovery, loading, and selection
   #

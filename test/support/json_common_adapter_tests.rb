@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module JsonCommonAdapterTests
   def test_dump_with_pretty_option_passes_default_pretty_options
     MultiJson.dump_options = MultiJson.adapter.dump_options = nil

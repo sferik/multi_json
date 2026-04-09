@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Deprecated public API kept around for one major release
 #
 # Each method here emits a one-time deprecation warning on first call and

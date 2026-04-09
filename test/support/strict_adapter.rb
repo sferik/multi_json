@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Custom adapter that verifies exact argument signatures
 class StrictAdapter
   class ParseError < StandardError; end

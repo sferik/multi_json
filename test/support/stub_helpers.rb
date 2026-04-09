@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Stubbing and method replacement helpers for tests
 module StubHelpers
   module_function

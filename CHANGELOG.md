@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Add a `# frozen_string_literal: true` magic comment to every Ruby file in `lib/` and `test/`, and flip the `Style/FrozenStringLiteralComment` rubocop cop to `EnforcedStyle: always` so future files inherit the freeze.
 * Include the original exception's class name in `MultiJson::AdapterError.build`'s formatted message so a downstream consumer reading just the wrapped error can distinguish a `LoadError` from a validator `ArgumentError` without having to inspect `error.cause` separately.
 * Mark the five `MultiJson::Concurrency` mutex constants as `private_constant` and add matching `synchronize_*` wrapper methods so callers don't reach into the module's internals.
 * DRY up `lib/multi_json/deprecated.rb` with a small `deprecate_alias` / `deprecate_method` DSL so adding or removing a deprecation is a one-liner instead of a 4-line copy of the warn-then-delegate template.

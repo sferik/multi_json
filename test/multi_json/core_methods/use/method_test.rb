@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "../../../test_helper"
 
 class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength

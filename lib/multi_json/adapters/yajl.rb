@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "yajl"
 require_relative "../adapter"
 
