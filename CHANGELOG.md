@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Drop the duplicate `Adapter::EMPTY_OPTIONS` constant in favor of the `MultiJson::Options::EMPTY_OPTIONS` it was shadowing.
 * Defer the `fast_jsonparser` adapter's dump-delegate resolution until the first `dump` call instead of locking it in at file load time. The adapter no longer inherits from another adapter, so loading `multi_json/adapters/fast_jsonparser` before `oj` no longer locks the dump path to whichever adapter happened to be available at that moment.
 * Make the lazy `default_load_options` and `default_dump_options` initializers in `MultiJson::Options` thread-safe so two threads accessing an adapter's defaults for the first time can't both run the `||=` initializer.
 * Make `AdapterSelector#default_adapter`'s lazy `||=` initializer thread-safe so two threads racing past the unset `@default_adapter` ivar can't both run detection (and double-emit the fallback warning in the no-adapters-installed branch).

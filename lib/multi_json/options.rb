@@ -7,7 +7,6 @@ module MultiJson
   # @api private
   module Options
     EMPTY_OPTIONS = {}.freeze
-    private_constant :EMPTY_OPTIONS
 
     # Mutex guarding the lazy ``@default_*_options`` initializers. Two
     # threads accessing an adapter's defaults for the first time would

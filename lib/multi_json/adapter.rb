@@ -19,9 +19,8 @@ module MultiJson
 
     class << self
       BLANK_PATTERN = /\A\s*\z/
-      EMPTY_OPTIONS = {}.freeze
       VALID_DEFAULTS_ACTIONS = %i[load dump].freeze
-      private_constant :BLANK_PATTERN, :EMPTY_OPTIONS, :VALID_DEFAULTS_ACTIONS
+      private_constant :BLANK_PATTERN, :VALID_DEFAULTS_ACTIONS
 
       # Hook called when a subclass is created
       #
@@ -129,7 +128,7 @@ module MultiJson
       # @return [Hash] frozen options without :adapter key
       def strip_adapter_key(options)
         options = options.to_h unless options.is_a?(Hash)
-        return EMPTY_OPTIONS if options.empty? || (options.size == 1 && options.key?(:adapter))
+        return Options::EMPTY_OPTIONS if options.empty? || (options.size == 1 && options.key?(:adapter))
 
         options.except(:adapter).freeze
       end
