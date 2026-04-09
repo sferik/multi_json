@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Hoist a shared `Gson::Decoder` and `Gson::Encoder` to handle the empty-options case in the JRuby `Gson` adapter so the dominant `MultiJson.load(json)` / `MultiJson.dump(obj)` call path no longer allocates a fresh decoder/encoder per call.
 * Memoize the per-adapter `ParseError` lookup in `MultiJson.parse_error_class_for` so the constant resolution runs at most once per adapter, instead of on every `MultiJson.load` call.
 * Walk the superclass chain in `Adapter.default_load_options` / `default_dump_options` instead of copying the parent's defaults into the subclass at inheritance time, so a parent calling `defaults :load, ...` after a subclass has been defined now propagates to the subclass.
 * Hold `@eviction_mutex` around `ConcurrentStore#reset`'s `@cache.clear` so a JRuby fetcher in the middle of its evict-then-insert sequence cannot interleave with a concurrent reset, mirroring `MutexStore#reset`'s mutex usage.

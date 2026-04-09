@@ -248,6 +248,8 @@ module MultiJson
 
     class Gson < Adapter
       ParseError: untyped
+      DEFAULT_DECODER: untyped
+      DEFAULT_ENCODER: untyped
 
       def load: (String string, options options) -> untyped
       def dump: (json_input object, options options) -> String
