@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Raise a clear `MultiJson::AdapterError` when a custom adapter passed to `MultiJson.load` does not define a `ParseError` constant, instead of letting the bare `NameError` from the rescue clause propagate.
 * Drop the duplicate `Adapter::EMPTY_OPTIONS` constant in favor of the `MultiJson::Options::EMPTY_OPTIONS` it was shadowing.
 * Defer the `fast_jsonparser` adapter's dump-delegate resolution until the first `dump` call instead of locking it in at file load time. The adapter no longer inherits from another adapter, so loading `multi_json/adapters/fast_jsonparser` before `oj` no longer locks the dump path to whichever adapter happened to be available at that moment.
 * Make the lazy `default_load_options` and `default_dump_options` initializers in `MultiJson::Options` thread-safe so two threads accessing an adapter's defaults for the first time can't both run the `||=` initializer.

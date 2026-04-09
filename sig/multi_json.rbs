@@ -48,8 +48,9 @@ module MultiJson
     def dump: (json_input object, options options) -> String
   end
 
-  # Singleton-only helper (not a module function)
+  # Singleton-only helpers (not module functions)
   private def self.warn_deprecation_once: (Symbol key, String message) -> void
+  def self.parse_error_class_for: (untyped adapter_class) -> untyped
 
   # module_function methods - declared as both self. and instance methods
   def self.default_options=: (options_input value) -> options_input

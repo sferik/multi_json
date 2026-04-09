@@ -91,6 +91,26 @@ module MultiJson
     end
   end
 
+  # Resolve the ``ParseError`` constant for an adapter class
+  #
+  # Custom adapters that don't define their own ``ParseError`` get a
+  # clear {AdapterError} instead of the bare ``NameError`` Ruby would
+  # raise from the rescue clause. The lookup is performed with
+  # ``inherit: false`` so a stray top-level ``::ParseError`` constant
+  # in the host process is correctly ignored on every supported Ruby
+  # implementation — TruffleRuby's ``::`` operator walks the ancestor
+  # chain and would otherwise pick up the top-level constant.
+  #
+  # @api private
+  # @param adapter_class [Class] adapter class to inspect
+  # @return [Class] the adapter's ParseError class
+  # @raise [AdapterError] when the adapter doesn't define ParseError
+  def self.parse_error_class_for(adapter_class)
+    adapter_class.const_get(:ParseError, false)
+  rescue NameError
+    raise AdapterError, "Adapter #{adapter_class} must define a ParseError constant"
+  end
+
   # ===========================================================================
   # Public API (module_function: class + private instance method)
   # ===========================================================================
@@ -150,13 +170,17 @@ module MultiJson
   # @param options [Hash] parsing options (adapter-specific)
   # @return [Object] parsed Ruby object
   # @raise [ParseError] if parsing fails
+  # @raise [AdapterError] if the adapter doesn't define a ``ParseError`` constant
   # @example
   #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
   def load(string, options = {})
     adapter_class = current_adapter(options)
-    adapter_class.load(string, options)
-  rescue adapter_class::ParseError => e
-    raise ParseError.build(e, string)
+    parse_error_class = MultiJson.parse_error_class_for(adapter_class)
+    begin
+      adapter_class.load(string, options)
+    rescue parse_error_class => e
+      raise ParseError.build(e, string)
+    end
   end
 
   # Returns the adapter to use for the given options
