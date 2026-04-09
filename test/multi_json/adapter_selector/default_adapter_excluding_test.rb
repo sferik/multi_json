@@ -64,4 +64,19 @@ class DefaultAdapterExcludingTest < Minitest::Test
       assert_equal MultiJson::Adapters::JsonGem, result
     end
   end
+
+  def test_default_adapter_excluding_holds_mutex_during_detection
+    mutex = MultiJson::AdapterSelector.send(:const_get, :DEFAULT_ADAPTER_MUTEX)
+    synchronized = false
+    mutex.define_singleton_method(:synchronize) do |&block|
+      synchronized = true
+      block.call
+    end
+
+    MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+
+    assert synchronized
+  ensure
+    mutex&.singleton_class&.send(:remove_method, :synchronize)
+  end
 end

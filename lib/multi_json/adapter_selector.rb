@@ -29,10 +29,11 @@ module MultiJson
     # the require step.
     REQUIREMENT_MAP = ADAPTERS.transform_values { |meta| meta[:require] }.freeze
 
-    # Mutex guarding the lazy ``@default_adapter`` initializer. Two
-    # threads racing past the unset ivar would otherwise both run
-    # ``detect_best_adapter`` and ``fallback_adapter``'s warning could
-    # fire twice.
+    # Mutex guarding both the lazy ``@default_adapter`` initializer and
+    # the ``default_adapter_excluding`` detection chain. Without this,
+    # two threads racing through ``detect_best_adapter`` (or its
+    # excluding variant) could both run the chain and both fire
+    # ``fallback_adapter``'s one-time warning.
     DEFAULT_ADAPTER_MUTEX = Mutex.new
     private_constant :DEFAULT_ADAPTER_MUTEX
 
@@ -58,10 +59,12 @@ module MultiJson
     # @example
     #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJson::Adapters::Oj
     def default_adapter_excluding(excluded)
-      name = loaded_adapter(excluding: excluded)
-      name ||= installable_adapter(excluding: excluded)
-      name ||= fallback_adapter
-      load_adapter_by_name(name.to_s)
+      DEFAULT_ADAPTER_MUTEX.synchronize do
+        name = loaded_adapter(excluding: excluded)
+        name ||= installable_adapter(excluding: excluded)
+        name ||= fallback_adapter
+        load_adapter_by_name(name.to_s)
+      end
     end
 
     private
