@@ -117,17 +117,26 @@ module MultiJson
 
       # Checks if the input is blank (nil, empty, or whitespace-only)
       #
-      # ``String#scrub`` is only invoked when the input has invalid
-      # encoding so the common valid-UTF-8 path doesn't allocate a
-      # scrubbed copy on every call. Scrubbing replaces invalid bytes
-      # with U+FFFD before the regex runs so a string with bad bytes
-      # is still treated as non-blank without a broad rescue.
+      # The dominant call path arrives with a non-blank string starting
+      # with ``{`` or ``[`` (the JSON object/array sigils), so a
+      # ``start_with?`` short-circuit skips the regex entirely on the
+      # hot path. Falls through to the full check for everything else
+      # — strings, numbers, booleans, ``null``, whitespace-prefixed
+      # input — at which point ``String#scrub`` is only invoked when
+      # the input has invalid encoding so the common valid-UTF-8 path
+      # doesn't allocate a scrubbed copy on every call. Scrubbing
+      # replaces invalid bytes with U+FFFD before the regex runs so a
+      # string with bad bytes is still treated as non-blank without a
+      # broad rescue.
       #
       # @api private
       # @param input [String, nil] input to check
       # @return [Boolean] true if input is blank
       def blank?(input)
-        input.nil? || input.empty? || BLANK_PATTERN.match?(input.valid_encoding? ? input : input.scrub)
+        return true if input.nil? || input.empty?
+        return false if input.start_with?("{", "[")
+
+        BLANK_PATTERN.match?(input.valid_encoding? ? input : input.scrub)
       end
 
       # Merges dump options from adapter, global, and call-site

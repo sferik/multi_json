@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Short-circuit `Adapter.blank?` on inputs that start with `{` or `[` so the dominant JSON object and array load paths skip the blank-pattern regex entirely.
 * Drop the `(...)` argument forwarding in `MultiJson::Options#load_options`, `dump_options`, `resolve_options`, and `invoke_callable` in favor of explicit `*args` so the signatures document that they forward positional arguments to a callable provider and nothing else.
 * Collapse the five `MultiJson::Concurrency.synchronize_*` wrapper methods into a single `Concurrency.synchronize(name, &block)` keyed by symbol, with the mutex catalog in a `MUTEXES` hash. The synchronization surface is now one method instead of five and adding a new mutex is a one-line entry.
 * Walk the superclass chain manually in `Adapter.walk_default_options` instead of allocating an `ancestors` array on every call. The dump/load hot path no longer pays for an iteration over the (mostly module) ancestor list when looking up an adapter's defaults.
