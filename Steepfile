@@ -23,11 +23,14 @@ target :lib do
   configure_code_diagnostics(D::Ruby.strict) do |hash|
     # module_function creates private instance methods that are difficult to type
     hash[D::Ruby::NoMethod] = :hint
-    # Empty hash literals used with ||= pattern
-    hash[D::Ruby::UnannotatedEmptyCollection] = :hint
-    # set_backtrace with potentially nil backtrace
+    # set_backtrace has three overloads (String|Array[String], Array[Location], nil)
+    # and Steep can't pick one when given a `(Array[String] | nil)` union from
+    # `cause.backtrace`. The narrow workaround would change observable
+    # behavior (set_backtrace([]) vs set_backtrace(nil) leave a different
+    # backtrace on the resulting error), so the hint stays.
     hash[D::Ruby::UnresolvedOverloading] = :hint
-    # FallbackAny for yield and dynamic methods
+    # The deprecated.rb DSL forwards **kwargs of unknown shape and the
+    # fiber-local Fiber[] reader returns untyped — both intentional.
     hash[D::Ruby::FallbackAny] = :hint
   end
 end

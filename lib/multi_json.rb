@@ -197,7 +197,7 @@ module MultiJson
   # @example
   #   MultiJson.current_adapter(adapter: :oj)  #=> MultiJson::Adapters::Oj
   def current_adapter(options = {})
-    options ||= {}
+    options ||= Options::EMPTY_OPTIONS
     adapter_override = options[:adapter]
     adapter_override ? load_adapter(adapter_override) : adapter
   end

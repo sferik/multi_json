@@ -8,7 +8,12 @@ module MultiJson
   #
   # @api private
   module Options
-    EMPTY_OPTIONS = {}.freeze
+    # Steep needs an inline `#:` annotation here because `{}.freeze`
+    # would be inferred as `Hash[untyped, untyped]` and trip
+    # `UnannotatedEmptyCollection`. The annotation requires
+    # `Hash.new.freeze` (not the `{}.freeze` rubocop would prefer)
+    # because the `#:` cast only applies to method-call results.
+    EMPTY_OPTIONS = Hash.new.freeze #: options # rubocop:disable Style/EmptyLiteral
 
     # Set options for load operations
     #

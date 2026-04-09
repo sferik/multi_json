@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## 1.20.0
+* Drop the `UnannotatedEmptyCollection` Steep diagnostic override by inline-annotating `Options::EMPTY_OPTIONS` with `#: options` and routing `MultiJson.current_adapter`'s `||=` fallback through that constant. Also enable rubocop's `Layout/LeadingCommentSpace` `AllowSteepAnnotation` / `AllowRBSInlineAnnotation` so future inline `#:` casts don't need a per-line disable.
 * Hoist the `block_given?` check in `MutexStore#fetch` outside `@mutex.synchronize` so the no-block read path runs the check once per call instead of inside the critical section.
 * Short-circuit `Adapter.blank?` on inputs that start with `{` or `[` so the dominant JSON object and array load paths skip the blank-pattern regex entirely.
 * Drop the `(...)` argument forwarding in `MultiJson::Options#load_options`, `dump_options`, `resolve_options`, and `invoke_callable` in favor of explicit `*args` so the signatures document that they forward positional arguments to a callable provider and nothing else.

@@ -48,6 +48,10 @@ Layout/SpaceInsideHashLiteralBraces:
 Metrics/ParameterLists:
   CountKeywordArgs: false
 
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
+  AllowSteepAnnotation: true
+
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 
