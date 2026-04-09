@@ -23,8 +23,6 @@ target :lib do
     hash[D::Ruby::NoMethod] = :hint
     # Empty hash literals used with ||= pattern
     hash[D::Ruby::UnannotatedEmptyCollection] = :hint
-    # Dynamic constant access (adapter::ParseError)
-    hash[D::Ruby::UnknownConstant] = :hint
     # set_backtrace with potentially nil backtrace
     hash[D::Ruby::UnresolvedOverloading] = :hint
     # FallbackAny for yield and dynamic methods

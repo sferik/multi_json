@@ -154,6 +154,7 @@ module MultiJson
 
   module OptionsCache
     DEFAULT_MAX_CACHE_SIZE: Integer
+    BACKENDS: Hash[String, String]
 
     def self.dump: () -> Store
     def self.load: () -> Store
@@ -180,6 +181,7 @@ module MultiJson
 
     ADAPTERS: Hash[Symbol, Hash[Symbol, String]]
     REQUIREMENT_MAP: Hash[Symbol, String]
+    DEFAULT_ADAPTER_MUTEX: Mutex
 
     def default_adapter: () -> Symbol
     def default_adapter_excluding: (Symbol excluded) -> (_Adapter | Module)
