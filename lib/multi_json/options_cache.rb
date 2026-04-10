@@ -41,7 +41,19 @@ module MultiJson
       # @example
       #   MultiJson::OptionsCache.max_cache_size = 5000
       #   MultiJson::OptionsCache.max_cache_size  #=> 5000
-      attr_accessor :max_cache_size
+      attr_reader :max_cache_size
+
+      # Set the maximum number of entries per cache store
+      #
+      # @api public
+      # @param value [Integer] positive entry cap
+      # @return [Integer] the validated value
+      # @raise [ArgumentError] when value is not a positive Integer
+      def max_cache_size=(value)
+        raise ArgumentError, "max_cache_size must be a positive Integer, got #{value.inspect}" unless Integer === value && value.positive? # rubocop:disable Style/CaseEquality
+
+        @max_cache_size = value
+      end
 
       # Reset both caches
       #

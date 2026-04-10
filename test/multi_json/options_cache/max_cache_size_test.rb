@@ -36,6 +36,34 @@ class OptionsCacheMaxCacheSizeTest < Minitest::Test
     assert_equal 42, (MultiJson::OptionsCache.max_cache_size = 42)
   end
 
+  def test_setting_max_cache_size_rejects_nil
+    error = assert_raises(ArgumentError) { MultiJson::OptionsCache.max_cache_size = nil }
+
+    assert_match(/positive Integer/, error.message)
+    assert_includes error.message, "nil"
+  end
+
+  def test_setting_max_cache_size_rejects_zero
+    error = assert_raises(ArgumentError) { MultiJson::OptionsCache.max_cache_size = 0 }
+
+    assert_match(/positive Integer/, error.message)
+    assert_includes error.message, "0"
+  end
+
+  def test_setting_max_cache_size_rejects_negative_integer
+    error = assert_raises(ArgumentError) { MultiJson::OptionsCache.max_cache_size = -1 }
+
+    assert_match(/positive Integer/, error.message)
+    assert_includes error.message, "-1"
+  end
+
+  def test_setting_max_cache_size_rejects_non_integer
+    error = assert_raises(ArgumentError) { MultiJson::OptionsCache.max_cache_size = "10" }
+
+    assert_match(/positive Integer/, error.message)
+    assert_includes error.message, '"10"'
+  end
+
   def test_raising_max_cache_size_allows_more_entries
     MultiJson::OptionsCache.max_cache_size = 3
     store = MultiJson::OptionsCache::Store.new

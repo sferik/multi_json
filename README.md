@@ -55,6 +55,9 @@ can raise the ceiling at runtime:
 MultiJson::OptionsCache.max_cache_size = 5000
 ```
 
+`max_cache_size` must be a positive integer; `0`, negative values, and
+non-integers raise `ArgumentError`.
+
 Lowering the limit only takes effect for *new* inserts; existing cache
 entries are left in place until normal eviction trims them below the
 new ceiling. Call `MultiJson::OptionsCache.reset` if you want to evict
