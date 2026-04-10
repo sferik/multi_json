@@ -68,6 +68,7 @@ class DumpArgumentPassingTest < Minitest::Test
   def test_dump_returns_adapter_result
     adapter = Module.new do
       class << self
+        def load(*, **) = {}
         def dump(*, **) = "custom_result"
       end
     end
@@ -100,6 +101,10 @@ class DumpArgumentPassingTest < Minitest::Test
         @dump_called = true
         @received_options = options
         JSON.generate(object)
+      end
+
+      def load(string, _options = {})
+        JSON.parse(string)
       end
     end
 

@@ -19,14 +19,14 @@ class LoadAdapterTest < Minitest::Test
   end
 
   def test_load_adapter_with_class
-    custom_adapter = Class.new
+    custom_adapter = valid_custom_class
     result = MultiJson.send(:load_adapter, custom_adapter)
 
     assert_equal custom_adapter, result
   end
 
   def test_load_adapter_with_module
-    custom_adapter = Module.new
+    custom_adapter = valid_custom_module
     result = MultiJson.send(:load_adapter, custom_adapter)
 
     assert_equal custom_adapter, result
@@ -82,5 +82,23 @@ class LoadAdapterTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+  end
+
+  def valid_custom_class
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def valid_custom_module
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

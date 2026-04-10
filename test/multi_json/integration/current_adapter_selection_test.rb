@@ -48,14 +48,14 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
   end
 
   def test_settable_via_class
-    adapter = Class.new
+    adapter = valid_custom_class
     MultiJson.use adapter
 
     assert_equal adapter, MultiJson.adapter
   end
 
   def test_settable_via_module
-    adapter = Module.new
+    adapter = valid_custom_module
     MultiJson.use adapter
 
     assert_equal adapter, MultiJson.adapter
@@ -67,5 +67,25 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
 
   def test_throws_adapter_error_on_invalid_type
     assert_raises(MultiJson::AdapterError) { MultiJson.use 12_345 }
+  end
+
+  private
+
+  def valid_custom_class
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def valid_custom_module
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

@@ -203,6 +203,7 @@ module MultiJson
     def warn_about_fallback: () -> void
     def load_adapter: (adapter_spec new_adapter) -> (_Adapter | Module)
     def load_adapter_by_name: (String name) -> _Adapter
+    def validate_adapter!: ((_Adapter | Module) adapter) -> (_Adapter | Module)
   end
 
   class Adapter

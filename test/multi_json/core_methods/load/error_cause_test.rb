@@ -38,6 +38,22 @@ class LoadErrorCauseTest < Minitest::Test
     assert_includes error.message, custom.to_s
   end
 
+  def test_load_raises_adapter_error_when_adapter_lacks_load
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.load('{"a":1}', adapter: adapter_without_load)
+    end
+
+    assert_match(/must respond to \.load/, error.message)
+  end
+
+  def test_load_raises_adapter_error_when_adapter_lacks_dump_before_parsing
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.load('{"a":1}', adapter: adapter_without_dump)
+    end
+
+    assert_match(/must respond to \.dump/, error.message)
+  end
+
   def test_load_ignores_top_level_parse_error_inherited_from_object
     Object.const_set(:ParseError, Class.new(StandardError))
     custom = adapter_without_parse_error
@@ -115,6 +131,20 @@ class LoadErrorCauseTest < Minitest::Test
       const_set(:ParseError, Class.new(StandardError))
       def self.load(_string, _options) = nil
       def self.dump(_object, _options) = nil
+    end
+  end
+
+  def adapter_without_load
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+      def self.dump(_object, _options) = nil
+    end
+  end
+
+  def adapter_without_dump
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+      def self.load(_string, _options) = nil
     end
   end
 end

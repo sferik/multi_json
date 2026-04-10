@@ -46,6 +46,22 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     assert_equal "value", MultiJson::OptionsCache.dump.fetch(:test, nil)
   end
 
+  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_load
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.use(adapter_without_load)
+    end
+
+    assert_match(/must respond to \.load/, error.message)
+  end
+
+  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_dump
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.use(adapter_without_dump)
+    end
+
+    assert_match(/must respond to \.dump/, error.message)
+  end
+
   def test_use_calls_load_adapter_with_argument
     MultiJson.use :json_gem
 
@@ -171,5 +187,21 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     reset_called
   ensure
     silence_warnings { MultiJson::OptionsCache.define_singleton_method(:reset, original) }
+  end
+
+  def adapter_without_load
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def adapter_without_dump
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+    end
   end
 end

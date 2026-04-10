@@ -92,7 +92,7 @@ class ModuleTypeCheckingTest < Minitest::Test
   end
 
   def test_load_adapter_handles_class_via_is_a_module
-    custom_class = Class.new
+    custom_class = valid_custom_class
 
     result = @instance.send(:load_adapter, custom_class)
 
@@ -106,7 +106,7 @@ class ModuleTypeCheckingTest < Minitest::Test
     end
     MultiJson::AdapterSelector.const_set(:Module, fake_module)
 
-    custom_module = ::Module.new
+    custom_module = valid_custom_module
     result = @instance.send(:load_adapter, custom_module)
 
     assert_equal custom_module, result
@@ -115,7 +115,7 @@ class ModuleTypeCheckingTest < Minitest::Test
   end
 
   def test_load_adapter_handles_module_instance
-    custom_module = ::Module.new
+    custom_module = valid_custom_module
 
     result = @instance.send(:load_adapter, custom_module)
 
@@ -148,5 +148,25 @@ class ModuleTypeCheckingTest < Minitest::Test
     assert_equal MultiJson::Adapters::JsonGem, result
   ensure
     MultiJson::AdapterSelector.send(:remove_const, :Symbol) if MultiJson::AdapterSelector.const_defined?(:Symbol, false)
+  end
+
+  private
+
+  def valid_custom_class
+    ::Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def valid_custom_module
+    ::Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

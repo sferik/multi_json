@@ -25,7 +25,7 @@ class LoadAdapterCasePatternTest < Minitest::Test
   end
 
   def test_load_adapter_handles_class_objects
-    custom_class = Class.new
+    custom_class = valid_custom_class
 
     result = MultiJson.send(:load_adapter, custom_class)
 
@@ -33,7 +33,7 @@ class LoadAdapterCasePatternTest < Minitest::Test
   end
 
   def test_load_adapter_handles_module_objects
-    custom_module = Module.new
+    custom_module = valid_custom_module
 
     result = MultiJson.send(:load_adapter, custom_module)
 
@@ -41,7 +41,7 @@ class LoadAdapterCasePatternTest < Minitest::Test
   end
 
   def test_load_adapter_class_returns_class_not_nil
-    custom_class = Class.new
+    custom_class = valid_custom_class
 
     result = MultiJson.send(:load_adapter, custom_class)
 
@@ -50,7 +50,7 @@ class LoadAdapterCasePatternTest < Minitest::Test
   end
 
   def test_load_adapter_class_pattern_matches_class
-    adapter_class = Class.new
+    adapter_class = valid_custom_class
 
     result = MultiJson.send(:load_adapter, adapter_class)
 
@@ -61,5 +61,23 @@ class LoadAdapterCasePatternTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+  end
+
+  def valid_custom_class
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def valid_custom_module
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

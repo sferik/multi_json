@@ -142,13 +142,14 @@ module MultiJson
     # @param adapter_spec [Symbol, String, Module, nil, false] adapter specification
     # @return [Class] the adapter class
     def load_adapter(adapter_spec)
-      case adapter_spec
+      adapter = case adapter_spec
       when ::String then load_adapter_by_name(adapter_spec)
       when ::Symbol then load_adapter_by_name(adapter_spec.to_s)
       when nil, false then load_adapter(default_adapter)
       when ::Module then adapter_spec
       else raise ::LoadError, "expected adapter to be a Symbol, String, or Module, got #{adapter_spec.inspect}"
       end
+      validate_adapter!(adapter)
     rescue ::LoadError => e
       raise AdapterError.build(e)
     end
@@ -169,6 +170,29 @@ module MultiJson
 
       class_name = normalized.split("_").map(&:capitalize).join
       ::MultiJson::Adapters.const_get(class_name)
+    end
+
+    # Validate that an adapter satisfies the documented contract
+    #
+    # Custom adapters are accepted as modules/classes, so fail fast
+    # during adapter resolution rather than later on the first load or
+    # dump call.
+    #
+    # @api private
+    # @param adapter [Module] adapter class or module
+    # @return [Module] the validated adapter
+    # @raise [AdapterError] when the adapter is missing a required class method
+    #   or ParseError constant
+    def validate_adapter!(adapter)
+      unless adapter.respond_to?(:load)
+        raise AdapterError, "Adapter #{adapter} must respond to .load"
+      end
+      unless adapter.respond_to?(:dump)
+        raise AdapterError, "Adapter #{adapter} must respond to .dump"
+      end
+
+      MultiJson.parse_error_class_for(adapter)
+      adapter
     end
   end
 end

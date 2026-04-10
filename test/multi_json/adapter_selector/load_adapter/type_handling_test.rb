@@ -38,17 +38,45 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
   end
 
   def test_load_adapter_with_class_returns_class
-    custom = Class.new
+    custom = valid_custom_adapter
     result = MultiJson.send(:load_adapter, custom)
 
     assert_equal custom, result
   end
 
   def test_load_adapter_with_module_returns_module
-    custom = Module.new
+    custom = valid_custom_adapter
     result = MultiJson.send(:load_adapter, custom)
 
     assert_equal custom, result
+  end
+
+  def test_load_adapter_raises_for_custom_adapter_without_load
+    custom = adapter_without_load
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.send(:load_adapter, custom)
+    end
+
+    assert_match(/must respond to \.load/, error.message)
+    assert_includes error.message, custom.to_s
+  end
+
+  def test_load_adapter_raises_for_custom_adapter_without_dump
+    custom = adapter_without_dump
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.send(:load_adapter, custom)
+    end
+
+    assert_match(/must respond to \.dump/, error.message)
+    assert_includes error.message, custom.to_s
+  end
+
+  def test_load_adapter_raises_for_custom_adapter_without_parse_error
+    error = assert_raises(MultiJson::AdapterError) do
+      MultiJson.send(:load_adapter, adapter_without_parse_error)
+    end
+
+    assert_match(/ParseError constant/, error.message)
   end
 
   def test_load_adapter_raises_for_other_types
@@ -69,5 +97,37 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+  end
+
+  def valid_custom_adapter
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def adapter_without_load
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def adapter_without_dump
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+    end
+  end
+
+  def adapter_without_parse_error
+    Module.new do
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

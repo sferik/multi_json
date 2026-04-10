@@ -22,11 +22,11 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_handles_class
-    assert_equal (c = Class.new), @instance.send(:load_adapter, c)
+    assert_equal (c = valid_custom_class), @instance.send(:load_adapter, c)
   end
 
   def test_instance_load_adapter_handles_module
-    assert_equal (m = Module.new), @instance.send(:load_adapter, m)
+    assert_equal (m = valid_custom_module), @instance.send(:load_adapter, m)
   end
 
   def test_instance_load_adapter_raises_with_adapter_in_message
@@ -114,5 +114,25 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
     error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, :nonexistent_adapter) }
 
     assert_includes error.message, "Did not recognize", "Error message should come from build()"
+  end
+
+  private
+
+  def valid_custom_class
+    Class.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
+  end
+
+  def valid_custom_module
+    Module.new do
+      const_set(:ParseError, Class.new(StandardError))
+
+      def self.load(_string, _options) = nil
+      def self.dump(_object, _options) = "{}"
+    end
   end
 end

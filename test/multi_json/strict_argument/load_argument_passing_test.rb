@@ -66,6 +66,7 @@ class LoadArgumentPassingTest < Minitest::Test
     adapter = Module.new do
       class << self
         def load(*, **) = {"custom" => "result"}
+        def dump(*, **) = "{}"
       end
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
@@ -114,6 +115,10 @@ class LoadArgumentPassingTest < Minitest::Test
         @load_called = true
         @received_options = options
         JSON.parse(string)
+      end
+
+      def dump(object, _options = {})
+        JSON.generate(object)
       end
     end
 
