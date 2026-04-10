@@ -20,6 +20,7 @@ jobs:
       id-token: write
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - ruby: ruby
@@ -40,6 +41,17 @@ jobs:
         run: gem build multi_json.gemspec
         env:
           MULTI_JSON_PLATFORM: ${{ matrix.platform }}
+      # Sigstore signing always runs under CRuby. JRuby 10.0.5+'s
+      # jruby-openssl 0.15.7 added tbs_bytes, which triggers a code
+      # path in sigstore-ruby 0.2.3 that fails because JRuby's
+      # OpenSSL returns the SCT extension OID as its dotted form
+      # instead of the short name sigstore-ruby expects.
+      # See: https://github.com/sigstore/sigstore-ruby/issues/XXX
+      - name: Set up CRuby for signing
+        if: matrix.ruby != 'ruby'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ruby
       - name: Sign gem with Sigstore
         run: |
           for gem in multi_json-*.gem; do
@@ -48,7 +60,10 @@ jobs:
       - name: Push gem
         run: |
           for gem in multi_json-*.gem; do
-            gem push "$gem" --attestation "${gem%.gem}.gem.sigstore.json"
+            gem push "$gem" --attestation "${gem%.gem}.gem.sigstore.json" || {
+              echo "gem push failed — checking if already published"
+              gem exec rubygems-await "$gem" && echo "Already published, continuing" || exit 1
+            }
           done
       - name: Wait for release
         run: gem exec rubygems-await multi_json-*.gem
@@ -58,6 +73,7 @@ jobs:
         if: matrix.ruby == 'ruby'
         run: |
           tag_name="$(git describe --tags --abbrev=0)"
-          gh release create "${tag_name}" --verify-tag --generate-notes
+          gh release view "${tag_name}" >/dev/null 2>&1 || \
+            gh release create "${tag_name}" --verify-tag --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
