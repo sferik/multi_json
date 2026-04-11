@@ -184,12 +184,8 @@ module MultiJson
     # @raise [AdapterError] when the adapter is missing a required class method
     #   or ParseError constant
     def validate_adapter!(adapter)
-      unless adapter.respond_to?(:load)
-        raise AdapterError, "Adapter #{adapter} must respond to .load"
-      end
-      unless adapter.respond_to?(:dump)
-        raise AdapterError, "Adapter #{adapter} must respond to .dump"
-      end
+      raise AdapterError, "Adapter #{adapter} must respond to .load" unless adapter.respond_to?(:load)
+      raise AdapterError, "Adapter #{adapter} must respond to .dump" unless adapter.respond_to?(:dump)
 
       MultiJson.parse_error_class_for(adapter)
       adapter

@@ -63,13 +63,7 @@ class LoadArgumentPassingTest < Minitest::Test
   end
 
   def test_load_returns_adapter_result
-    adapter = Module.new do
-      class << self
-        def load(*, **) = {"custom" => "result"}
-        def dump(*, **) = "{}"
-      end
-    end
-    adapter.const_set(:ParseError, Class.new(StandardError))
+    adapter = build_custom_adapter(load_result: {"custom" => "result"})
     MultiJson.use adapter
 
     assert_equal({"custom" => "result"}, MultiJson.load("{}"))
@@ -95,6 +89,17 @@ class LoadArgumentPassingTest < Minitest::Test
   end
 
   private
+
+  def build_custom_adapter(load_result: {})
+    result = load_result
+    adapter = Module.new do
+      define_method(:load) { |*, **| result }
+      define_method(:dump) { |*, **| "{}" }
+      module_function :load, :dump
+    end
+    adapter.const_set(:ParseError, Class.new(StandardError))
+    adapter
+  end
 
   def create_tracking_adapter
     adapter = TrackingLoadAdapter.dup

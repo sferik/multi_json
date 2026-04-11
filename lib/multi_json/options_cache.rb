@@ -49,6 +49,8 @@ module MultiJson
       # @param value [Integer] positive entry cap
       # @return [Integer] the validated value
       # @raise [ArgumentError] when value is not a positive Integer
+      # @example
+      #   MultiJson::OptionsCache.max_cache_size = 5000
       def max_cache_size=(value)
         raise ArgumentError, "max_cache_size must be a positive Integer, got #{value.inspect}" unless Integer === value && value.positive? # rubocop:disable Style/CaseEquality
 

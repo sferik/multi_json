@@ -59,6 +59,16 @@ class JsonGemAdapterTest < Minitest::Test
     end
   end
 
+  def test_load_handles_ascii_8bit_tagged_utf8
+    # Ruby HTTP clients return response bodies tagged as ASCII-8BIT
+    # even when the bytes are valid UTF-8 (GH-64)
+    json = (+"{\"name\":\"Fran\xC3\xA7ois\"}").force_encoding(Encoding::ASCII_8BIT)
+
+    result = MultiJson::Adapters::JsonGem.load(json)
+
+    assert_equal({"name" => "François"}, result)
+  end
+
   def test_load_does_not_mutate_cached_options
     MultiJson.use :json_gem
     MultiJson.load_options = nil
