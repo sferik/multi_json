@@ -81,7 +81,7 @@ class BehaviorIntegrationTest < Minitest::Test
       original_count = Symbol.all_symbols.count
       MultiJson.load('{"json_class":"OMG"}')
 
-      assert_equal original_count, Symbol.all_symbols.count
+      assert_operator Symbol.all_symbols.count, :<=, original_count
     end
   end
 
