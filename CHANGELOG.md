@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.20.1
+* Fix `JsonGem#load` raising `ParseError` on ASCII-8BIT strings that contain valid UTF-8 bytes ([#64](https://github.com/sferik/multi_json/issues/64)). Ruby HTTP clients tag response bodies as ASCII-8BIT by default; the 1.20.0 change from `force_encoding` to `encode` broke the dominant real-world case by trying to transcode each byte individually. Switch back to `force_encoding` followed by a `valid_encoding?` guard so genuinely invalid byte sequences still surface as `ParseError`.
+* Validate custom adapters during `MultiJson.use` and `MultiJson.load`/`dump` with an `:adapter` option, raising `MultiJson::AdapterError` immediately if the adapter does not respond to `.load`, `.dump`, or define a `ParseError` constant.
+* Validate `OptionsCache.max_cache_size=` to reject `nil`, zero, negative, and non-integer values with a clear `ArgumentError`.
 
 ## 1.20.0
 * Drop the `UnannotatedEmptyCollection` Steep diagnostic override by inline-annotating `Options::EMPTY_OPTIONS` with `#: options` and routing `MultiJson.current_adapter`'s `||=` fallback through that constant. Also enable rubocop's `Layout/LeadingCommentSpace` `AllowSteepAnnotation` / `AllowRBSInlineAnnotation` so future inline `#:` casts don't need a per-line disable.

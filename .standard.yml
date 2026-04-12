@@ -1,6 +1,7 @@
 ruby_version: 3.2
 ignore:
   - ".git/**/*"
+  - "benchmark.rb"
   - "lib/multi_json/vendor/**/*.rb"
   - "tmp/**/*"
   - "vendor/**/*"
