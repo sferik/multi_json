@@ -32,8 +32,7 @@ Gem::Specification.new do |spec|
   mri_only_files = %w[
     lib/multi_json/options_cache/mutex_store.rb
   ]
-
-  files = Dir["*.md", "lib/**/*"]
+  files = %w[LICENSE.md README.md] + Dir["lib/**/*"]
   files -= (ENV["MULTI_JSON_PLATFORM"] == "java") ? mri_only_files : jruby_only_files
   spec.files = files
 
