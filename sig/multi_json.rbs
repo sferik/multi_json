@@ -1,14 +1,5 @@
-# Backward-compatible alias for MultiJSON — to be removed in v2.0.
-module MultiJson
-  def self.method_missing: (Symbol name, *untyped args, **untyped kwargs) ?{ (*untyped) -> untyped } -> untyped
-  def self.respond_to_missing?: ((Symbol | String) name, bool include_private) -> bool
-  def self.const_missing: (Symbol name) -> untyped
-end
-
 module MultiJSON
   VERSION: String
-
-  DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
 
   module Concurrency
     MUTEXES: Hash[Symbol, Mutex]
@@ -21,10 +12,10 @@ module MultiJSON
   extend Options
   extend AdapterSelector
 
-  # JSON value type - what load() returns
+  # JSON value type - what parse() returns
   type json = nil | bool | Integer | Float | String | Array[json] | Hash[String, json]
 
-  # JSON-serializable input type - what dump() accepts
+  # JSON-serializable input type - what generate() accepts
   type json_input = nil | bool | Integer | Float | String | Symbol | Array[json_input] | Hash[json_key, json_input] | _ToJson
 
   # Valid hash key types for JSON input
@@ -42,7 +33,7 @@ module MultiJSON
   # Options input - can be hash or callable
   type options_input = options | options_proc
 
-  # String or IO-like object for load input
+  # String or IO-like object for parse input
   type string_input = String | _Readable
 
   interface _Readable
@@ -59,48 +50,24 @@ module MultiJSON
     def dump: (json_input object, options options) -> String
   end
 
-  # Singleton-only helpers (not module functions)
-  def self.warn_deprecation_once: (Symbol key, String message) -> void
-  private def self.deprecate_alias: (Symbol name, Symbol replacement) -> Symbol
-  private def self.deprecate_method: (Symbol name, String message) { (*untyped, **untyped) -> untyped } -> Symbol
   def self.parse_error_class_for: (untyped adapter_class) -> untyped
 
   # module_function methods - declared as both self. and instance methods
-  def self.default_options=: (options_input value) -> options_input
-  def self.default_options: () -> options
-  def self.cached_options: (*top) -> void
-  def self.reset_cached_options!: (*top) -> void
-  def self.default_engine: () -> Symbol
   def self.adapter: () -> _Adapter
-  def self.engine: () -> _Adapter
   def self.use: (adapter_spec new_adapter) -> _Adapter
   def self.adapter=: (adapter_spec new_adapter) -> _Adapter
-  def self.engine=: (adapter_spec new_adapter) -> _Adapter
   def self.parse: (string_input string, ?options options) -> json
-  def self.load: (string_input string, ?options options) -> json
-  def self.decode: (string_input string, ?options options) -> json
   def self.current_adapter: (?options? options) -> _Adapter
   def self.generate: (json_input object, ?options options) -> String
-  def self.dump: (json_input object, ?options options) -> String
-  def self.encode: (json_input object, ?options options) -> String
   def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
-  def self.with_engine: [T] (adapter_spec new_adapter) { () -> T } -> T
 
   # Instance method declarations for module_function and explicit delegates
-  def default_options=: (options_input value) -> options_input
-  def default_options: () -> options
   def adapter: () -> _Adapter
-  def engine: () -> _Adapter
   def use: (adapter_spec new_adapter) -> _Adapter
   def adapter=: (adapter_spec new_adapter) -> _Adapter
-  def engine=: (adapter_spec new_adapter) -> _Adapter
   def parse: (string_input string, ?options options) -> json
-  def load: (string_input string, ?options options) -> json
-  def decode: (string_input string, ?options options) -> json
   def current_adapter: (?options? options) -> _Adapter
   def generate: (json_input object, ?options options) -> String
-  def dump: (json_input object, ?options options) -> String
-  def encode: (json_input object, ?options options) -> String
   def with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
 
   # Module-level instance variable for adapter caching
@@ -143,10 +110,6 @@ module MultiJSON
 
     def location_match: (String? message) -> MatchData?
   end
-
-  DecodeError: singleton(ParseError)
-  LoadError: singleton(ParseError)
-
   module Options
     EMPTY_OPTIONS: options
 
@@ -156,13 +119,6 @@ module MultiJSON
     def generate_options: (*options) -> options
     def default_parse_options: () -> options
     def default_generate_options: () -> options
-
-    def load_options=: (options_input value) -> options_input
-    def dump_options=: (options_input value) -> options_input
-    def load_options: (*options) -> options
-    def dump_options: (*options) -> options
-    def default_load_options: () -> options
-    def default_dump_options: () -> options
 
     @parse_options: options_input?
     @generate_options: options_input?
@@ -230,8 +186,6 @@ module MultiJSON
 
     def self.default_parse_options: () -> options
     def self.default_generate_options: () -> options
-    def self.default_load_options: () -> options
-    def self.default_dump_options: () -> options
     def self.defaults: (:load | :dump action, options value) -> void
     def self.load: (string_input string, ?options options) -> json
     def self.dump: (json_input object, ?options options) -> String
@@ -246,7 +200,6 @@ module MultiJSON
     def self.blank?: (String? input) -> bool
     def self.merged_dump_options: (options options) -> options?
     def self.merged_load_options: (options options) -> options?
-    def self.normalize_symbolize_option: (options options) -> options
     def self.strip_adapter_key: (options options) -> options
 
     BLANK_PATTERN: Regexp

@@ -167,10 +167,10 @@ module MultiJSON
       when ::Symbol then load_adapter_by_name(adapter_spec.to_s)
       when nil, false then load_adapter(default_adapter)
       when ::Module then adapter_spec
-      else raise ::LoadError, "expected adapter to be a Symbol, String, or Module, got #{adapter_spec.inspect}"
+      else raise LoadError, "expected adapter to be a Symbol, String, or Module, got #{adapter_spec.inspect}"
       end
       validate_adapter!(adapter)
-    rescue ::LoadError => e
+    rescue LoadError => e
       raise AdapterError.build(e)
     end
 

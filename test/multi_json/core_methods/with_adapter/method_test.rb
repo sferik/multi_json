@@ -44,17 +44,6 @@ class WithAdapterMethodTest < Minitest::Test
     assert_equal "block result", result
   end
 
-  def test_with_engine_is_alias_for_with_adapter
-    MultiJSON.use :json_gem
-    inner_adapter = nil
-
-    MultiJSON.with_engine(:json_gem) do
-      inner_adapter = MultiJSON.adapter
-    end
-
-    assert_equal MultiJSON::Adapters::JsonGem, inner_adapter
-  end
-
   def test_with_adapter_captures_adapter_before_block
     MultiJSON.use :json_gem
     original = MultiJSON.adapter

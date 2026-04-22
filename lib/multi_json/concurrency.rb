@@ -15,9 +15,6 @@ module MultiJSON
     # instance. The names are documented inline so callers can find
     # what each mutex protects without leaving this file.
     MUTEXES = {
-      # Guards the {DEPRECATION_WARNINGS_SHOWN} set in `MultiJSON` so the
-      # check-then-add pair in `warn_deprecation_once` doesn't race.
-      deprecation_warnings: Mutex.new,
       # Guards the process-wide `@adapter` swap in `MultiJSON.use` so two
       # threads can't interleave their `OptionsCache.reset` and adapter
       # assignment.

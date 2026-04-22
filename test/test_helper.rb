@@ -26,42 +26,21 @@ unless ENV["MUTANT"]
   end
 end
 
-require "delegate"
 require "multi_json"
 require "minitest/autorun"
 require "mutant/minitest/coverage"
 require_relative "support/strict_adapter"
 require_relative "support/stub_helpers"
 
-# Drop-in `$stderr` wrapper that filters the library's own deprecation
-# warnings out of test output so the Minitest progress stream stays
-# clean. Individual deprecation-warning tests keep working — they
-# override `Kernel.warn` directly (via {StubHelpers#with_stub} or
-# `define_singleton_method`) rather than reading from `$stderr`.
-class FilteredStderr < SimpleDelegator
-  DEPRECATION_PATTERN = /\A(MultiJSON|The MultiJson constant|The :symbolize_keys).*\bdeprecated\b/
-
-  def write(*messages)
-    filtered = messages.reject { |msg| msg.is_a?(String) && DEPRECATION_PATTERN.match?(msg) }
-    __getobj__.write(*filtered) unless filtered.empty?
-  end
-
-  def puts(*messages)
-    filtered = messages.reject { |msg| DEPRECATION_PATTERN.match?(msg.to_s) }
-    __getobj__.puts(*filtered) unless filtered.empty?
-  end
-end
-$stderr = FilteredStderr.new($stderr) unless $stderr.is_a?(FilteredStderr)
-
 # Most test files declare ``cover "MultiJSON*"`` because the public API
-# methods (load, dump, use, with_adapter, etc.) cross subject boundaries
-# at runtime — a single MultiJSON.load call exercises MultiJSON.load,
-# MultiJSON.current_adapter, MultiJSON::Adapter.load, and the underlying
-# adapter's instance #load. Narrower covers risk skipping tests that
-# would have killed mutations in the called subjects. Adapter-specific
-# tests under test/multi_json/adapters/ use a tighter
-# ``cover "MultiJSON::Adapters::<Name>*"`` because they have an
-# unambiguous single-subject focus.
+# methods (parse, generate, use, with_adapter, etc.) cross subject
+# boundaries at runtime — a single MultiJSON.parse call exercises
+# MultiJSON.parse, MultiJSON.current_adapter, MultiJSON::Adapter.load,
+# and the underlying adapter's instance #load. Narrower covers risk
+# skipping tests that would have killed mutations in the called
+# subjects. Adapter-specific tests under test/multi_json/adapters/ use
+# a tighter ``cover "MultiJSON::Adapters::<Name>*"`` because they have
+# an unambiguous single-subject focus.
 
 module TestHelpers
   include StubHelpers

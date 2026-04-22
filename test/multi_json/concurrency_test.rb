@@ -4,16 +4,15 @@ require_relative "../test_helper"
 
 # Direct unit tests for `MultiJSON::Concurrency.synchronize`. The
 # wrapper is also exercised indirectly through its upstream callers
-# — `MultiJSON.use`, `Options#default_*`, `AdapterSelector#default_*`,
-# `warn_deprecation_once` — but the `:dump_delegate` mutex is only
-# invoked from the `fast_jsonparser` adapter, which isn't loaded on
-# JRuby. Without these direct tests, JRuby's coverage drops below the
-# 100% threshold the instant the wrapper is introduced.
+# — `MultiJSON.use`, `Options#default_*`, `AdapterSelector#default_*`
+# — but the `:dump_delegate` mutex is only invoked from the
+# `fast_jsonparser` adapter, which isn't loaded on JRuby. Without
+# these direct tests, JRuby's coverage drops below the 100% threshold
+# the instant the wrapper is introduced.
 class ConcurrencyTest < Minitest::Test
   cover "MultiJSON::Concurrency*"
 
   MUTEX_NAMES = %i[
-    deprecation_warnings
     adapter
     default_adapter
     default_options

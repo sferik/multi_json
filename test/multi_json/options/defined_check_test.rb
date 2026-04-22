@@ -12,97 +12,97 @@ class OptionsDefinedCheckTest < Minitest::Test
   end
 
   def teardown
-    @test_class.load_options = nil
-    @test_class.dump_options = nil
+    @test_class.parse_options = nil
+    @test_class.generate_options = nil
   end
 
   def test_load_options_defined_check_returns_default_when_undefined
     @test_class.remove_instance_variable(:@load_options) if @test_class.instance_variable_defined?(:@load_options)
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
-    assert_equal @test_class.default_load_options, result
+    assert_equal @test_class.default_parse_options, result
   end
 
   def test_dump_options_defined_check_returns_default_when_undefined
     @test_class.remove_instance_variable(:@dump_options) if @test_class.instance_variable_defined?(:@dump_options)
 
-    result = @test_class.dump_options
+    result = @test_class.generate_options
 
-    assert_equal @test_class.default_dump_options, result
+    assert_equal @test_class.default_generate_options, result
   end
 
   def test_load_options_defined_check_returns_options_when_defined
-    @test_class.load_options = {defined_test: true}
+    @test_class.parse_options = {defined_test: true}
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_equal({defined_test: true}, result)
-    refute_equal @test_class.default_load_options, result
+    refute_equal @test_class.default_parse_options, result
   end
 
   def test_dump_options_defined_check_returns_options_when_defined
-    @test_class.dump_options = {defined_test: true}
+    @test_class.generate_options = {defined_test: true}
 
-    result = @test_class.dump_options
+    result = @test_class.generate_options
 
     assert_equal({defined_test: true}, result)
-    refute_equal @test_class.default_dump_options, result
+    refute_equal @test_class.default_generate_options, result
   end
 
   def test_load_options_checks_defined_before_get_options
     @test_class.remove_instance_variable(:@load_options) if @test_class.instance_variable_defined?(:@load_options)
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
-    assert_equal @test_class.default_load_options, result
+    assert_equal @test_class.default_parse_options, result
   end
 
   def test_dump_options_checks_defined_before_get_options
     @test_class.remove_instance_variable(:@dump_options) if @test_class.instance_variable_defined?(:@dump_options)
 
-    result = @test_class.dump_options
+    result = @test_class.generate_options
 
-    assert_equal @test_class.default_dump_options, result
+    assert_equal @test_class.default_generate_options, result
   end
 
   def test_handle_hashable_returns_nil_for_non_hashable
-    @test_class.load_options = 12_345
+    @test_class.parse_options = 12_345
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
-    assert_equal @test_class.default_load_options, result
+    assert_equal @test_class.default_parse_options, result
   end
 
   def test_handle_hashable_nil_enables_fallback_to_default
-    @test_class.load_options = Object.new
+    @test_class.parse_options = Object.new
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
-    assert_equal @test_class.default_load_options, result
+    assert_equal @test_class.default_parse_options, result
   end
 
   def test_load_options_returns_get_options_result_when_defined
-    @test_class.load_options = {defined: true}
+    @test_class.parse_options = {defined: true}
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_equal({defined: true}, result)
   end
 
   def test_dump_options_returns_get_options_result_when_defined
-    @test_class.dump_options = {defined: true}
+    @test_class.generate_options = {defined: true}
 
-    result = @test_class.dump_options
+    result = @test_class.generate_options
 
     assert_equal({defined: true}, result)
   end
 
   def test_get_options_nil_result_falls_back_to_default
     non_hashable = Object.new
-    @test_class.load_options = non_hashable
+    @test_class.parse_options = non_hashable
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_empty result
   end
@@ -112,9 +112,9 @@ class OptionsDefinedCheckTest < Minitest::Test
     def hashable.respond_to?(method, *) = method == :to_hash || super
     def hashable.to_hash = {from_to_hash_method: true}
 
-    @test_class.load_options = hashable
+    @test_class.parse_options = hashable
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_equal({from_to_hash_method: true}, result)
     refute_nil result
@@ -125,9 +125,9 @@ class OptionsDefinedCheckTest < Minitest::Test
     def hashable.respond_to?(method, *) = method == :to_hash || super
     def hashable.to_hash = {specific_key: "specific_value"}
 
-    @test_class.load_options = hashable
+    @test_class.parse_options = hashable
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     refute_nil result
     assert_equal "specific_value", result[:specific_key]
@@ -138,9 +138,9 @@ class OptionsDefinedCheckTest < Minitest::Test
     hashable = Object.new
     hashable.define_singleton_method(:to_hash) { unique_hash }
 
-    @test_class.load_options = hashable
+    @test_class.parse_options = hashable
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_equal unique_hash, result
   end

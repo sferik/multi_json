@@ -108,12 +108,4 @@ class ErrorsIntegrationTest < Minitest::Test
 
     assert_equal %w[parse_frame1 parse_frame2], error.backtrace
   end
-
-  def test_decode_error_is_alias_for_parse_error
-    assert_equal MultiJSON::ParseError, MultiJSON::DecodeError
-  end
-
-  def test_load_error_is_alias_for_parse_error
-    assert_equal MultiJSON::ParseError, MultiJSON::LoadError
-  end
 end

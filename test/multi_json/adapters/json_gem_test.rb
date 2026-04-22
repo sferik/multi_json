@@ -29,7 +29,7 @@ class JsonGemAdapterTest < Minitest::Test
     end
 
     object = klass.new
-    MultiJSON.dump(object)
+    MultiJSON.generate(object)
 
     assert object.as_json_called
   end
@@ -45,7 +45,7 @@ class JsonGemAdapterTest < Minitest::Test
     end
 
     object = klass.new
-    MultiJSON.dump(object, pretty: true)
+    MultiJSON.generate(object, pretty: true)
 
     assert object.as_json_called
   end
@@ -55,7 +55,7 @@ class JsonGemAdapterTest < Minitest::Test
     invalid = (+"\xFF").force_encoding(Encoding::ASCII_8BIT)
 
     assert_raises(MultiJSON::ParseError) do
-      MultiJSON.load(invalid, adapter: :json_gem)
+      MultiJSON.parse(invalid, adapter: :json_gem)
     end
   end
 

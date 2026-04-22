@@ -12,14 +12,14 @@ class OptionsGetOptionsTest < Minitest::Test
   end
 
   def teardown
-    @test_class.load_options = nil
-    @test_class.dump_options = nil
+    @test_class.parse_options = nil
+    @test_class.generate_options = nil
   end
 
   def test_get_options_returns_callable_result
-    @test_class.load_options = -> { {from_callable: true} }
+    @test_class.parse_options = -> { {from_callable: true} }
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
     assert_equal({from_callable: true}, result)
   end
@@ -28,9 +28,9 @@ class OptionsGetOptionsTest < Minitest::Test
     hashable = Object.new
     def hashable.to_hash = {from_hash: true}
 
-    @test_class.load_options = hashable
+    @test_class.parse_options = hashable
 
-    assert_equal({from_hash: true}, @test_class.load_options)
+    assert_equal({from_hash: true}, @test_class.parse_options)
   end
 
   def test_options_custom_callable_object_uses_respond_to_call
@@ -38,25 +38,25 @@ class OptionsGetOptionsTest < Minitest::Test
     def callable.call = {custom_call: true}
     def callable.arity = 0
 
-    @test_class.load_options = callable
+    @test_class.parse_options = callable
 
-    assert_equal({custom_call: true}, @test_class.load_options)
+    assert_equal({custom_call: true}, @test_class.parse_options)
   end
 
   def test_handle_callable_options_checks_arity
     zero_arity = -> { {zero: true} }
-    @test_class.load_options = zero_arity
+    @test_class.parse_options = zero_arity
 
-    result = @test_class.load_options({ignored: true})
+    result = @test_class.parse_options({ignored: true})
 
     assert_equal({zero: true}, result)
   end
 
   def test_handle_callable_options_with_arity_calls_with_args
     with_arity = ->(opts) { opts.merge(added: true) }
-    @test_class.load_options = with_arity
+    @test_class.parse_options = with_arity
 
-    result = @test_class.load_options({original: true})
+    result = @test_class.parse_options({original: true})
 
     assert_equal({original: true, added: true}, result)
   end
@@ -65,16 +65,16 @@ class OptionsGetOptionsTest < Minitest::Test
     hashable = Object.new
     def hashable.to_hash = {converted: true}
 
-    @test_class.load_options = hashable
+    @test_class.parse_options = hashable
 
-    assert_equal({converted: true}, @test_class.load_options)
+    assert_equal({converted: true}, @test_class.parse_options)
   end
 
   def test_handle_hashable_options_returns_nil_for_non_hashable
-    @test_class.load_options = "not hashable"
+    @test_class.parse_options = "not hashable"
 
-    result = @test_class.load_options
+    result = @test_class.parse_options
 
-    assert_equal @test_class.default_load_options, result
+    assert_equal @test_class.default_parse_options, result
   end
 end

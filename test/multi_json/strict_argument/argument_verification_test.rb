@@ -30,7 +30,7 @@ class ArgumentVerificationTest < Minitest::Test
   end
 
   def test_load_passes_exactly_string_and_options
-    MultiJSON.load('{"test":1}', foo: :bar)
+    MultiJSON.parse('{"test":1}', foo: :bar)
 
     assert_equal 2, @mock_adapter.load_args.length
     assert_equal '{"test":1}', @mock_adapter.load_args[0]
@@ -38,7 +38,7 @@ class ArgumentVerificationTest < Minitest::Test
   end
 
   def test_load_passes_empty_hash_as_default_options
-    MultiJSON.load('{"test":1}')
+    MultiJSON.parse('{"test":1}')
 
     assert_equal 2, @mock_adapter.load_args.length
     assert_equal '{"test":1}', @mock_adapter.load_args[0]
@@ -46,7 +46,7 @@ class ArgumentVerificationTest < Minitest::Test
   end
 
   def test_dump_passes_exactly_object_and_options
-    MultiJSON.dump({test: 1}, bar: :baz)
+    MultiJSON.generate({test: 1}, bar: :baz)
 
     assert_equal 2, @mock_adapter.dump_args.length
     assert_equal({test: 1}, @mock_adapter.dump_args[0])
@@ -54,7 +54,7 @@ class ArgumentVerificationTest < Minitest::Test
   end
 
   def test_dump_passes_empty_hash_as_default_options
-    MultiJSON.dump({test: 1})
+    MultiJSON.generate({test: 1})
 
     assert_equal 2, @mock_adapter.dump_args.length
     assert_equal({test: 1}, @mock_adapter.dump_args[0])
@@ -83,7 +83,7 @@ class CurrentAdapterOptionsTest < Minitest::Test
       original_load_adapter.call(arg)
     end
 
-    MultiJSON.load('{"a":1}', adapter: :json_gem)
+    MultiJSON.parse('{"a":1}', adapter: :json_gem)
 
     assert_equal :json_gem, load_adapter_called_with
   ensure
@@ -99,7 +99,7 @@ class CurrentAdapterOptionsTest < Minitest::Test
       original_load_adapter.call(arg)
     end
 
-    MultiJSON.dump({a: 1}, adapter: :json_gem)
+    MultiJSON.generate({a: 1}, adapter: :json_gem)
 
     assert_equal :json_gem, load_adapter_called_with
   ensure

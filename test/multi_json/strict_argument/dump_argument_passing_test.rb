@@ -15,14 +15,14 @@ class DumpArgumentPassingTest < Minitest::Test
   end
 
   def test_dump_returns_string_not_nil
-    result = MultiJSON.dump({a: 1})
+    result = MultiJSON.generate({a: 1})
 
     refute_nil result
     assert_kind_of String, result
   end
 
   def test_dump_returns_json_string
-    result = MultiJSON.dump({key: "value"})
+    result = MultiJSON.generate({key: "value"})
 
     assert_equal '{"key":"value"}', result
   end
@@ -31,7 +31,7 @@ class DumpArgumentPassingTest < Minitest::Test
     adapter = create_tracking_adapter
     MultiJSON.use adapter
 
-    MultiJSON.dump({test: true})
+    MultiJSON.generate({test: true})
 
     assert adapter.dump_called, "dump should call adapter.dump"
   ensure
@@ -39,7 +39,7 @@ class DumpArgumentPassingTest < Minitest::Test
   end
 
   def test_dump_uses_object_argument
-    result = MultiJSON.dump({specific_key: "specific_value"})
+    result = MultiJSON.generate({specific_key: "specific_value"})
 
     assert_includes result, "specific_key"
     assert_includes result, "specific_value"
@@ -49,7 +49,7 @@ class DumpArgumentPassingTest < Minitest::Test
     adapter = create_tracking_adapter
     MultiJSON.use adapter
 
-    MultiJSON.dump({a: 1}, custom_opt: true)
+    MultiJSON.generate({a: 1}, custom_opt: true)
 
     assert adapter.received_options[:custom_opt], "options should be passed to adapter"
   ensure
@@ -59,7 +59,7 @@ class DumpArgumentPassingTest < Minitest::Test
   def test_dump_passes_options_to_current_adapter
     MultiJSON.use :json_gem
 
-    result = MultiJSON.dump({x: 1}, adapter: :json_gem)
+    result = MultiJSON.generate({x: 1}, adapter: :json_gem)
 
     refute_nil result
     assert_kind_of String, result
@@ -69,7 +69,7 @@ class DumpArgumentPassingTest < Minitest::Test
     adapter = build_custom_adapter(dump_result: "custom_result")
     MultiJSON.use adapter
 
-    assert_equal "custom_result", MultiJSON.dump({})
+    assert_equal "custom_result", MultiJSON.generate({})
   ensure
     MultiJSON.use :json_gem
   end

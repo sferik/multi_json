@@ -11,7 +11,7 @@ class LoadCurrentAdapterTest < Minitest::Test
   end
 
   def test_load_calls_current_adapter_with_options
-    opts_received = with_current_adapter_tracking { MultiJSON.load('{"a":1}', symbolize_names: true) }
+    opts_received = with_current_adapter_tracking { MultiJSON.parse('{"a":1}', symbolize_names: true) }
 
     assert_equal({symbolize_names: true}, opts_received)
   end
@@ -20,7 +20,7 @@ class LoadCurrentAdapterTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.load('{"test":"value"}')
+    MultiJSON.parse('{"test":"value"}')
 
     assert_equal 1, TestHelpers::StrictAdapter.load_calls.size
     assert_equal '{"test":"value"}', TestHelpers::StrictAdapter.load_calls.first[:string]
@@ -29,7 +29,7 @@ class LoadCurrentAdapterTest < Minitest::Test
   end
 
   def test_load_returns_adapter_load_result
-    result = MultiJSON.load('{"key":"value"}')
+    result = MultiJSON.parse('{"key":"value"}')
 
     assert_equal({"key" => "value"}, result)
   end
@@ -38,7 +38,7 @@ class LoadCurrentAdapterTest < Minitest::Test
     MultiJSON.use :json_gem
 
     error = assert_raises(MultiJSON::ParseError) do
-      MultiJSON.load("{invalid}")
+      MultiJSON.parse("{invalid}")
     end
 
     assert_kind_of MultiJSON::ParseError, error
@@ -46,7 +46,7 @@ class LoadCurrentAdapterTest < Minitest::Test
 
   def test_load_builds_parse_error_with_data
     error = assert_raises(MultiJSON::ParseError) do
-      MultiJSON.load("{bad json}")
+      MultiJSON.parse("{bad json}")
     end
 
     assert_equal "{bad json}", error.data
@@ -54,7 +54,7 @@ class LoadCurrentAdapterTest < Minitest::Test
 
   def test_load_sets_cause_on_parse_error
     error = assert_raises(MultiJSON::ParseError) do
-      MultiJSON.load("{bad}")
+      MultiJSON.parse("{bad}")
     end
 
     refute_nil error.cause

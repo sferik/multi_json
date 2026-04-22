@@ -21,7 +21,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     TestHelpers::StrictAdapter.reset_calls
 
     # Call load with adapter: :json_gem option
-    MultiJSON.load('{"a":1}', adapter: :json_gem)
+    MultiJSON.parse('{"a":1}', adapter: :json_gem)
 
     # If options are passed to current_adapter, json_gem will be used
     # If options are NOT passed, StrictAdapter will be used
@@ -34,7 +34,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     TestHelpers::StrictAdapter.reset_calls
 
     # Call load with adapter option
-    MultiJSON.load('{"a":1}', adapter: :json_gem)
+    MultiJSON.parse('{"a":1}', adapter: :json_gem)
 
     # current_adapter(nil) would use default adapter (StrictAdapter)
     # current_adapter(options) with adapter: :json_gem uses json_gem
@@ -47,7 +47,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     TestHelpers::StrictAdapter.reset_calls
 
     # Call dump with adapter: :json_gem option
-    MultiJSON.dump({a: 1}, adapter: :json_gem)
+    MultiJSON.generate({a: 1}, adapter: :json_gem)
 
     # If options are passed to current_adapter, json_gem will be used
     # If options are NOT passed, StrictAdapter will be used
@@ -60,7 +60,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     TestHelpers::StrictAdapter.reset_calls
 
     # Call dump with adapter option
-    MultiJSON.dump({a: 1}, adapter: :json_gem)
+    MultiJSON.generate({a: 1}, adapter: :json_gem)
 
     # current_adapter(nil) would use default adapter (StrictAdapter)
     # current_adapter(options) with adapter: :json_gem uses json_gem
@@ -70,7 +70,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
   def test_load_with_adapter_option_does_not_use_global_adapter
     MultiJSON.use :json_gem
     tracking_adapter = create_load_tracking_adapter
-    MultiJSON.load('{"a":1}', adapter: tracking_adapter)
+    MultiJSON.parse('{"a":1}', adapter: tracking_adapter)
 
     assert tracking_adapter.load_called, "The specified adapter should be used"
   end
@@ -78,7 +78,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
   def test_dump_with_adapter_option_does_not_use_global_adapter
     MultiJSON.use :json_gem
     tracking_adapter = create_dump_tracking_adapter
-    MultiJSON.dump({a: 1}, adapter: tracking_adapter)
+    MultiJSON.generate({a: 1}, adapter: tracking_adapter)
 
     assert tracking_adapter.dump_called, "The specified adapter should be used"
   end

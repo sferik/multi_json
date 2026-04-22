@@ -36,8 +36,7 @@ MultiJSON.generate({abc: "def"}, pretty: true)         # encoded in a pretty for
 `MultiJSON.parse` returns `nil` for `nil`, empty, and whitespace-only inputs
 instead of raising, so a missing or blank payload is observable as a `nil`
 return value rather than an exception. When parsing invalid JSON, MultiJSON
-will throw a `MultiJSON::ParseError`. `MultiJSON::DecodeError` and
-`MultiJSON::LoadError` are aliases for backwards compatibility.
+will throw a `MultiJSON::ParseError`.
 
 ```ruby
 begin
@@ -75,35 +74,6 @@ pretty-print calls and option keys keep working without changes:
 | `JSON.generate(obj)`   | `MultiJSON.generate(obj)`  | ✓ |
 | `pretty: true`         | `pretty: true`             | ✓ |
 | `symbolize_names: true` | `symbolize_names: true`   | ✓ |
-
-### Deprecated in 1.21.0
-
-The module constant and primary verbs were renamed to match Ruby
-stdlib `JSON.parse` / `JSON.generate` and the JSON spec (RFC 8259).
-The old names still work in 1.x but now emit a one-time deprecation
-warning; **they will be removed in 2.0.0**.
-
-| Deprecated                    | Use instead                     |
-| ----------------------------- | ------------------------------- |
-| `MultiJson` (constant)        | `MultiJSON` (all-caps)          |
-| `MultiJSON.load(str)`         | `MultiJSON.parse(str)`          |
-| `MultiJSON.dump(obj)`         | `MultiJSON.generate(obj)`       |
-| `MultiJSON.load_options=`     | `MultiJSON.parse_options=`      |
-| `MultiJSON.load_options`      | `MultiJSON.parse_options`       |
-| `MultiJSON.dump_options=`     | `MultiJSON.generate_options=`   |
-| `MultiJSON.dump_options`      | `MultiJSON.generate_options`    |
-| `symbolize_keys:` option      | `symbolize_names:` option       |
-
-The `MultiJson` constant (CamelCase) continues to work as a thin
-delegator; every method call, constant lookup, and rescue clause
-routes through `MultiJSON` transparently.
-
-> [!TIP]
-> The recommended upgrade path to 2.0 is: pin `~> 1.21` first, run
-> `ruby -W:deprecated` against your app or test suite to surface every
-> deprecation, migrate each call site to the canonical name, then bump to
-> `~> 2.0`. The 2.0 release deletes the deprecated aliases entirely, so the
-> warnings during 1.21.x are your map.
 
 `ParseError` instance has `cause` reader which contains the original exception.
 It also has `data` reader with the input that caused the problem, and `line`/`column`

@@ -31,7 +31,7 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def test_engine_equals_is_alias_for_use
-    MultiJSON.engine = :json_gem
+    MultiJSON.adapter = :json_gem
 
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
   end

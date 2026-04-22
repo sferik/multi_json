@@ -11,20 +11,20 @@ class DumpBehaviorTest < Minitest::Test
   end
 
   def test_dump_passes_options_containing_adapter_to_current_adapter
-    adapter_received = track_current_adapter_options { MultiJSON.dump({key: "value"}, adapter: :json_gem) }
+    adapter_received = track_current_adapter_options { MultiJSON.generate({key: "value"}, adapter: :json_gem) }
 
     assert_equal :json_gem, adapter_received
   end
 
   def test_dump_returns_string_not_nil
-    result = MultiJSON.dump({key: "value"})
+    result = MultiJSON.generate({key: "value"})
 
     refute_nil result
     assert_kind_of String, result
   end
 
   def test_dump_body_executes
-    result = MultiJSON.dump({test: 123})
+    result = MultiJSON.generate({test: 123})
 
     refute_nil result
     assert_includes result, "test"
@@ -33,41 +33,41 @@ class DumpBehaviorTest < Minitest::Test
   def test_dump_uses_passed_options_for_adapter_selection
     MultiJSON.use :json_gem
 
-    result = MultiJSON.dump({key: "value"}, adapter: :json_gem)
+    result = MultiJSON.generate({key: "value"}, adapter: :json_gem)
 
     assert_kind_of String, result
     assert_includes result, "key"
   end
 
   def test_dump_calls_dump_on_current_adapter
-    result = MultiJSON.dump({test: "value"})
+    result = MultiJSON.generate({test: "value"})
 
     assert_kind_of String, result
     refute_kind_of Module, result
   end
 
   def test_dump_does_not_call_super
-    result = MultiJSON.dump({works: true})
+    result = MultiJSON.generate({works: true})
 
     assert_kind_of String, result
     assert_includes result, "works"
   end
 
   def test_dump_does_not_raise_by_default
-    result = MultiJSON.dump({normal: "operation"})
+    result = MultiJSON.generate({normal: "operation"})
 
     assert_kind_of String, result
   end
 
   def test_dump_returns_adapter_dump_result_not_adapter
-    result = MultiJSON.dump({key: "value"})
+    result = MultiJSON.generate({key: "value"})
 
     assert_kind_of String, result
     refute_kind_of Module, result
   end
 
   def test_dump_calls_dump_not_load
-    result = MultiJSON.dump({key: "value"})
+    result = MultiJSON.generate({key: "value"})
 
     # dump returns a string, load would parse it
     assert_kind_of String, result
@@ -78,7 +78,7 @@ class DumpBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.dump({the_object: true}, {the_options: true})
+    MultiJSON.generate({the_object: true}, {the_options: true})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -92,7 +92,7 @@ class DumpBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.dump({obj: 1}, {opt: 2})
+    MultiJSON.generate({obj: 1}, {opt: 2})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -108,8 +108,8 @@ class DumpBehaviorTest < Minitest::Test
     # Oj produces slightly different formatting than JsonGem; verify
     # adapter selection by checking both produce valid JSON strings
     # through different code paths.
-    default_result = MultiJSON.dump({a: 1})
-    override_result = MultiJSON.dump({a: 1}, adapter: :oj)
+    default_result = MultiJSON.generate({a: 1})
+    override_result = MultiJSON.generate({a: 1}, adapter: :oj)
 
     assert_kind_of String, default_result
     assert_kind_of String, override_result

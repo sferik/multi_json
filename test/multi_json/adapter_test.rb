@@ -14,7 +14,7 @@ class AdapterInheritanceTest < Minitest::Test
 
     child = Class.new(parent)
 
-    assert_equal({symbolize_names: true}, child.default_load_options)
+    assert_equal({symbolize_names: true}, child.default_parse_options)
   end
 
   def test_subclass_inherits_parent_default_dump_options
@@ -24,15 +24,15 @@ class AdapterInheritanceTest < Minitest::Test
 
     child = Class.new(parent)
 
-    assert_equal({pretty: true}, child.default_dump_options)
+    assert_equal({pretty: true}, child.default_generate_options)
   end
 
   def test_subclass_without_default_options_falls_back_to_empty
     parent = Class.new(MultiJSON::Adapter)
     child = Class.new(parent)
 
-    assert_empty(child.default_load_options)
-    assert_empty(child.default_dump_options)
+    assert_empty(child.default_parse_options)
+    assert_empty(child.default_generate_options)
   end
 
   def test_default_load_options_propagates_after_subclass_definition
@@ -40,7 +40,7 @@ class AdapterInheritanceTest < Minitest::Test
     child = Class.new(parent)
     parent.defaults :load, {symbolize_names: true}
 
-    assert_equal({symbolize_names: true}, child.default_load_options)
+    assert_equal({symbolize_names: true}, child.default_parse_options)
   end
 
   def test_default_dump_options_propagates_after_subclass_definition
@@ -48,15 +48,15 @@ class AdapterInheritanceTest < Minitest::Test
     child = Class.new(parent)
     parent.defaults :dump, {pretty: true}
 
-    assert_equal({pretty: true}, child.default_dump_options)
+    assert_equal({pretty: true}, child.default_generate_options)
   end
 
   def test_subclass_default_load_options_overrides_parent
     parent = Class.new(MultiJSON::Adapter) { defaults :load, {symbolize_names: true} }
     child = Class.new(parent) { defaults :load, {symbolize_names: false} }
 
-    assert_equal({symbolize_names: false}, child.default_load_options)
-    assert_equal({symbolize_names: true}, parent.default_load_options)
+    assert_equal({symbolize_names: false}, child.default_parse_options)
+    assert_equal({symbolize_names: true}, parent.default_parse_options)
   end
 end
 
@@ -158,7 +158,7 @@ class AdapterDefaultsTest < Minitest::Test
       defaults :load, {symbolize_names: true}
     end
 
-    assert_equal({symbolize_names: true}, adapter.default_load_options)
+    assert_equal({symbolize_names: true}, adapter.default_parse_options)
   end
 
   def test_defaults_sets_dump_options
@@ -166,7 +166,7 @@ class AdapterDefaultsTest < Minitest::Test
       defaults :dump, {pretty: true}
     end
 
-    assert_equal({pretty: true}, adapter.default_dump_options)
+    assert_equal({pretty: true}, adapter.default_generate_options)
   end
 
   def test_defaults_freezes_options
@@ -174,7 +174,7 @@ class AdapterDefaultsTest < Minitest::Test
       defaults :load, {foo: :bar}
     end
 
-    assert_predicate adapter.default_load_options, :frozen?
+    assert_predicate adapter.default_parse_options, :frozen?
   end
 
   def test_defaults_raises_on_unknown_action
@@ -203,14 +203,14 @@ class AdapterCachedOptionsTest < Minitest::Test
     MultiJSON::OptionsCache.reset
 
     # Set global options
-    original_load_options = MultiJSON.load_options
-    MultiJSON.load_options = {symbolize_names: true}
+    original_load_options = MultiJSON.parse_options
+    MultiJSON.parse_options = {symbolize_names: true}
 
     result = MultiJSON::Adapters::JsonGem.load('{"key": "value"}')
 
     assert_equal({key: "value"}, result)
   ensure
-    MultiJSON.load_options = original_load_options
+    MultiJSON.parse_options = original_load_options
   end
 
   def test_options_without_adapter_freezes_result

@@ -89,7 +89,7 @@ class InstanceAdapterSelectionIntegrationTest < Minitest::Test
 
   def test_can_set_adapter_for_block
     MultiJSON.with_adapter(:json_gem) do
-      MultiJSON.with_engine(:json_gem) do
+      MultiJSON.with_adapter(:json_gem) do
         assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
       end
 

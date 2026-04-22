@@ -15,7 +15,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_passes_object_as_first_argument
-    MultiJSON.dump({key: "value"})
+    MultiJSON.generate({key: "value"})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -23,7 +23,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_passes_options_hash_as_second_argument
-    MultiJSON.dump({a: 1}, pretty: true)
+    MultiJSON.generate({a: 1}, pretty: true)
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -31,7 +31,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_passes_empty_hash_when_no_options_given
-    MultiJSON.dump({a: 1})
+    MultiJSON.generate({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -39,7 +39,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_options_not_nil
-    MultiJSON.dump({a: 1})
+    MultiJSON.generate({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -47,7 +47,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_object_not_nil
-    MultiJSON.dump({a: 1})
+    MultiJSON.generate({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 

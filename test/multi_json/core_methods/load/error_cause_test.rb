@@ -10,7 +10,7 @@ class LoadErrorCauseTest < Minitest::Test
   end
 
   def test_load_error_cause_is_set
-    error = assert_raises(MultiJSON::ParseError) { MultiJSON.load("{bad}") }
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON.parse("{bad}") }
 
     # The cause should be set, not nil
     refute_nil error.cause
@@ -18,21 +18,21 @@ class LoadErrorCauseTest < Minitest::Test
   end
 
   def test_load_error_cause_uses_cause_keyword
-    error = assert_raises(MultiJSON::ParseError) { MultiJSON.load("{bad}") }
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON.parse("{bad}") }
 
     # Verify cause is actually set via the cause: keyword
     refute_nil error.cause, "cause should be set via cause: keyword, not cause__mutant__:"
   end
 
   def test_load_error_sets_cause
-    error = assert_raises(MultiJSON::ParseError) { MultiJSON.load("{invalid}") }
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON.parse("{invalid}") }
 
     refute_nil error.cause, "cause must be set via cause: keyword argument"
   end
 
   def test_load_raises_adapter_error_when_adapter_lacks_parse_error
     custom = adapter_without_parse_error
-    error = assert_raises(MultiJSON::AdapterError) { MultiJSON.load('{"a":1}', adapter: custom) }
+    error = assert_raises(MultiJSON::AdapterError) { MultiJSON.parse('{"a":1}', adapter: custom) }
 
     assert_match(/ParseError constant/, error.message)
     assert_includes error.message, custom.to_s
@@ -40,7 +40,7 @@ class LoadErrorCauseTest < Minitest::Test
 
   def test_load_raises_adapter_error_when_adapter_lacks_load
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.load('{"a":1}', adapter: adapter_without_load)
+      MultiJSON.parse('{"a":1}', adapter: adapter_without_load)
     end
 
     assert_match(/must respond to \.load/, error.message)
@@ -48,7 +48,7 @@ class LoadErrorCauseTest < Minitest::Test
 
   def test_load_raises_adapter_error_when_adapter_lacks_dump_before_parsing
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.load('{"a":1}', adapter: adapter_without_dump)
+      MultiJSON.parse('{"a":1}', adapter: adapter_without_dump)
     end
 
     assert_match(/must respond to \.dump/, error.message)
@@ -57,7 +57,7 @@ class LoadErrorCauseTest < Minitest::Test
   def test_load_ignores_top_level_parse_error_inherited_from_object
     Object.const_set(:ParseError, Class.new(StandardError))
     custom = adapter_without_parse_error
-    error = assert_raises(MultiJSON::AdapterError) { MultiJSON.load('{"a":1}', adapter: custom) }
+    error = assert_raises(MultiJSON::AdapterError) { MultiJSON.parse('{"a":1}', adapter: custom) }
 
     assert_match(/ParseError constant/, error.message)
   ensure

@@ -23,7 +23,7 @@ module AdapterTests
   def test_does_not_modify_argument_hashes_when_loading
     options = {symbolize_names: true, pretty: false, adapter: :json_gem}
     original = options.dup
-    MultiJSON.load("{}", options)
+    MultiJSON.parse("{}", options)
 
     assert_equal original, options
   end
@@ -31,24 +31,24 @@ module AdapterTests
   def test_does_not_modify_argument_hashes_when_dumping
     options = {symbolize_names: true, pretty: false, adapter: :json_gem}
     original = options.dup
-    MultiJSON.dump([42], options)
+    MultiJSON.generate([42], options)
 
     assert_equal original, options
   end
 
   def test_dump_options_respected_globally
     with_default_options do
-      MultiJSON.dump_options = {foo: "bar"}
+      MultiJSON.generate_options = {foo: "bar"}
 
-      assert_equal({foo: "bar"}, MultiJSON.dump_options)
+      assert_equal({foo: "bar"}, MultiJSON.generate_options)
     end
   end
 
   def test_load_options_respected_globally
     with_default_options do
-      MultiJSON.load_options = {foo: "bar"}
+      MultiJSON.parse_options = {foo: "bar"}
 
-      assert_equal({foo: "bar"}, MultiJSON.load_options)
+      assert_equal({foo: "bar"}, MultiJSON.parse_options)
     end
   end
 end

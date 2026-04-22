@@ -11,7 +11,7 @@ class DumpCurrentAdapterTest < Minitest::Test
   end
 
   def test_dump_calls_current_adapter_with_options
-    opts_received = with_current_adapter_tracking { MultiJSON.dump({a: 1}, pretty: true) }
+    opts_received = with_current_adapter_tracking { MultiJSON.generate({a: 1}, pretty: true) }
 
     assert_equal({pretty: true}, opts_received)
   end
@@ -20,7 +20,7 @@ class DumpCurrentAdapterTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.dump({test: "value"})
+    MultiJSON.generate({test: "value"})
 
     assert_equal 1, TestHelpers::StrictAdapter.dump_calls.size
     assert_equal({test: "value"}, TestHelpers::StrictAdapter.dump_calls.first[:object])
@@ -32,7 +32,7 @@ class DumpCurrentAdapterTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.dump({a: 1}, pretty: true)
+    MultiJSON.generate({a: 1}, pretty: true)
 
     assert_equal({pretty: true}, TestHelpers::StrictAdapter.dump_calls.first[:options])
   ensure
@@ -40,7 +40,7 @@ class DumpCurrentAdapterTest < Minitest::Test
   end
 
   def test_dump_returns_adapter_dump_result
-    result = MultiJSON.dump({key: "value"})
+    result = MultiJSON.generate({key: "value"})
 
     assert_includes result, "key"
     assert_includes result, "value"

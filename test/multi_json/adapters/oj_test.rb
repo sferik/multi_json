@@ -18,14 +18,14 @@ if TestHelpers.oj?
     def test_dump_ensures_indent_is_fixnum
       with_default_options do
         # Should not raise an error
-        MultiJSON.dump(42, indent: "")
+        MultiJSON.generate(42, indent: "")
       end
     end
 
     def test_oj_does_not_create_symbols_on_parse
-      MultiJSON.load('{"json_class":"ZOMG"}')
+      MultiJSON.parse('{"json_class":"ZOMG"}')
       original_count = Symbol.all_symbols.count
-      MultiJSON.load('{"json_class":"OMG"}')
+      MultiJSON.parse('{"json_class":"OMG"}')
 
       assert_operator Symbol.all_symbols.count, :<=, original_count
     end
@@ -37,17 +37,17 @@ if TestHelpers.oj?
       example = '{"a": 1, "b": 2}'
       expected = {"a" => 1, "b" => 2}
 
-      assert_equal expected, MultiJSON.load(example)
+      assert_equal expected, MultiJSON.parse(example)
     ensure
       Oj.default_options = original_options
     end
 
     def test_load_does_not_mutate_cached_options
-      MultiJSON.load_options = nil
+      MultiJSON.parse_options = nil
       MultiJSON::OptionsCache.reset
 
-      MultiJSON.load('{"a":1}', symbolize_names: true)
-      MultiJSON.load('{"a":1}', symbolize_names: true)
+      MultiJSON.parse('{"a":1}', symbolize_names: true)
+      MultiJSON.parse('{"a":1}', symbolize_names: true)
 
       cached = MultiJSON::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
 
@@ -56,10 +56,10 @@ if TestHelpers.oj?
     end
 
     def test_dump_does_not_mutate_cached_options_with_pretty
-      MultiJSON.dump_options = MultiJSON.adapter.dump_options = nil
+      MultiJSON.generate_options = MultiJSON.adapter.generate_options = nil
       MultiJSON::OptionsCache.reset
 
-      MultiJSON.dump({foo: "bar"}, pretty: true)
+      MultiJSON.generate({foo: "bar"}, pretty: true)
 
       cached = MultiJSON::OptionsCache.dump.send(:instance_variable_get, :@cache).values.first
 

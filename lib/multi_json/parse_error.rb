@@ -97,7 +97,4 @@ module MultiJSON
       LOCATION_PATTERN.match(message.scrub)
     end
   end
-
-  # Legacy aliases for backward compatibility
-  DecodeError = LoadError = ParseError
 end

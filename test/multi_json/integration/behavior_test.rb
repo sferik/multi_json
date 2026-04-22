@@ -60,13 +60,13 @@ class BehaviorIntegrationTest < Minitest::Test
 
   def test_busts_caches_on_global_options_change
     MultiJSON.use MultiJSON::Adapters::JsonGem
-    assert_cache_busting { |val| MultiJSON.load_options = val }
+    assert_cache_busting { |val| MultiJSON.parse_options = val }
   end
 
   def test_busts_caches_on_per_adapter_options_change
     adapter = MultiJSON::Adapters::JsonGem
     MultiJSON.use adapter
-    assert_cache_busting { |val| adapter.load_options = val }
+    assert_cache_busting { |val| adapter.parse_options = val }
   end
 
   def test_one_shot_parser_uses_defined_parser_for_call
@@ -76,10 +76,10 @@ class BehaviorIntegrationTest < Minitest::Test
   end
 
   def test_json_gem_does_not_create_symbols_on_parse
-    MultiJSON.with_engine(:json_gem) do
-      MultiJSON.load('{"json_class":"ZOMG"}')
+    MultiJSON.with_adapter(:json_gem) do
+      MultiJSON.parse('{"json_class":"ZOMG"}')
       original_count = Symbol.all_symbols.count
-      MultiJSON.load('{"json_class":"OMG"}')
+      MultiJSON.parse('{"json_class":"OMG"}')
 
       assert_operator Symbol.all_symbols.count, :<=, original_count
     end
@@ -102,10 +102,10 @@ class BehaviorIntegrationTest < Minitest::Test
     json_string = '{"abc":"def"}'
     yield({symbolize_names: true})
 
-    assert_equal({abc: "def"}, MultiJSON.load(json_string))
+    assert_equal({abc: "def"}, MultiJSON.parse(json_string))
     yield(nil)
 
-    assert_equal({"abc" => "def"}, MultiJSON.load(json_string))
+    assert_equal({"abc" => "def"}, MultiJSON.parse(json_string))
   end
 
   def assert_one_shot_adapter_behavior
@@ -126,7 +126,7 @@ class BehaviorIntegrationTest < Minitest::Test
   end
 
   def verify_one_shot_dump_and_load
-    assert_equal "dump_something", MultiJSON.dump("", adapter: :json_gem)
-    assert_equal "load_something", MultiJSON.load("", adapter: :json_gem)
+    assert_equal "dump_something", MultiJSON.generate("", adapter: :json_gem)
+    assert_equal "load_something", MultiJSON.parse("", adapter: :json_gem)
   end
 end

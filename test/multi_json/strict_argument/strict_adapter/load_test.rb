@@ -16,7 +16,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_passes_string_as_first_argument
-    MultiJSON.load('{"key":"value"}')
+    MultiJSON.parse('{"key":"value"}')
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -24,7 +24,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_passes_options_hash_as_second_argument
-    MultiJSON.load('{"a":1}', symbolize_names: true)
+    MultiJSON.parse('{"a":1}', symbolize_names: true)
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -32,7 +32,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_passes_empty_hash_when_no_options_given
-    MultiJSON.load('{"a":1}')
+    MultiJSON.parse('{"a":1}')
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -40,7 +40,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_options_not_nil
-    MultiJSON.load('{"a":1}')
+    MultiJSON.parse('{"a":1}')
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -48,7 +48,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_string_not_nil
-    MultiJSON.load('{"a":1}')
+    MultiJSON.parse('{"a":1}')
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -56,7 +56,7 @@ class StrictAdapterLoadTest < Minitest::Test
   end
 
   def test_load_with_symbolize_names_option
-    result = MultiJSON.load('{"key":"value"}', symbolize_names: true)
+    result = MultiJSON.parse('{"key":"value"}', symbolize_names: true)
 
     assert_equal({key: "value"}, result)
     call = TestHelpers::StrictAdapter.load_calls.first

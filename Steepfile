@@ -29,8 +29,5 @@ target :lib do
     # behavior (set_backtrace([]) vs set_backtrace(nil) leave a different
     # backtrace on the resulting error), so the hint stays.
     hash[D::Ruby::UnresolvedOverloading] = :hint
-    # The deprecated.rb DSL forwards **kwargs of unknown shape and the
-    # fiber-local Fiber[] reader returns untyped — both intentional.
-    hash[D::Ruby::FallbackAny] = :hint
   end
 end
