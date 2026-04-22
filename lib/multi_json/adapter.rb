@@ -74,13 +74,23 @@ module MultiJSON
 
       # Parse a JSON string into a Ruby object
       #
+      # Raises {ParseError} on ``nil``, empty, and whitespace-only
+      # input, matching RFC 8259 (which defines empty input as invalid
+      # JSON) and Ruby stdlib ``JSON.parse``. The check runs in the base
+      # adapter so every underlying library raises the same
+      # {ParseError} — some adapters (Oj, Yajl) silently accept blank
+      # input and would otherwise return ``nil`` or an empty object
+      # instead of signaling the error.
+      #
       # @api private
       # @param string [String, #read] JSON string or IO-like object
       # @param options [Hash] parsing options
-      # @return [Object, nil] parsed object or nil for blank input
+      # @return [Object] parsed object
+      # @raise [ParseError] when input is nil, empty, or whitespace-only
       def parse(string, options = {})
         string = string.read if string.respond_to?(:read)
-        return nil if blank?(string)
+        raise ParseError, "input cannot be nil" if string.nil?
+        raise ParseError, "input cannot be blank" if blank?(string)
 
         _parse(string, merged_parse_options(options))
       end
@@ -145,25 +155,24 @@ module MultiJSON
         Options::EMPTY_OPTIONS
       end
 
-      # Checks if the input is blank (nil, empty, or whitespace-only)
+      # Checks whether the input is blank (empty or whitespace-only)
       #
-      # The dominant call path arrives with a non-blank string starting
-      # with ``{`` or ``[`` (the JSON object/array sigils), so a
-      # ``start_with?`` short-circuit skips the regex entirely on the
-      # hot path. Falls through to the full check for everything else
-      # — strings, numbers, booleans, ``null``, whitespace-prefixed
-      # input — at which point ``String#scrub`` is only invoked when
-      # the input has invalid encoding so the common valid-UTF-8 path
-      # doesn't allocate a scrubbed copy on every call. Scrubbing
+      # The hot path — a non-blank string starting with ``{`` or ``[``
+      # (the JSON object/array sigils) — takes the ``start_with?``
+      # short-circuit and skips the regex entirely. Everything else
+      # (numbers, booleans, ``null``, whitespace-prefixed input) falls
+      # through to the regex. ``String#scrub`` is only invoked when the
+      # input has invalid encoding so the common valid-UTF-8 path
+      # doesn't allocate a scrubbed copy on every call; scrubbing
       # replaces invalid bytes with U+FFFD before the regex runs so a
-      # string with bad bytes is still treated as non-blank without a
-      # broad rescue.
+      # string with bad bytes is correctly treated as non-blank without
+      # a broad rescue.
       #
       # @api private
-      # @param input [String, nil] input to check
+      # @param input [String] input to check (never nil — caller guards)
       # @return [Boolean] true if input is blank
       def blank?(input)
-        return true if input.nil? || input.empty?
+        return true if input.empty?
         return false if input.start_with?("{", "[")
 
         BLANK_PATTERN.match?(input.valid_encoding? ? input : input.scrub)

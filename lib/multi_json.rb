@@ -100,23 +100,23 @@ module MultiJSON
 
   # Parses a JSON string into a Ruby object
   #
-  # Returns ``nil`` for ``nil``, empty, and whitespace-only inputs
-  # instead of raising. Pass an explicit non-blank string if you want
-  # to surface a {ParseError} for empty payloads at the call site.
+  # Raises {ParseError} on blank, whitespace-only, and ``nil``
+  # inputs, matching Ruby stdlib ``JSON.parse`` and RFC 8259 (which
+  # defines empty input as invalid JSON).
   #
   # @api public
   # @param string [String, #read] JSON string or IO-like object
   # @param symbolize_names [Boolean] return symbol keys instead of string keys
   # @param adapter [Symbol, Module, nil] one-shot adapter override
   # @param opts [Hash] additional adapter-specific parsing options
-  # @return [Object, nil] parsed Ruby object, or nil for blank input
-  # @raise [ParseError] if parsing fails
+  # @return [Object] parsed Ruby object
+  # @raise [ParseError] if parsing fails or the input is blank or nil
   # @raise [AdapterError] if the adapter doesn't define a ``ParseError`` constant
   # @example
   #   MultiJSON.parse('{"foo":"bar"}')                        #=> {"foo" => "bar"}
   #   MultiJSON.parse('{"foo":"bar"}', symbolize_names: true) #=> {foo: "bar"}
-  #   MultiJSON.parse("")                                     #=> nil
-  #   MultiJSON.parse("   \n")                                #=> nil
+  #   MultiJSON.parse("")                                     # raises MultiJSON::ParseError
+  #   MultiJSON.parse(nil)                                    # raises MultiJSON::ParseError
   def self.parse(string, symbolize_names: false, adapter: nil, **opts)
     opts[:symbolize_names] = symbolize_names if symbolize_names
     opts[:adapter] = adapter if adapter

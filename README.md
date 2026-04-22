@@ -22,21 +22,10 @@ MultiJSON.generate({abc: "def"})                       # convert Ruby back to JS
 MultiJSON.generate({abc: "def"}, pretty: true)         # encoded in a pretty form (if supported by the coder)
 ```
 
-> [!IMPORTANT]
-> **1.21.0 renames the public API to match Ruby stdlib `JSON`.** The canonical
-> verbs are now `MultiJSON.parse` / `MultiJSON.generate`, and the canonical
-> module is `MultiJSON` (all-caps). The legacy `MultiJson` constant,
-> `MultiJSON.load` / `MultiJSON.dump`, `:symbolize_keys`, and friends still
-> work but emit one-time deprecation warnings and **will be removed in 2.0.0**.
-> Run your app with `ruby -W:deprecated` to surface them; the warnings are
-> tagged with the `:deprecated` category so you can silence the whole set with
-> `Warning[:deprecated] = false`. See [Deprecated in 1.21.0](#deprecated-in-1210)
-> for the full list.
-
-`MultiJSON.parse` returns `nil` for `nil`, empty, and whitespace-only inputs
-instead of raising, so a missing or blank payload is observable as a `nil`
-return value rather than an exception. When parsing invalid JSON, MultiJSON
-will throw a `MultiJSON::ParseError`.
+`MultiJSON.parse` raises `MultiJSON::ParseError` on `nil`, empty, and
+whitespace-only inputs, matching the JSON spec (RFC 8259) and Ruby's
+stdlib `JSON.parse`. When parsing any other invalid JSON, MultiJSON
+will also throw a `MultiJSON::ParseError`.
 
 ```ruby
 begin
@@ -74,7 +63,8 @@ pretty-print calls and option keys keep working without changes:
 | `JSON.generate(obj)`   | `MultiJSON.generate(obj)`  | ✓ |
 | `pretty: true`         | `pretty: true`             | ✓ |
 | `symbolize_names: true` | `symbolize_names: true`   | ✓ |
-
+| `JSON.parse("")`       | `MultiJSON.parse("")` raises `ParseError`  | ✓ |
+| `JSON.parse(nil)`      | `MultiJSON.parse(nil)` raises `ParseError` | ✓ |
 `ParseError` instance has `cause` reader which contains the original exception.
 It also has `data` reader with the input that caused the problem, and `line`/`column`
 readers populated for adapters whose error messages include a location (Oj and the
@@ -128,7 +118,7 @@ MultiJSON.use(MyAdapter)
 ```
 
 `ParseError` is required: `MultiJSON.parse` rescues `MyAdapter::ParseError`
-to wrap parse failures in `MultiJSON::ParserError`, and an adapter that
+to wrap parse failures in `MultiJSON::ParseError`, and an adapter that
 omits the constant raises `MultiJSON::AdapterError` on the first parse
 attempt instead of producing a confusing `NameError`.
 
@@ -137,15 +127,6 @@ class methods `self._parse` and `self._generate`. You'll pick up shared
 option merging, the `defaults :parse, ...` / `defaults :generate, ...`
 DSL, the IO-read step, and the blank-input guard. The built-in adapters
 in `lib/multi_json/adapters/` are working examples.
-
-> [!NOTE]
-> The adapter contract methods on the adapter class itself stay named
-> `.load` / `.dump` in 1.21.x (and the `defaults :load, ...` / `defaults
-> :dump, ...` DSL keys match). The 2.0 release renames them to `.parse` /
-> `.generate` to align with the public API; if you ship a custom adapter,
-> you'll need to rename those methods (and the `defaults` keys) when you
-> upgrade.
-
 MultiJSON tries to have intelligent defaulting. If any supported library is
 already loaded, MultiJSON uses it before attempting to load others. When no
 backend is preloaded, MultiJSON walks its preference list and uses the first

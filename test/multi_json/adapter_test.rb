@@ -81,16 +81,22 @@ end
 class AdapterLoadTest < Minitest::Test
   cover "MultiJSON::Adapter*"
 
-  def test_load_returns_nil_for_nil_input
-    assert_nil MultiJSON::Adapters::JsonGem.parse(nil)
+  def test_load_raises_parser_error_for_nil_input
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON::Adapters::JsonGem.parse(nil) }
+
+    assert_match(/nil/, error.message)
   end
 
-  def test_load_returns_nil_for_empty_string
-    assert_nil MultiJSON::Adapters::JsonGem.parse("")
+  def test_load_raises_parser_error_for_empty_string
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON::Adapters::JsonGem.parse("") }
+
+    assert_match(/blank/, error.message)
   end
 
-  def test_load_returns_nil_for_whitespace_only_string
-    assert_nil MultiJSON::Adapters::JsonGem.parse("   \n\t  ")
+  def test_load_raises_parser_error_for_whitespace_only_string
+    error = assert_raises(MultiJSON::ParseError) { MultiJSON::Adapters::JsonGem.parse("   \n\t  ") }
+
+    assert_match(/blank/, error.message)
   end
 
   def test_load_reads_from_io_object
@@ -112,16 +118,16 @@ class AdapterLoadTest < Minitest::Test
     assert_equal({name: "test"}, result)
   end
 
-  def test_load_handles_invalid_utf8_in_blank_check
-    # Invalid UTF-8 byte sequence that triggers ArgumentError in blank? regex
-    # The blank? method rescues ArgumentError and returns false, allowing parse to proceed
-    # This test verifies blank? doesn't crash on invalid UTF-8
+  def test_load_raises_on_invalid_utf8_input
     invalid_utf8 = (+"\xFF\xFE").force_encoding("UTF-8")
 
-    # Should raise parse error, not ArgumentError from blank check
     assert_raises(JSON::ParserError) do
       MultiJSON::Adapters::JsonGem.parse(invalid_utf8)
     end
+  end
+
+  def test_load_reads_from_empty_io_object_and_raises
+    assert_raises(MultiJSON::ParseError) { MultiJSON::Adapters::JsonGem.parse(StringIO.new("")) }
   end
 end
 

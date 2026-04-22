@@ -24,9 +24,9 @@ module AdapterParseTests
     assert_equal({"abc" => "def"}, MultiJSON.parse('{"abc":"def"}'))
   end
 
-  def test_load_returns_nil_on_blank_input
+  def test_load_raises_on_blank_input
     [nil, "", " ", "\t\t\t", "\n", StringIO.new("")].each do |input|
-      assert_nil MultiJSON.parse(input)
+      assert_raises(MultiJSON::ParseError) { MultiJSON.parse(input) }
     end
   end
 
