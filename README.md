@@ -166,6 +166,56 @@ backend, set both directions with `MultiJSON.use(:your_adapter)` or override
 one side with `MultiJSON.parse_adapter = ...` /
 `MultiJSON.generate_adapter = ...`.
 
+## Migrating from 1.x to 2.0
+
+> [!IMPORTANT]
+> **2.0.0 removes every deprecated alias that `1.21.0` kept alive.** Pin to
+> `~> 1.21` first, fix the warnings surfaced by `ruby -W:deprecated`, and
+> only then upgrade to `~> 2.0`.
+
+The user-facing changes are:
+
+- **`load` / `dump` are gone.** Use `MultiJSON.parse` and
+  `MultiJSON.generate`.
+- **`MultiJson` (CamelCase) is gone.** Use `MultiJSON` (all caps) —
+  same spelling as stdlib `JSON`.
+- **`MultiJSON::ParseError` remains the public parse exception.**
+- **`symbolize_keys:` is gone.** Use `symbolize_names:` — same
+  spelling as stdlib `JSON.parse`.
+- **`load_options(=)` / `dump_options(=)` are gone.** Use
+  `parse_options(=)` / `generate_options(=)`.
+- **`decode` / `encode` / `engine(=)` / `default_engine` /
+  `with_engine` are gone.** Use `parse` / `generate` / `adapter(=)` /
+  `default_adapter` / `with_adapter`.
+- **`default_options(=)` / `cached_options` / `reset_cached_options!`
+  are gone.** Use `parse_options(=)` / `generate_options(=)` and
+  `MultiJSON::OptionsCache.reset`.
+- **`MultiJSON::DecodeError` and `MultiJSON::LoadError` are gone.**
+  Rescue `MultiJSON::ParseError`.
+
+New behavior in 2.0:
+
+- `MultiJSON.parse` raises `MultiJSON::ParseError` on `nil`, empty,
+  and whitespace-only input, matching RFC 8259 and stdlib `JSON.parse`.
+  Previously these inputs returned `nil`.
+- `MultiJSON.parse`, `MultiJSON.generate`, and `current_adapter` take
+  explicit keyword arguments (`symbolize_names:`, `pretty:`,
+  `adapter:`). Adapter-specific options still flow through as a
+  trailing `**opts`.
+- Adapter specs are Symbols or Modules. Strings are no longer accepted
+  — pass `:oj` or `MultiJSON::Adapters::Oj`, not `"oj"`.
+- Callable (Proc / lambda) options are no longer accepted by
+  `parse_options=` / `generate_options=`. Pass a Hash or `nil`.
+- `Class.new { include MultiJSON }` no longer works; only
+  `MultiJSON.*` class methods are supported.
+- Custom adapters implement `.parse(string, options)` and
+  `.generate(object, options)` as class methods and define a
+  `ParseError` constant. Adapters that inherit from
+  `MultiJSON::Adapter` override the private class methods
+  `self._parse` and `self._generate` and pick up shared option
+  merging, the `defaults :parse, ...` / `defaults :generate, ...`
+  DSL, the IO-read step, and the blank-input guard.
+
 ## Gem Variants
 
 MultiJSON ships as two platform-specific gems. Bundler and RubyGems

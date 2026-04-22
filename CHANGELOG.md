@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+
+`2.0.0` completes the rename-and-tighten work introduced in `1.21.0`. If you've already migrated off the deprecated names under `1.21.0`, this upgrade should be mechanical. If not, run your app or test suite with `ruby -W:deprecated` against `1.21.x` first and migrate the warnings before upgrading.
+
+### Added
+
+- Adapter contract for subclasses of `MultiJSON::Adapter`: implement the private class methods `self._parse(string, options)` and `self._generate(object, options)` to plug into the base class's framework dispatch (IO reading, blank-input guard, option merging). Standalone custom adapters still respond to `.parse` and `.generate` at the class level.
+- Replace the two-adapter `Benchmark.ips` smoke test in `benchmark.rb` with a full adapter comparison matrix (`parse` + `generate` across nine workloads) and promote it to a top-level `rake benchmark` task. A new `--verify-preference` flag asserts that `PARSE_ADAPTERS` and `GENERATE_ADAPTERS` each match the observed throughput ranking for their direction, with a 10% tolerance for adjacent ties; CI runs it on every push so the ordering can't silently drift.
+
+### Changed
+
+- `MultiJSON.parse` raises `MultiJSON::ParseError` on `nil`, empty, and whitespace-only input, matching RFC 8259 and Ruby stdlib `JSON.parse`. Previously these inputs returned `nil`.
+- `MultiJSON.parse`, `MultiJSON.generate`, and `MultiJSON.current_adapter` use explicit keyword arguments (`symbolize_names:`, `pretty:`, `adapter:`) with an `**opts` splat for adapter-specific options.
+- `MultiJSON::Adapter` no longer includes `Singleton`. Built-in adapters are class-method only; the `instance.parse` / `instance.generate` trampoline is gone.
+- The options setters (`MultiJSON.parse_options=`, `MultiJSON.generate_options=`, and the per-adapter counterparts) accept only `Hash` or `nil`. `Proc` / lambda values are no longer supported.
+- `MultiJSON.use` accepts only Symbols and Modules. Strings are no longer recognized as adapter identifiers; pass a canonical Symbol (`:oj`, `:json_gem`, etc.) or the adapter module itself.
+- Module-level `include MultiJSON` and the dual `module_function` / singleton API are gone. Only `MultiJSON.*` class methods remain.
+- Split adapter selection into separate `PARSE_ADAPTERS` / `GENERATE_ADAPTERS` preference lists so each direction can pick its fastest backend independently. `default_parse_adapter` and `default_generate_adapter` walk their respective list. `PARSE_ADAPTERS` is reordered so the JSON gem is tried before `fast_jsonparser`/`oj`/`yajl` on MRI and TruffleRuby, matching the bundled benchmark on Ruby 3.4+; the list is split per platform so JRuby still prefers `jr_jackson`. Affects auto-detection only when more than one parse-capable adapter is loaded; explicit selection via `MultiJSON.use(:adapter)` is unchanged.
+
+### Removed
+
+- `MultiJSON.load` / `MultiJSON.dump` — use `MultiJSON.parse` / `MultiJSON.generate`.
+- `MultiJSON.load_options` / `MultiJSON.load_options=` / `MultiJSON.dump_options` / `MultiJSON.dump_options=` — use `MultiJSON.parse_options` / `MultiJSON.generate_options`.
+- The `MultiJson` (CamelCase) constant alias — use `MultiJSON`.
+- The `symbolize_keys:` parse option — use `symbolize_names:`.
+- `MultiJSON::DecodeError` and `MultiJSON::LoadError` aliases for `ParseError`.
+- `MultiJSON.decode` / `MultiJSON.encode` / `MultiJSON.engine` / `MultiJSON.engine=` / `MultiJSON.default_engine` / `MultiJSON.with_engine`.
+- `MultiJSON.default_options` / `MultiJSON.default_options=` / `MultiJSON.cached_options` / `MultiJSON.reset_cached_options!`.
+
 ## [1.21.0]
 
 Every deprecation introduced here will be **removed in `2.0.0`**. Upgrade to `1.21.0`, run your app or test suite with `ruby -W:deprecated` to surface the warnings, migrate each call site to the new canonical names, then pin `~> 2.0` once `2.0.0` ships.
@@ -540,6 +569,7 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Fix `default_engine` check for json gem.
 - Make requirement mapper an Array to preserve order in Ruby versions < 1.9.
 
+[2.0.0]: https://github.com/sferik/multi_json/compare/v1.21.0...v2.0.0
 [1.21.0]: https://github.com/sferik/multi_json/compare/v1.20.1...v1.21.0
 [1.20.1]: https://github.com/sferik/multi_json/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/sferik/multi_json/compare/v1.19.1...v1.20.0
