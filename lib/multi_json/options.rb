@@ -3,7 +3,11 @@
 module MultiJSON
   # Mixin providing configurable parse/generate options
   #
-  # Supports static hashes or dynamic callables (procs/lambdas).
+  # Options are plain hashes: the callable (Proc/lambda) form that
+  # {MultiJSON.load_options=} / {MultiJSON.dump_options=} accepted in
+  # 1.x was removed in 2.0 because it carried significant type-surface
+  # complexity and had no known downstream consumers.
+  #
   # Extended by both MultiJSON (global options) and Adapter classes.
   #
   # @api private
@@ -18,11 +22,14 @@ module MultiJSON
     # Set options for parse operations
     #
     # @api public
-    # @param options [Hash, Proc] options hash or callable
-    # @return [Hash, Proc] the options
+    # @param options [Hash, nil] options hash or nil to clear
+    # @return [Hash, nil] the options
+    # @raise [ArgumentError] when ``options`` is neither a Hash nor nil
     # @example
-    #   MultiJSON.parse_options = {symbolize_keys: true}
+    #   MultiJSON.parse_options = {symbolize_names: true}
     def parse_options=(options)
+      raise ArgumentError, "expected a Hash or nil, got #{options.class}" unless options.nil? || options.is_a?(Hash)
+
       OptionsCache.reset
       @parse_options = options
     end
@@ -30,40 +37,36 @@ module MultiJSON
     # Set options for generate operations
     #
     # @api public
-    # @param options [Hash, Proc] options hash or callable
-    # @return [Hash, Proc] the options
+    # @param options [Hash, nil] options hash or nil to clear
+    # @return [Hash, nil] the options
+    # @raise [ArgumentError] when ``options`` is neither a Hash nor nil
     # @example
     #   MultiJSON.generate_options = {pretty: true}
     def generate_options=(options)
+      raise ArgumentError, "expected a Hash or nil, got #{options.class}" unless options.nil? || options.is_a?(Hash)
+
       OptionsCache.reset
       @generate_options = options
     end
 
     # Get options for parse operations
     #
-    # When `@parse_options` is a callable (proc/lambda), it's invoked
-    # with `args` as positional arguments — typically the merged
-    # options hash from `Adapter.merged_parse_options`. When it's a
-    # plain hash, `args` is ignored.
-    #
     # @api public
-    # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
     # @example
     #   MultiJSON.parse_options  #=> {}
-    def parse_options(*args)
-      resolve_options(@parse_options, *args) || default_parse_options
+    def parse_options
+      @parse_options || default_parse_options
     end
 
     # Get options for generate operations
     #
     # @api public
-    # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
     # @example
     #   MultiJSON.generate_options  #=> {}
-    def generate_options(*args)
-      resolve_options(@generate_options, *args) || default_generate_options
+    def generate_options
+      @generate_options || default_generate_options
     end
 
     # Get default parse options
@@ -80,33 +83,6 @@ module MultiJSON
     # @return [Hash] frozen empty hash
     def default_generate_options
       Concurrency.synchronize(:default_options) { @default_generate_options ||= EMPTY_OPTIONS }
-    end
-
-    private
-
-    # Resolves options from a hash or callable
-    #
-    # @api private
-    # @param options [Hash, Proc, nil] options configuration
-    # @param args [Array<Object>] arguments forwarded to a callable provider
-    # @return [Hash, nil] resolved options hash
-    def resolve_options(options, *args)
-      if options.respond_to?(:call)
-        # @type var options: options_proc
-        return invoke_callable(options, *args)
-      end
-
-      options.to_hash if options.respond_to?(:to_hash)
-    end
-
-    # Invokes a callable options provider
-    #
-    # @api private
-    # @param callable [Proc] options provider
-    # @param args [Array<Object>] arguments forwarded when the callable is non-arity-zero
-    # @return [Hash] options returned by the callable
-    def invoke_callable(callable, *args)
-      callable.arity.zero? ? callable.call : callable.call(*args)
     end
   end
 end

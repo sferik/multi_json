@@ -21,7 +21,11 @@ target :lib do
   library "singleton"
 
   configure_code_diagnostics(D::Ruby.strict) do |hash|
-    # module_function creates private instance methods that are difficult to type
+    # Custom adapters arrive as `Module` and get duck-typed via
+    # `respond_to?(:load)` / `respond_to?(:dump)`; the `_Adapter` and
+    # `_Readable` interfaces intentionally don't declare those methods
+    # because they describe what adapters *must* implement, not what
+    # the runtime queries on them before dispatch.
     hash[D::Ruby::NoMethod] = :hint
     # set_backtrace has three overloads (String|Array[String], Array[Location], nil)
     # and Steep can't pick one when given a `(Array[String] | nil)` union from

@@ -49,6 +49,6 @@ module AdapterDumpTests
   end
 
   def test_dump_json_with_utf8
-    assert_equal '{"color":"żółć"}', MultiJSON.generate("color" => "żółć")
+    assert_equal '{"color":"żółć"}', MultiJSON.generate({"color" => "żółć"})
   end
 end

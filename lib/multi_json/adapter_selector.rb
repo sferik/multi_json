@@ -4,7 +4,7 @@ module MultiJSON
   # Handles adapter discovery, loading, and selection
   #
   # Adapters can be specified as:
-  # - Symbol/String: adapter name (e.g., :oj, "json_gem")
+  # - Symbol: adapter name (e.g., :oj, :json_gem)
   # - Module: adapter class directly
   # - nil/false: use default adapter
   #
@@ -159,15 +159,14 @@ module MultiJSON
     # Loads an adapter from a specification
     #
     # @api private
-    # @param adapter_spec [Symbol, String, Module, nil, false] adapter specification
+    # @param adapter_spec [Symbol, Module, nil, false] adapter specification
     # @return [Class] the adapter class
     def load_adapter(adapter_spec)
       adapter = case adapter_spec
-      when ::String then load_adapter_by_name(adapter_spec)
       when ::Symbol then load_adapter_by_name(adapter_spec.to_s)
       when nil, false then load_adapter(default_adapter)
       when ::Module then adapter_spec
-      else raise LoadError, "expected adapter to be a Symbol, String, or Module, got #{adapter_spec.inspect}"
+      else raise LoadError, "expected adapter to be a Symbol or Module, got #{adapter_spec.inspect}"
       end
       validate_adapter!(adapter)
     rescue LoadError => e

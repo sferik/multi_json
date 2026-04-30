@@ -41,4 +41,20 @@ module JsonCommonAdapterTests
     assert_equal object, called_with[0]
     assert_equal({indent: "\t"}, called_with[1])
   end
+
+  def test_dump_with_pretty_and_extra_option_merges_prototype_with_override
+    MultiJSON.generate_options = MultiJSON.adapter.generate_options = nil
+    object = {foo: "bar"}
+
+    called_with = nil
+    capture = ->(obj, opts = {}) { called_with = [obj, opts] }
+
+    with_stub(JSON, :pretty_generate, capture, call_original: true) do
+      MultiJSON.generate(object, pretty: true, indent: "\t")
+    end
+
+    assert_equal object, called_with[0]
+    # The :pretty key is stripped; the override (:indent) wins over the prototype default.
+    assert_equal "\t", called_with[1][:indent]
+  end
 end

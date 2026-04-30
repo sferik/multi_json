@@ -38,7 +38,7 @@ class OptionsDefaultOptionsTest < Minitest::Test
   end
 
   def test_load_options_with_undefined_returns_default
-    @test_class.remove_instance_variable(:@load_options) if @test_class.instance_variable_defined?(:@load_options)
+    @test_class.remove_instance_variable(:@parse_options) if @test_class.instance_variable_defined?(:@parse_options)
 
     result = @test_class.parse_options
 
@@ -46,7 +46,7 @@ class OptionsDefaultOptionsTest < Minitest::Test
   end
 
   def test_dump_options_with_undefined_returns_default
-    @test_class.remove_instance_variable(:@dump_options) if @test_class.instance_variable_defined?(:@dump_options)
+    @test_class.remove_instance_variable(:@generate_options) if @test_class.instance_variable_defined?(:@generate_options)
 
     result = @test_class.generate_options
 

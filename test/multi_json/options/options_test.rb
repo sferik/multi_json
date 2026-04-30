@@ -65,73 +65,49 @@ class OptionsTest < Minitest::Test
     assert_nil MultiJSON::OptionsCache.load.fetch(:test_key, nil)
   end
 
-  def test_load_options_with_callable_zero_arity
-    @test_class.parse_options = -> { {symbolize_names: true} }
-
-    assert_equal({symbolize_names: true}, @test_class.parse_options)
+  def test_load_options_setter_raises_for_non_hash_values
+    [true, false, 10, Object.new, "str", -> { {} }].each do |val|
+      error = assert_raises(ArgumentError) { @test_class.parse_options = val }
+      assert_includes error.message, "Hash or nil"
+      assert_includes error.message, val.class.to_s
+    end
   end
 
-  def test_dump_options_with_callable_zero_arity
-    @test_class.generate_options = -> { {pretty: true} }
+  def test_dump_options_setter_raises_for_non_hash_values
+    [true, false, 10, Object.new, "str", -> { {} }].each do |val|
+      error = assert_raises(ArgumentError) { @test_class.generate_options = val }
+      assert_includes error.message, "Hash or nil"
+      assert_includes error.message, val.class.to_s
+    end
+  end
+
+  def test_load_options_setter_accepts_nil
+    @test_class.parse_options = {foo: :bar}
+    @test_class.parse_options = nil
+
+    assert_empty @test_class.parse_options
+  end
+
+  def test_dump_options_setter_accepts_nil
+    @test_class.generate_options = {foo: :bar}
+    @test_class.generate_options = nil
+
+    assert_empty @test_class.generate_options
+  end
+
+  def test_load_options_setter_accepts_hash_subclass
+    hash_subclass = Class.new(Hash)
+    instance = hash_subclass[foo: :bar]
+    @test_class.parse_options = instance
+
+    assert_equal({foo: :bar}, @test_class.parse_options)
+  end
+
+  def test_dump_options_setter_accepts_hash_subclass
+    hash_subclass = Class.new(Hash)
+    instance = hash_subclass[pretty: true]
+    @test_class.generate_options = instance
 
     assert_equal({pretty: true}, @test_class.generate_options)
-  end
-
-  def test_load_options_with_callable_with_arity
-    @test_class.parse_options = ->(opts) { opts.merge(symbolize_names: true) }
-
-    result = @test_class.parse_options({mode: :strict})
-
-    assert_equal({mode: :strict, symbolize_names: true}, result)
-  end
-
-  def test_dump_options_with_callable_with_arity
-    @test_class.generate_options = ->(opts) { opts.merge(pretty: true) }
-
-    result = @test_class.generate_options({escape_mode: :json})
-
-    assert_equal({escape_mode: :json, pretty: true}, result)
-  end
-
-  def test_load_options_with_to_hash_object
-    options_obj = Object.new
-    def options_obj.to_hash = {symbolize_names: true}
-
-    @test_class.parse_options = options_obj
-
-    assert_equal({symbolize_names: true}, @test_class.parse_options)
-  end
-
-  def test_dump_options_with_to_hash_object
-    options_obj = Object.new
-    def options_obj.to_hash = {pretty: true}
-
-    @test_class.generate_options = options_obj
-
-    assert_equal({pretty: true}, @test_class.generate_options)
-  end
-
-  def test_load_options_with_non_hashable_returns_default
-    @test_class.parse_options = "not a hash"
-
-    assert_empty(@test_class.parse_options)
-  end
-
-  def test_dump_options_with_non_hashable_returns_default
-    @test_class.generate_options = "not a hash"
-
-    assert_empty(@test_class.generate_options)
-  end
-
-  def test_load_options_callable_receives_arguments
-    received_args = nil
-    @test_class.parse_options = lambda { |*args|
-      received_args = args
-      {}
-    }
-
-    @test_class.parse_options({foo: :bar}, :extra)
-
-    assert_equal [{foo: :bar}, :extra], received_args
   end
 end

@@ -12,10 +12,12 @@ class LoadAdapterTest < Minitest::Test
     assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
-  def test_load_adapter_with_string
-    result = MultiJSON.send(:load_adapter, "json_gem")
+  def test_load_adapter_raises_for_string
+    error = assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, "json_gem")
+    end
 
-    assert_equal MultiJSON::Adapters::JsonGem, result
+    assert_match(/Symbol or Module/, error.message)
   end
 
   def test_load_adapter_with_class
@@ -60,19 +62,19 @@ class LoadAdapterTest < Minitest::Test
       MultiJSON.send(:load_adapter, custom)
     end
 
-    assert_match(/Symbol, String, or Module/, error.message)
+    assert_match(/Symbol or Module/, error.message)
     assert_match(/<custom-inspect>/, error.message)
   end
 
-  def test_load_adapter_raises_for_unknown_string
+  def test_load_adapter_raises_for_unknown_symbol
     assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.send(:load_adapter, "nonexistent_adapter")
+      MultiJSON.send(:load_adapter, :nonexistent_adapter)
     end
   end
 
   def test_load_adapter_wraps_load_error
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.send(:load_adapter, "bad_adapter")
+      MultiJSON.send(:load_adapter, :bad_adapter)
     end
 
     assert_kind_of LoadError, error.cause

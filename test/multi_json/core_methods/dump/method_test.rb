@@ -32,7 +32,7 @@ class DumpMethodTest < Minitest::Test
 
   def test_dump_passes_options_to_current_adapter
     MultiJSON.use :json_gem
-    result = MultiJSON.generate({test_key: "test_value"}, {})
+    result = MultiJSON.generate({test_key: "test_value"}, **{})
 
     assert_includes result, "test_key"
   end

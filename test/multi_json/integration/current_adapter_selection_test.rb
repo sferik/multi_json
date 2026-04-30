@@ -17,11 +17,11 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     MultiJSON.use original
   end
 
-  def test_current_adapter_accepts_nil_options
+  def test_current_adapter_accepts_no_arguments
     original = MultiJSON.adapter
     MultiJSON.use :json_gem
 
-    assert_equal MultiJSON.adapter, MultiJSON.current_adapter(nil)
+    assert_equal MultiJSON.adapter, MultiJSON.current_adapter
   ensure
     MultiJSON.use original
   end
@@ -41,12 +41,6 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
   end
 
-  def test_settable_via_case_insensitive_string
-    MultiJSON.use "Json_Gem"
-
-    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
-  end
-
   def test_settable_via_class
     adapter = valid_custom_class
     MultiJSON.use adapter
@@ -61,8 +55,8 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     assert_equal adapter, MultiJSON.adapter
   end
 
-  def test_throws_adapter_error_on_bad_input
-    assert_raises(MultiJSON::AdapterError) { MultiJSON.use "bad adapter" }
+  def test_throws_adapter_error_on_string_input
+    assert_raises(MultiJSON::AdapterError) { MultiJSON.use "json_gem" }
   end
 
   def test_throws_adapter_error_on_invalid_type

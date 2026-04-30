@@ -49,7 +49,7 @@ module AdapterLoadTests
   end
 
   def test_load_stringifies_symbol_keys_when_encoding
-    dumped_json = MultiJSON.generate(a: 1, b: {c: 2})
+    dumped_json = MultiJSON.generate({a: 1, b: {c: 2}})
     loaded_json = MultiJSON.parse(dumped_json)
 
     assert_equal({"a" => 1, "b" => {"c" => 2}}, loaded_json)

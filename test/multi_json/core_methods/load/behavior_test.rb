@@ -33,7 +33,7 @@ class LoadBehaviorTest < Minitest::Test
   end
 
   def test_load_uses_current_adapter_result_not_options
-    result = MultiJSON.parse('{"a":1}', {symbolize_names: false})
+    result = MultiJSON.parse('{"a":1}', symbolize_names: false)
 
     assert_kind_of Hash, result
   end
@@ -100,7 +100,7 @@ class LoadBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.parse('{"test":1}', {opt: true})
+    MultiJSON.parse('{"test":1}', opt: true)
 
     call = TestHelpers::StrictAdapter.load_calls.first
 
@@ -114,7 +114,7 @@ class LoadBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.parse('{"a":1}', {my_option: "value"})
+    MultiJSON.parse('{"a":1}', my_option: "value")
 
     call = TestHelpers::StrictAdapter.load_calls.first
 

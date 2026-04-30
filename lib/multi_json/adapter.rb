@@ -147,7 +147,7 @@ module MultiJSON
       def merged_dump_options(options)
         cache_key = strip_adapter_key(options)
         OptionsCache.dump.fetch(cache_key) do
-          generate_options(cache_key).merge(MultiJSON.generate_options(cache_key)).merge!(cache_key)
+          generate_options.merge(MultiJSON.generate_options).merge!(cache_key)
         end
       end
 
@@ -159,7 +159,7 @@ module MultiJSON
       def merged_load_options(options)
         cache_key = strip_adapter_key(options)
         OptionsCache.load.fetch(cache_key) do
-          parse_options(cache_key).merge(MultiJSON.parse_options(cache_key)).merge!(cache_key)
+          parse_options.merge(MultiJSON.parse_options).merge!(cache_key)
         end
       end
 

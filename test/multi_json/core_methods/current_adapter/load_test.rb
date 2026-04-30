@@ -17,7 +17,7 @@ class CurrentAdapterLoadTest < Minitest::Test
   end
 
   def test_current_adapter_calls_adapter_method_when_no_adapter_option
-    adapter_called = with_adapter_tracking { MultiJSON.current_adapter({}) }
+    adapter_called = with_adapter_tracking { MultiJSON.current_adapter(**{}) }
 
     assert adapter_called
   end
@@ -31,7 +31,7 @@ class CurrentAdapterLoadTest < Minitest::Test
   def test_current_adapter_extracts_adapter_from_options_hash
     MultiJSON.use :json_gem
 
-    result = MultiJSON.current_adapter({adapter: :json_gem, other: :option})
+    result = MultiJSON.current_adapter(adapter: :json_gem, other: :option)
 
     assert_equal MultiJSON::Adapters::JsonGem, result
   end

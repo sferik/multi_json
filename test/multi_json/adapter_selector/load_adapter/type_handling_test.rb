@@ -7,12 +7,6 @@ require "multi_json/adapter_selector"
 class LoadAdapterTypeHandlingTest < Minitest::Test
   cover "MultiJSON::AdapterSelector*"
 
-  def test_load_adapter_with_string_calls_to_s
-    result = MultiJSON.send(:load_adapter, "json_gem")
-
-    assert_equal MultiJSON::Adapters::JsonGem, result
-  end
-
   def test_load_adapter_with_symbol_calls_to_s
     result = MultiJSON.send(:load_adapter, :json_gem)
 
@@ -87,7 +81,7 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
 
   def test_load_adapter_wraps_load_error_in_adapter_error
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.send(:load_adapter, "nonexistent")
+      MultiJSON.send(:load_adapter, :nonexistent)
     end
 
     assert_kind_of LoadError, error.cause

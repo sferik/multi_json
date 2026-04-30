@@ -18,7 +18,7 @@ class CurrentAdapterMethodTest < Minitest::Test
   def test_current_adapter_returns_default_with_empty_options
     MultiJSON.use :json_gem
 
-    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.current_adapter({})
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.current_adapter(**{})
   end
 
   def test_current_adapter_returns_specified_adapter_from_options
@@ -37,7 +37,7 @@ class CurrentAdapterMethodTest < Minitest::Test
 
   def test_current_adapter_checks_adapter_key_in_options
     MultiJSON.use :json_gem
-    result = MultiJSON.current_adapter({symbolize_names: true})
+    result = MultiJSON.current_adapter(symbolize_names: true)
 
     assert_equal MultiJSON::Adapters::JsonGem, result
   end

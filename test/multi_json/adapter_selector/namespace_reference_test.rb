@@ -122,20 +122,6 @@ class ModuleTypeCheckingTest < Minitest::Test
     assert_equal custom_module, result
   end
 
-  def test_load_adapter_uses_absolute_string_reference
-    fake_string = Object.new.tap do |fake|
-      fake.define_singleton_method(:===) { |_| false }
-      fake.define_singleton_method(:name) { "FakeString" }
-    end
-    MultiJSON::AdapterSelector.const_set(:String, fake_string)
-
-    result = @instance.send(:load_adapter, "json_gem")
-
-    assert_equal MultiJSON::Adapters::JsonGem, result
-  ensure
-    MultiJSON::AdapterSelector.send(:remove_const, :String) if MultiJSON::AdapterSelector.const_defined?(:String, false)
-  end
-
   def test_load_adapter_uses_absolute_symbol_reference
     fake_symbol = Object.new.tap do |fake|
       fake.define_singleton_method(:===) { |_| false }

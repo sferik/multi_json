@@ -43,7 +43,7 @@ class UseCacheResetTest < Minitest::Test
     MultiJSON::OptionsCache.dump.fetch(key) { "cached" }
 
     assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.use("nonexistent_adapter_12345")
+      MultiJSON.use(:nonexistent_adapter)
     end
 
     # The previous adapter is still active, so its cache must survive the

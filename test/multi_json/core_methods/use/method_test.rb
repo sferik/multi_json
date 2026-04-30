@@ -40,7 +40,7 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     MultiJSON::OptionsCache.dump.fetch(:test) { "value" }
 
     assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.use("nonexistent_adapter")
+      MultiJSON.use(:nonexistent_adapter)
     end
 
     assert_equal "value", MultiJSON::OptionsCache.dump.fetch(:test, nil)
@@ -156,10 +156,8 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   def test_use_holds_adapter_mutex_during_swap
     mutex = MultiJSON::Concurrency.const_get(:MUTEXES).fetch(:adapter)
     calls = stub_synchronize_tracker(mutex)
-    object = Class.new { include MultiJSON }.new
-    object.define_singleton_method(:load_adapter) { |arg| MultiJSON.send(:load_adapter, arg) }
 
-    object.send(:use, :json_gem)
+    MultiJSON.use(:json_gem)
 
     assert_equal %i[synchronize_start synchronize_end], calls
   ensure

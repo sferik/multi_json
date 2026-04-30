@@ -34,7 +34,7 @@ class StrictAdapterCurrentAdapterTest < Minitest::Test
   end
 
   def test_current_adapter_with_empty_hash_returns_global_adapter
-    result = MultiJSON.current_adapter({})
+    result = MultiJSON.current_adapter(**{})
 
     assert_equal TestHelpers::StrictAdapter, result
   end

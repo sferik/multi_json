@@ -22,16 +22,10 @@ module MultiJSON
   type json_key = String | Symbol
 
   # Options hash type
-  type options = Hash[Symbol, bool | String | Symbol | Integer | Proc | nil]
+  type options = Hash[Symbol, bool | String | Symbol | Integer | Module | nil]
 
-  # Adapter specification - can be string name, symbol, module, or nil/false for default
-  type adapter_spec = String | Symbol | Module | nil | false
-
-  # Callable options - proc that returns options
-  type options_proc = ^() -> options | ^(options) -> options
-
-  # Options input - can be hash or callable
-  type options_input = options | options_proc
+  # Adapter specification - can be symbol, module, or nil/false for default
+  type adapter_spec = Symbol | Module | nil | false
 
   # String or IO-like object for parse input
   type string_input = String | _Readable
@@ -52,26 +46,16 @@ module MultiJSON
 
   def self.parse_error_class_for: (untyped adapter_class) -> untyped
 
-  # module_function methods - declared as both self. and instance methods
-  def self.adapter: () -> _Adapter
-  def self.use: (adapter_spec new_adapter) -> _Adapter
-  def self.adapter=: (adapter_spec new_adapter) -> _Adapter
-  def self.parse: (string_input string, ?options options) -> json
-  def self.current_adapter: (?options? options) -> _Adapter
-  def self.generate: (json_input object, ?options options) -> String
+  def self.adapter: () -> (_Adapter | Module)
+  def self.use: (adapter_spec new_adapter) -> (_Adapter | Module)
+  def self.adapter=: (adapter_spec new_adapter) -> (_Adapter | Module)
+  def self.parse: (string_input string, ?symbolize_names: bool, ?adapter: adapter_spec, **untyped opts) -> json
+  def self.current_adapter: (**untyped options) -> (_Adapter | Module)
+  def self.generate: (json_input object, ?pretty: bool, ?adapter: adapter_spec, **untyped opts) -> String
   def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
 
-  # Instance method declarations for module_function and explicit delegates
-  def adapter: () -> _Adapter
-  def use: (adapter_spec new_adapter) -> _Adapter
-  def adapter=: (adapter_spec new_adapter) -> _Adapter
-  def parse: (string_input string, ?options options) -> json
-  def current_adapter: (?options? options) -> _Adapter
-  def generate: (json_input object, ?options options) -> String
-  def with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
-
   # Module-level instance variable for adapter caching
-  @adapter: _Adapter?
+  self.@adapter: (_Adapter | Module)?
 
   class Version
     MAJOR: Integer
@@ -113,22 +97,17 @@ module MultiJSON
   module Options
     EMPTY_OPTIONS: options
 
-    def parse_options=: (options_input value) -> options_input
-    def generate_options=: (options_input value) -> options_input
-    def parse_options: (*options) -> options
-    def generate_options: (*options) -> options
+    def parse_options=: (options? value) -> options?
+    def generate_options=: (options? value) -> options?
+    def parse_options: () -> options
+    def generate_options: () -> options
     def default_parse_options: () -> options
     def default_generate_options: () -> options
 
-    @parse_options: options_input?
-    @generate_options: options_input?
+    @parse_options: options?
+    @generate_options: options?
     @default_parse_options: options?
     @default_generate_options: options?
-
-    private
-
-    def resolve_options: (options_input? stored_options, *options) -> options?
-    def invoke_callable: (options_proc callable, *options) -> options
   end
 
   module OptionsCache

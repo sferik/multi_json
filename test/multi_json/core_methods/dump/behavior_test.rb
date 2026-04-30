@@ -78,7 +78,7 @@ class DumpBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.generate({the_object: true}, {the_options: true})
+    MultiJSON.generate({the_object: true}, the_options: true)
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -92,7 +92,7 @@ class DumpBehaviorTest < Minitest::Test
     MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
 
-    MultiJSON.generate({obj: 1}, {opt: 2})
+    MultiJSON.generate({obj: 1}, opt: 2)
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 

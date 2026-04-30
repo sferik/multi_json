@@ -84,7 +84,7 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_error_message_not_nil
-    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, "bad_type_here") }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, :bad_type_here) }
 
     refute_nil error.cause.message
     refute_empty error.cause.message

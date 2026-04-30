@@ -56,15 +56,18 @@ class WithAdapterBehaviorTest < Minitest::Test
   end
 
   def test_with_adapter_nested_restores_outer_override
+    skip unless defined?(::Oj)
     MultiJSON.use :json_gem
     observed = {}
-    MultiJSON.with_adapter(:json_gem) do
+    MultiJSON.with_adapter(:oj) do
       MultiJSON.with_adapter(:json_gem) { observed[:inner] = MultiJSON.adapter }
       observed[:after_inner] = MultiJSON.adapter
     end
 
+    # Inner sees its own override; after inner exits, outer's override
+    # must be restored (not nil, and not the process default).
     assert_equal MultiJSON::Adapters::JsonGem, observed[:inner]
-    assert_equal MultiJSON::Adapters::JsonGem, observed[:after_inner]
+    assert_equal MultiJSON::Adapters::Oj, observed[:after_inner]
   end
 
   def test_with_adapter_body_executes_all_statements
