@@ -11,18 +11,18 @@ class DeprecatedMethodsTest < Minitest::Test
 
   def test_default_options_setter_is_deprecated
     warned = false
-    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warned = true if /deprecated/i.match?(msg) }) do
       silence_warnings { MultiJSON.default_options = {foo: "bar"} }
     end
 
     assert warned
   ensure
-    MultiJSON.load_options = MultiJSON.dump_options = nil
+    MultiJSON.parse_options = MultiJSON.generate_options = nil
   end
 
   def test_default_options_getter_is_deprecated
     warned = false
-    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warned = true if /deprecated/i.match?(msg) }) do
       silence_warnings { MultiJSON.default_options }
     end
 
@@ -31,7 +31,7 @@ class DeprecatedMethodsTest < Minitest::Test
 
   def test_cached_options_is_deprecated
     warned = false
-    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warned = true if /deprecated/i.match?(msg) }) do
       silence_warnings { MultiJSON.cached_options }
     end
 
@@ -40,7 +40,7 @@ class DeprecatedMethodsTest < Minitest::Test
 
   def test_reset_cached_options_is_deprecated
     warned = false
-    with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warned = true if /deprecated/i.match?(msg) }) do
       silence_warnings { MultiJSON.reset_cached_options! }
     end
 
@@ -52,7 +52,7 @@ class DeprecatedMethodsTest < Minitest::Test
 
     assert_equal({test: "value"}, MultiJSON.load_options)
   ensure
-    MultiJSON.load_options = MultiJSON.dump_options = nil
+    MultiJSON.parse_options = MultiJSON.generate_options = nil
   end
 
   def test_default_options_setter_sets_dump_options
@@ -60,7 +60,7 @@ class DeprecatedMethodsTest < Minitest::Test
 
     assert_equal({test: "value"}, MultiJSON.dump_options)
   ensure
-    MultiJSON.load_options = MultiJSON.dump_options = nil
+    MultiJSON.parse_options = MultiJSON.generate_options = nil
   end
 
   def test_default_options_getter_returns_load_options

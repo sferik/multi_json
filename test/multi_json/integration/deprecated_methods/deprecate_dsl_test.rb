@@ -17,7 +17,7 @@ module DeprecateDslTestHelpers
     @original_warn = Kernel.method(:warn)
     @captured = []
     captured = @captured # closure capture so define_singleton_method on Kernel can write to it
-    silence_warnings { Kernel.define_singleton_method(:warn) { |msg| captured << msg } }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |msg, **| captured << msg } }
     MultiJSON.define_singleton_method(:_dsl_capture) { |*args, **kwargs, &block| [args, kwargs, block&.call] }
     @generated << :_dsl_capture
   end

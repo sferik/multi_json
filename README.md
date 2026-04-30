@@ -22,6 +22,17 @@ MultiJSON.generate({abc: "def"})                       # convert Ruby back to JS
 MultiJSON.generate({abc: "def"}, pretty: true)         # encoded in a pretty form (if supported by the coder)
 ```
 
+> [!IMPORTANT]
+> **1.21.0 renames the public API to match Ruby stdlib `JSON`.** The canonical
+> verbs are now `MultiJSON.parse` / `MultiJSON.generate`, and the canonical
+> module is `MultiJSON` (all-caps). The legacy `MultiJson` constant,
+> `MultiJSON.load` / `MultiJSON.dump`, `:symbolize_keys`, and friends still
+> work but emit one-time deprecation warnings and **will be removed in 2.0.0**.
+> Run your app with `ruby -W:deprecated` to surface them; the warnings are
+> tagged with the `:deprecated` category so you can silence the whole set with
+> `Warning[:deprecated] = false`. See [Deprecated in 1.21.0](#deprecated-in-1210)
+> for the full list.
+
 `MultiJSON.parse` returns `nil` for `nil`, empty, and whitespace-only inputs
 instead of raising, so a missing or blank payload is observable as a `nil`
 return value rather than an exception. When parsing invalid JSON, MultiJSON
@@ -70,7 +81,7 @@ pretty-print calls and option keys keep working without changes:
 The module constant and primary verbs were renamed to match Ruby
 stdlib `JSON.parse` / `JSON.generate` and the JSON spec (RFC 8259).
 The old names still work in 1.x but now emit a one-time deprecation
-warning; they will be removed in 2.0.
+warning; **they will be removed in 2.0.0**.
 
 | Deprecated                    | Use instead                     |
 | ----------------------------- | ------------------------------- |
@@ -87,6 +98,13 @@ The `MultiJson` constant (CamelCase) continues to work as a thin
 delegator; every method call, constant lookup, and rescue clause
 routes through `MultiJSON` transparently.
 
+> [!TIP]
+> The recommended upgrade path to 2.0 is: pin `~> 1.21` first, run
+> `ruby -W:deprecated` against your app or test suite to surface every
+> deprecation, migrate each call site to the canonical name, then bump to
+> `~> 2.0`. The 2.0 release deletes the deprecated aliases entirely, so the
+> warnings during 1.21.x are your map.
+
 `ParseError` instance has `cause` reader which contains the original exception.
 It also has `data` reader with the input that caused the problem, and `line`/`column`
 readers populated for adapters whose error messages include a location (Oj and the
@@ -94,10 +112,10 @@ json gem). Adapters that don't include one (Yajl, fast_jsonparser) leave both ni
 
 ### Tuning the options cache
 
-MultiJSON memoizes the merged option hash for each `load`/`dump` call so identical
-option hashes don't trigger repeated work. The cache is bounded — defaulting to 1000
-entries per direction — and applications that generate many distinct option hashes
-can raise the ceiling at runtime:
+MultiJSON memoizes the merged option hash for each `parse`/`generate` call so
+identical option hashes don't trigger repeated work. The cache is bounded —
+defaulting to 1000 entries per direction — and applications that generate many
+distinct option hashes can raise the ceiling at runtime:
 
 ```ruby
 MultiJSON::OptionsCache.max_cache_size = 5000
@@ -148,6 +166,14 @@ For more, inherit from `MultiJSON::Adapter` to pick up shared option
 merging, the `defaults :load, ...` / `defaults :dump, ...` DSL, and the
 blank-input short-circuit. The built-in adapters in
 `lib/multi_json/adapters/` are working examples.
+
+> [!NOTE]
+> The adapter contract methods on the adapter class itself stay named
+> `.load` / `.dump` in 1.21.x (and the `defaults :load, ...` / `defaults
+> :dump, ...` DSL keys match). The 2.0 release renames them to `.parse` /
+> `.generate` to align with the public API; if you ship a custom adapter,
+> you'll need to rename those methods (and the `defaults` keys) when you
+> upgrade.
 
 MultiJSON tries to have intelligent defaulting. If any supported library is
 already loaded, MultiJSON uses it before attempting to load others. When no

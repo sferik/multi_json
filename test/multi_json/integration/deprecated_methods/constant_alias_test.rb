@@ -86,7 +86,7 @@ class DeprecatedConstantAliasMethodTest < Minitest::Test
 
   def capture_warn(&block)
     @original_warn = Kernel.method(:warn)
-    silence_warnings { Kernel.define_singleton_method(:warn, &block) }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |msg, **| block.call(msg) } }
   end
 
   def restore_warn
@@ -156,7 +156,7 @@ class DeprecatedConstantAliasConstTest < Minitest::Test
 
   def capture_warn(&block)
     @original_warn = Kernel.method(:warn)
-    silence_warnings { Kernel.define_singleton_method(:warn, &block) }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |msg, **| block.call(msg) } }
   end
 
   def restore_warn

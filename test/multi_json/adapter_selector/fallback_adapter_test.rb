@@ -21,7 +21,7 @@ class FallbackAdapterTest < Minitest::Test
     clear_default_adapter_warning
     warned = false
 
-    with_stub(Kernel, :warn, ->(_) { warned = true }) do
+    with_stub(Kernel, :warn, ->(_, **) { warned = true }) do
       MultiJSON.send(:fallback_adapter)
     end
 
@@ -32,7 +32,7 @@ class FallbackAdapterTest < Minitest::Test
     clear_default_adapter_warning
     warn_count = 0
 
-    with_stub(Kernel, :warn, ->(_) { warn_count += 1 }) do
+    with_stub(Kernel, :warn, ->(_, **) { warn_count += 1 }) do
       MultiJSON.send(:fallback_adapter)
       MultiJSON.send(:fallback_adapter)
     end
@@ -51,7 +51,7 @@ class FallbackAdapterTest < Minitest::Test
     clear_default_adapter_warning
     captured = nil
 
-    with_stub(Kernel, :warn, ->(msg) { captured = msg }) do
+    with_stub(Kernel, :warn, ->(msg, **) { captured = msg }) do
       MultiJSON.send(:fallback_adapter)
     end
 

@@ -60,6 +60,11 @@ module MultiJSON
   # aliases on the {Options} mixin can invoke it without routing
   # through ``MultiJSON.send(...)``.
   #
+  # The warning is tagged with the ``:deprecated`` category so callers
+  # can silence the whole set with ``Warning[:deprecated] = false`` or
+  # surface it via ``ruby -W:deprecated`` — the standard Ruby idiom for
+  # library deprecations since 2.7.
+  #
   # @api private
   # @param key [Symbol] identifier for the deprecation (typically the method name)
   # @param message [String] warning message to emit on first call
@@ -70,7 +75,7 @@ module MultiJSON
     Concurrency.synchronize(:deprecation_warnings) do
       return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
-      Kernel.warn(message)
+      Kernel.warn(message, category: :deprecated)
       DEPRECATION_WARNINGS_SHOWN.add(key)
     end
   end

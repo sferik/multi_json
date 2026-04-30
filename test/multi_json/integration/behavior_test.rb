@@ -50,7 +50,7 @@ class BehaviorIntegrationTest < Minitest::Test
 
       # Second call should NOT warn (exercises else branch at line 17)
       warn_count = 0
-      with_stub(Kernel, :warn, ->(msg) { warn_count += 1 if /warning/i.match?(msg) }) do
+      with_stub(Kernel, :warn, ->(msg, **) { warn_count += 1 if /warning/i.match?(msg) }) do
         MultiJSON.default_adapter
       end
 
@@ -90,7 +90,7 @@ class BehaviorIntegrationTest < Minitest::Test
   def assert_warns_about_no_adapters(times:)
     clear_default_adapter_warning
     warn_count = 0
-    with_stub(Kernel, :warn, ->(msg) { warn_count += 1 if /warning/i.match?(msg) }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warn_count += 1 if /warning/i.match?(msg) }) do
       MultiJSON.default_adapter
       yield if block_given?
     end

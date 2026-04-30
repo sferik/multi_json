@@ -18,7 +18,7 @@ class DeprecatedMethodsWarnOnceTest < Minitest::Test
     warn_count = 0
     original_warn = Kernel.method(:warn)
 
-    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg| warn_count += 1 } }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg, **| warn_count += 1 } }
 
     MultiJSON.default_options
 
@@ -32,14 +32,14 @@ class DeprecatedMethodsWarnOnceTest < Minitest::Test
     warn_count = 0
     original_warn = Kernel.method(:warn)
 
-    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg| warn_count += 1 } }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg, **| warn_count += 1 } }
 
     MultiJSON.default_options = {}
 
     assert_equal 0, warn_count
   ensure
     silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
-    MultiJSON.load_options = MultiJSON.dump_options = nil
+    MultiJSON.parse_options = MultiJSON.generate_options = nil
   end
 
   def test_cached_options_does_not_warn_when_already_marked
@@ -47,7 +47,7 @@ class DeprecatedMethodsWarnOnceTest < Minitest::Test
     warn_count = 0
     original_warn = Kernel.method(:warn)
 
-    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg| warn_count += 1 } }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg, **| warn_count += 1 } }
 
     MultiJSON.cached_options
 
@@ -61,7 +61,7 @@ class DeprecatedMethodsWarnOnceTest < Minitest::Test
     warn_count = 0
     original_warn = Kernel.method(:warn)
 
-    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg| warn_count += 1 } }
+    silence_warnings { Kernel.define_singleton_method(:warn) { |_msg, **| warn_count += 1 } }
 
     MultiJSON.reset_cached_options!
 

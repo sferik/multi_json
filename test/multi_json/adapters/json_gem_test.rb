@@ -115,7 +115,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_prettifies_output_when_pretty_is_true
-    script = activesupport_script("puts MultiJSON.dump({a: 1, b: 2, c: {d: {f: 2}}}, pretty: true, adapter: :json_gem)")
+    script = activesupport_script("puts MultiJSON.generate({a: 1, b: 2, c: {d: {f: 2}}}, pretty: true, adapter: :json_gem)")
     output, status = run_script(script)
 
     expected = JSON.pretty_generate({a: 1, b: 2, c: {d: {f: 2}}})
@@ -125,7 +125,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_serializes_objects_that_define_to_hash
-    script = activesupport_script('Class.new { def to_hash = {abc: "def"} }.then { puts MultiJSON.dump(_1.new, adapter: :json_gem) }')
+    script = activesupport_script('Class.new { def to_hash = {abc: "def"} }.then { puts MultiJSON.generate(_1.new, adapter: :json_gem) }')
     output, status = run_script(script)
 
     assert_predicate status, :success?
@@ -133,7 +133,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_serializes_time_using_activesupport_format
-    script = activesupport_script("puts MultiJSON.dump(Time.utc(2025, 12, 4, 13, 39, 46, 705000), adapter: :json_gem)")
+    script = activesupport_script("puts MultiJSON.generate(Time.utc(2025, 12, 4, 13, 39, 46, 705000), adapter: :json_gem)")
     output, status = run_script(script)
 
     assert_predicate status, :success?

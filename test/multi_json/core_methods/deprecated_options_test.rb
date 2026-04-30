@@ -47,7 +47,7 @@ class DeprecatedOptionsTest < Minitest::Test
     object.define_singleton_method(:load_options) { MultiJSON.load_options }
     warning_message = nil
 
-    with_stub(Kernel, :warn, ->(msg) { warning_message = msg }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warning_message = msg }) do
       silence_warnings { object.send(:default_options) }
     end
 
@@ -70,7 +70,7 @@ class DeprecatedOptionsTest < Minitest::Test
     object = default_options_instance
     warning_message = nil
 
-    with_stub(Kernel, :warn, ->(msg) { warning_message = msg }) do
+    with_stub(Kernel, :warn, ->(msg, **) { warning_message = msg }) do
       silence_warnings { object.send(:default_options=, foo: "bar") }
     end
 
