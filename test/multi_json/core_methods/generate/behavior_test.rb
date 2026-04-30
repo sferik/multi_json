@@ -80,7 +80,7 @@ class DumpBehaviorTest < Minitest::Test
 
     MultiJSON.generate({the_object: true}, the_options: true)
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     assert_equal({the_object: true}, call[:object])
     assert_equal({the_options: true}, call[:options])
@@ -94,7 +94,7 @@ class DumpBehaviorTest < Minitest::Test
 
     MultiJSON.generate({obj: 1}, opt: 2)
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     assert_equal({opt: 2}, call[:options])
   ensure

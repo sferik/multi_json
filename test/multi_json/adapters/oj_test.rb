@@ -49,7 +49,7 @@ if TestHelpers.oj?
       MultiJSON.parse('{"a":1}', symbolize_names: true)
       MultiJSON.parse('{"a":1}', symbolize_names: true)
 
-      cached = MultiJSON::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
+      cached = MultiJSON::OptionsCache.parse.send(:instance_variable_get, :@cache).values.first
 
       refute_includes cached.keys, :symbol_keys,
         "expected cached load options to be unchanged by Oj#load translation"
@@ -61,7 +61,7 @@ if TestHelpers.oj?
 
       MultiJSON.generate({foo: "bar"}, pretty: true)
 
-      cached = MultiJSON::OptionsCache.dump.send(:instance_variable_get, :@cache).values.first
+      cached = MultiJSON::OptionsCache.generate.send(:instance_variable_get, :@cache).values.first
 
       assert_includes cached.keys, :pretty,
         "expected cached dump options to retain :pretty key"

@@ -17,13 +17,13 @@ class StrictAdapterCurrentAdapterTest < Minitest::Test
   def test_load_uses_current_adapter_with_options
     MultiJSON.parse('{"a":1}', adapter: :json_gem)
 
-    assert_empty TestHelpers::StrictAdapter.load_calls
+    assert_empty TestHelpers::StrictAdapter.parse_calls
   end
 
   def test_dump_uses_current_adapter_with_options
     MultiJSON.generate({a: 1}, adapter: :json_gem)
 
-    assert_empty TestHelpers::StrictAdapter.dump_calls
+    assert_empty TestHelpers::StrictAdapter.generate_calls
   end
 
   def test_current_adapter_receives_options_hash

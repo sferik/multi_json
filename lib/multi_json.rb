@@ -123,7 +123,7 @@ module MultiJSON
     adapter_class = current_adapter(**opts)
     parse_error_class = parse_error_class_for(adapter_class)
     begin
-      adapter_class.load(string, opts)
+      adapter_class.parse(string, opts)
     rescue parse_error_class => e
       raise ParseError.build(e, string)
     end
@@ -155,7 +155,7 @@ module MultiJSON
   def self.generate(object, pretty: false, adapter: nil, **opts)
     opts[:pretty] = pretty if pretty
     opts[:adapter] = adapter if adapter
-    current_adapter(**opts).dump(object, opts)
+    current_adapter(**opts).generate(object, opts)
   end
 
   # Executes a block using the specified adapter

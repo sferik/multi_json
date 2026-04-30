@@ -50,19 +50,19 @@ class OptionsTest < Minitest::Test
   end
 
   def test_load_options_setter_resets_cache
-    MultiJSON::OptionsCache.dump.fetch(:test_key) { "test_value" }
+    MultiJSON::OptionsCache.generate.fetch(:test_key) { "test_value" }
 
     @test_class.parse_options = {foo: :bar}
 
-    assert_nil MultiJSON::OptionsCache.dump.fetch(:test_key, nil)
+    assert_nil MultiJSON::OptionsCache.generate.fetch(:test_key, nil)
   end
 
   def test_dump_options_setter_resets_cache
-    MultiJSON::OptionsCache.load.fetch(:test_key) { "test_value" }
+    MultiJSON::OptionsCache.parse.fetch(:test_key) { "test_value" }
 
     @test_class.generate_options = {foo: :bar}
 
-    assert_nil MultiJSON::OptionsCache.load.fetch(:test_key, nil)
+    assert_nil MultiJSON::OptionsCache.parse.fetch(:test_key, nil)
   end
 
   def test_load_options_setter_raises_for_non_hash_values

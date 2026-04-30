@@ -102,7 +102,7 @@ class LoadBehaviorTest < Minitest::Test
 
     MultiJSON.parse('{"test":1}', opt: true)
 
-    call = TestHelpers::StrictAdapter.load_calls.first
+    call = TestHelpers::StrictAdapter.parse_calls.first
 
     assert_equal '{"test":1}', call[:string]
     assert_equal({opt: true}, call[:options])
@@ -116,7 +116,7 @@ class LoadBehaviorTest < Minitest::Test
 
     MultiJSON.parse('{"a":1}', my_option: "value")
 
-    call = TestHelpers::StrictAdapter.load_calls.first
+    call = TestHelpers::StrictAdapter.parse_calls.first
 
     assert_equal({my_option: "value"}, call[:options])
   ensure
@@ -131,7 +131,7 @@ class LoadBehaviorTest < Minitest::Test
     # This test ensures the default parameter is {} not nil
     MultiJSON.parse('{"a":1}')
 
-    call = TestHelpers::StrictAdapter.load_calls.first
+    call = TestHelpers::StrictAdapter.parse_calls.first
 
     assert_kind_of Hash, call[:options]
   ensure

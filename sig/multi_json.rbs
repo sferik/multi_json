@@ -114,20 +114,21 @@ module MultiJSON
     DEFAULT_MAX_CACHE_SIZE: Integer
     BACKENDS: Hash[String, String]
 
-    def self.dump: () -> Store
-    def self.load: () -> Store
+    def self.generate: () -> Store
+    def self.parse: () -> Store
     def self.reset: () -> void
     def self.max_cache_size: () -> Integer
     def self.max_cache_size=: (Integer value) -> Integer
 
-    self.@dump: Store
-    self.@load: Store
+    self.@generate: Store
+    self.@parse: Store
     self.@max_cache_size: Integer
 
     class Store
       def initialize: () -> void
       def reset: () -> void
-      def fetch: (options key, ?options? default) ?{ () -> options } -> options?
+      def fetch: (options key) { () -> options } -> options
+               | (options key, ?options? default) -> options?
 
       @cache: untyped
       @mutex: Mutex
@@ -161,24 +162,21 @@ module MultiJSON
 
   class Adapter
     extend Options
-    include Singleton
 
     def self.default_parse_options: () -> options
     def self.default_generate_options: () -> options
-    def self.defaults: (:load | :dump action, options value) -> void
-    def self.load: (string_input string, ?options options) -> json
-    def self.dump: (json_input object, ?options options) -> String
-
-    # Instance methods receive String (after IO conversion in class method)
-    def load: (String string, options options) -> json
-    def dump: (json_input object, options options) -> String
+    def self.defaults: (:parse | :generate action, options value) -> void
+    def self.parse: (string_input string, ?options options) -> json
+    def self.generate: (json_input object, ?options options) -> String
 
     private
 
+    def self._parse: (String string, options options) -> json
+    def self._generate: (json_input object, options options) -> String
     def self.walk_default_options: (Symbol ivar) -> options
-    def self.blank?: (String? input) -> bool
-    def self.merged_dump_options: (options options) -> options?
-    def self.merged_load_options: (options options) -> options?
+    def self.blank?: (String input) -> bool
+    def self.merged_generate_options: (options options) -> options
+    def self.merged_parse_options: (options options) -> options
     def self.strip_adapter_key: (options options) -> options
 
     BLANK_PATTERN: Regexp
@@ -189,19 +187,20 @@ module MultiJSON
     class Yajl < Adapter
       ParseError: untyped
 
-      def load: (String string, options options) -> untyped
-      def dump: (json_input object, options options) -> String
+      private
+
+      def self._parse: (String string, options options) -> untyped
+      def self._generate: (json_input object, options options) -> String
     end
 
     class JrJackson < Adapter
       ParseError: untyped
 
-      def load: (String string, options options) -> untyped
-      def dump: (json_input object, options options) -> String
-
       private
 
-      def translate_load_options: (options options) -> options
+      def self._parse: (String string, options options) -> untyped
+      def self._generate: (json_input object, options options) -> String
+      def self.translate_parse_options: (options options) -> options
     end
 
     class Gson < Adapter
@@ -209,12 +208,11 @@ module MultiJSON
       DEFAULT_DECODER: untyped
       DEFAULT_ENCODER: untyped
 
-      def load: (String string, options options) -> untyped
-      def dump: (json_input object, options options) -> String
-
       private
 
-      def translate_load_options: (options options) -> options
+      def self._parse: (String string, options options) -> untyped
+      def self._generate: (json_input object, options options) -> String
+      def self.translate_parse_options: (options options) -> options
     end
   end
 end

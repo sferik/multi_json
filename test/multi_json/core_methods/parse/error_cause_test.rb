@@ -38,20 +38,20 @@ class LoadErrorCauseTest < Minitest::Test
     assert_includes error.message, custom.to_s
   end
 
-  def test_load_raises_adapter_error_when_adapter_lacks_load
+  def test_load_raises_adapter_error_when_adapter_lacks_parse
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.parse('{"a":1}', adapter: adapter_without_load)
+      MultiJSON.parse('{"a":1}', adapter: adapter_without_parse)
     end
 
-    assert_match(/must respond to \.load/, error.message)
+    assert_match(/must respond to \.parse/, error.message)
   end
 
-  def test_load_raises_adapter_error_when_adapter_lacks_dump_before_parsing
+  def test_load_raises_adapter_error_when_adapter_lacks_generate_before_parsing
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.parse('{"a":1}', adapter: adapter_without_dump)
+      MultiJSON.parse('{"a":1}', adapter: adapter_without_generate)
     end
 
-    assert_match(/must respond to \.dump/, error.message)
+    assert_match(/must respond to \.generate/, error.message)
   end
 
   def test_load_ignores_top_level_parse_error_inherited_from_object
@@ -68,22 +68,22 @@ class LoadErrorCauseTest < Minitest::Test
 
   def adapter_without_parse_error
     Class.new do
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = nil
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = nil
     end
   end
 
-  def adapter_without_load
+  def adapter_without_parse
     Class.new do
       const_set(:ParseError, Class.new(StandardError))
-      def self.dump(_object, _options) = nil
+      def self.generate(_object, _options) = nil
     end
   end
 
-  def adapter_without_dump
+  def adapter_without_generate
     Class.new do
       const_set(:ParseError, Class.new(StandardError))
-      def self.load(_string, _options) = nil
+      def self.parse(_string, _options) = nil
     end
   end
 end

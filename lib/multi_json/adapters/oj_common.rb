@@ -5,7 +5,8 @@ module MultiJSON
     # Shared functionality for the Oj adapter
     #
     # Provides option preparation for Oj.dump. Targets Oj 3.x; Oj 2.x is
-    # no longer supported.
+    # no longer supported. Designed to be ``extend``ed so the helper
+    # becomes a private class method on the receiving adapter.
     #
     # @api private
     module OjCommon
@@ -24,17 +25,14 @@ module MultiJSON
       # Prepare options for Oj.dump
       #
       # Returns a fresh hash; never mutates the input. The input is the
-      # cached options hash returned from Adapter.merged_dump_options, so
-      # in-place mutation would pollute the cache and corrupt subsequent
-      # dump calls.
+      # cached options hash returned from Adapter.merged_generate_options,
+      # so in-place mutation would pollute the cache and corrupt
+      # subsequent generate calls.
       #
       # @api private
       # @param options [Hash] serialization options
       # @return [Hash] processed options for Oj.dump
-      #
-      # @example Prepare dump options
-      #   prepare_dump_options(pretty: true)
-      def prepare_dump_options(options)
+      def prepare_generate_options(options)
         return options unless options.key?(:pretty)
 
         options.except(:pretty).merge(PRETTY_STATE_PROTOTYPE)

@@ -111,16 +111,16 @@ class BehaviorIntegrationTest < Minitest::Test
   def assert_one_shot_adapter_behavior
     results = track_json_gem_calls { verify_one_shot_dump_and_load }
 
-    assert results[:dump_called] && results[:load_called]
+    assert results[:generate_called] && results[:parse_called]
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
   end
 
   def track_json_gem_calls(&)
-    results = {dump_called: false, load_called: false}
-    dump_stub = ->(*) { (results[:dump_called] = true) && "dump_something" }
-    load_stub = ->(*) { (results[:load_called] = true) && "load_something" }
-    with_stub(MultiJSON::Adapters::JsonGem, :dump, dump_stub) do
-      with_stub(MultiJSON::Adapters::JsonGem, :load, load_stub, &)
+    results = {generate_called: false, parse_called: false}
+    dump_stub = ->(*) { (results[:generate_called] = true) && "dump_something" }
+    load_stub = ->(*) { (results[:parse_called] = true) && "load_something" }
+    with_stub(MultiJSON::Adapters::JsonGem, :generate, dump_stub) do
+      with_stub(MultiJSON::Adapters::JsonGem, :parse, load_stub, &)
     end
     results
   end

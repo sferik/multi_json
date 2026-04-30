@@ -16,7 +16,7 @@ class ConcurrencyTest < Minitest::Test
     adapter
     default_adapter
     default_options
-    dump_delegate
+    generate_delegate
   ].freeze
 
   MUTEX_NAMES.each do |name|

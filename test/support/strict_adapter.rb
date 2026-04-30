@@ -5,18 +5,18 @@ class StrictAdapter
   class ParseError < StandardError; end
 
   class << self
-    attr_accessor :load_calls, :dump_calls
+    attr_accessor :parse_calls, :generate_calls
 
     def reset_calls
-      @load_calls = []
-      @dump_calls = []
+      @parse_calls = []
+      @generate_calls = []
     end
 
-    def load(string, options)
+    def parse(string, options)
       raise ArgumentError, "string cannot be nil" if string.nil?
 
-      @load_calls ||= []
-      @load_calls << {string: string, options: options}
+      @parse_calls ||= []
+      @parse_calls << {string: string, options: options}
 
       return symbolize_keys(::JSON.parse(string)) if options[:symbolize_names]
 
@@ -25,11 +25,11 @@ class StrictAdapter
       raise ParseError, e.message
     end
 
-    def dump(object, options)
+    def generate(object, options)
       raise ArgumentError, "object cannot be nil" if object.nil?
 
-      @dump_calls ||= []
-      @dump_calls << {object: object, options: options}
+      @generate_calls ||= []
+      @generate_calls << {object: object, options: options}
       ::JSON.generate(object)
     end
 

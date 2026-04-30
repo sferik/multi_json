@@ -14,12 +14,12 @@ class LoadAdapterSelectionTest < Minitest::Test
     MultiJSON.parse('{"a":1}', adapter: TestHelpers::StrictAdapter)
 
     # StrictAdapter records all load calls - if adapter option is ignored, this fails
-    refute_empty TestHelpers::StrictAdapter.load_calls
+    refute_empty TestHelpers::StrictAdapter.parse_calls
   end
 
   def test_load_uses_adapter_option_not_default
     MultiJSON.parse('{"a":1}', adapter: TestHelpers::StrictAdapter)
 
-    assert_equal 1, TestHelpers::StrictAdapter.load_calls.size
+    assert_equal 1, TestHelpers::StrictAdapter.parse_calls.size
   end
 end

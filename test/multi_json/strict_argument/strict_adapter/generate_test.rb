@@ -17,7 +17,7 @@ class StrictAdapterDumpTest < Minitest::Test
   def test_dump_passes_object_as_first_argument
     MultiJSON.generate({key: "value"})
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     assert_equal({key: "value"}, call[:object])
   end
@@ -25,7 +25,7 @@ class StrictAdapterDumpTest < Minitest::Test
   def test_dump_passes_options_hash_as_second_argument
     MultiJSON.generate({a: 1}, pretty: true)
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     assert call[:options].key?(:pretty)
   end
@@ -33,7 +33,7 @@ class StrictAdapterDumpTest < Minitest::Test
   def test_dump_passes_empty_hash_when_no_options_given
     MultiJSON.generate({a: 1})
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     assert_kind_of Hash, call[:options]
   end
@@ -41,7 +41,7 @@ class StrictAdapterDumpTest < Minitest::Test
   def test_dump_options_not_nil
     MultiJSON.generate({a: 1})
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     refute_nil call[:options], "Options should never be nil"
   end
@@ -49,7 +49,7 @@ class StrictAdapterDumpTest < Minitest::Test
   def test_dump_object_not_nil
     MultiJSON.generate({a: 1})
 
-    call = TestHelpers::StrictAdapter.dump_calls.first
+    call = TestHelpers::StrictAdapter.generate_calls.first
 
     refute_nil call[:object], "Object should never be nil"
   end

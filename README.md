@@ -100,7 +100,7 @@ new ceiling. Call `MultiJSON::OptionsCache.reset` if you want to evict
 immediately.
 
 The `use` method, which sets the MultiJSON adapter, takes either a symbol or a
-class (to allow for custom JSON parsers) that responds to both `.load` and `.dump`
+class (to allow for custom JSON parsers) that responds to both `.parse` and `.generate`
 at the class level.
 
 When MultiJSON fails to load the specified adapter, it'll throw `MultiJSON::AdapterError`
@@ -115,11 +115,11 @@ defines a `ParseError` constant:
 class MyAdapter
   ParseError = Class.new(StandardError)
 
-  def self.load(string, options)
+  def self.parse(string, options)
     # parse string into a Ruby object, raising ParseError on failure
   end
 
-  def self.dump(object, options)
+  def self.generate(object, options)
     # serialize object to a JSON string
   end
 end
@@ -128,14 +128,15 @@ MultiJSON.use(MyAdapter)
 ```
 
 `ParseError` is required: `MultiJSON.parse` rescues `MyAdapter::ParseError`
-to wrap parse failures in `MultiJSON::ParseError`, and an adapter that
+to wrap parse failures in `MultiJSON::ParserError`, and an adapter that
 omits the constant raises `MultiJSON::AdapterError` on the first parse
 attempt instead of producing a confusing `NameError`.
 
-For more, inherit from `MultiJSON::Adapter` to pick up shared option
-merging, the `defaults :load, ...` / `defaults :dump, ...` DSL, and the
-blank-input short-circuit. The built-in adapters in
-`lib/multi_json/adapters/` are working examples.
+For more, inherit from `MultiJSON::Adapter` and override the private
+class methods `self._parse` and `self._generate`. You'll pick up shared
+option merging, the `defaults :parse, ...` / `defaults :generate, ...`
+DSL, the IO-read step, and the blank-input guard. The built-in adapters
+in `lib/multi_json/adapters/` are working examples.
 
 > [!NOTE]
 > The adapter contract methods on the adapter class itself stay named

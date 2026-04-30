@@ -194,8 +194,8 @@ module MultiJSON
     # Validate that an adapter satisfies the documented contract
     #
     # Custom adapters are accepted as modules/classes, so fail fast
-    # during adapter resolution rather than later on the first load or
-    # dump call.
+    # during adapter resolution rather than later on the first parse
+    # or generate call.
     #
     # @api private
     # @param adapter [Module] adapter class or module
@@ -203,8 +203,8 @@ module MultiJSON
     # @raise [AdapterError] when the adapter is missing a required class method
     #   or ParseError constant
     def validate_adapter!(adapter)
-      raise AdapterError, "Adapter #{adapter} must respond to .load" unless adapter.respond_to?(:load)
-      raise AdapterError, "Adapter #{adapter} must respond to .dump" unless adapter.respond_to?(:dump)
+      raise AdapterError, "Adapter #{adapter} must respond to .parse" unless adapter.respond_to?(:parse)
+      raise AdapterError, "Adapter #{adapter} must respond to .generate" unless adapter.respond_to?(:generate)
 
       MultiJSON.parse_error_class_for(adapter)
       adapter

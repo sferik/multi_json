@@ -10,13 +10,13 @@ class OptionsCacheTest < Minitest::Test
     max = MultiJSON::OptionsCache.max_cache_size
 
     (max + 1).times do |i|
-      MultiJSON::OptionsCache.dump.fetch(key: i) { {foo: i} }
-      MultiJSON::OptionsCache.load.fetch(key: i) { {foo: i} }
+      MultiJSON::OptionsCache.generate.fetch(key: i) { {foo: i} }
+      MultiJSON::OptionsCache.parse.fetch(key: i) { {foo: i} }
     end
   end
 
   def test_doesnt_leak_memory
-    [MultiJSON::OptionsCache.dump, MultiJSON::OptionsCache.load].each do |cache|
+    [MultiJSON::OptionsCache.generate, MultiJSON::OptionsCache.parse].each do |cache|
       size = cache.instance_variable_get(:@cache).size
 
       assert_operator size, :<=, MultiJSON::OptionsCache.max_cache_size
@@ -24,9 +24,9 @@ class OptionsCacheTest < Minitest::Test
   end
 
   def test_does_not_store_default_value
-    MultiJSON::OptionsCache.dump.fetch(:foo, :bar)
+    MultiJSON::OptionsCache.generate.fetch(:foo, :bar)
 
-    assert_equal :baz, MultiJSON::OptionsCache.dump.fetch(:foo, :baz)
+    assert_equal :baz, MultiJSON::OptionsCache.generate.fetch(:foo, :baz)
   end
 
   def test_executes_block_only_once_per_key_in_concurrent_access
@@ -36,7 +36,7 @@ class OptionsCacheTest < Minitest::Test
     # fetch is observably wrong: every thread would see an empty cache,
     # run the block, and increment counter past 1.
     cache_block = lambda do
-      MultiJSON::OptionsCache.dump.fetch(:foo) { sleep(0.01) && counter += 1 }
+      MultiJSON::OptionsCache.generate.fetch(:foo) { sleep(0.01) && counter += 1 }
     end
     threads = Array.new(5) { Thread.new(&cache_block) }
     threads.each(&:join)
@@ -45,7 +45,7 @@ class OptionsCacheTest < Minitest::Test
   end
 
   def test_store_reset_clears_cache
-    store = MultiJSON::OptionsCache.dump
+    store = MultiJSON::OptionsCache.generate
     store.fetch(:test_key) { "test_value" }
 
     assert_equal "test_value", store.fetch(:test_key, nil)

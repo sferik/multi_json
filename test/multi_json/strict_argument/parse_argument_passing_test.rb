@@ -32,7 +32,7 @@ class LoadArgumentPassingTest < Minitest::Test
 
     MultiJSON.parse('{"test":true}')
 
-    assert adapter.load_called, "load should call adapter.load"
+    assert adapter.parse_called, "load should call adapter.load"
   ensure
     MultiJSON.use :json_gem
   end
@@ -93,9 +93,9 @@ class LoadArgumentPassingTest < Minitest::Test
   def build_custom_adapter(load_result: {})
     result = load_result
     adapter = Module.new do
-      define_method(:load) { |*, **| result }
-      define_method(:dump) { |*, **| "{}" }
-      module_function :load, :dump
+      define_method(:parse) { |*, **| result }
+      define_method(:generate) { |*, **| "{}" }
+      module_function :parse, :generate
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
     adapter
@@ -109,20 +109,20 @@ class LoadArgumentPassingTest < Minitest::Test
 
   module TrackingLoadAdapter
     class << self
-      attr_accessor :load_called, :received_options
+      attr_accessor :parse_called, :received_options
 
       def reset_tracking
-        @load_called = false
+        @parse_called = false
         @received_options = {}
       end
 
-      def load(string, options = {})
-        @load_called = true
+      def parse(string, options = {})
+        @parse_called = true
         @received_options = options
         JSON.parse(string)
       end
 
-      def dump(object, _options = {})
+      def generate(object, _options = {})
         JSON.generate(object)
       end
     end

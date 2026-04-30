@@ -22,8 +22,8 @@ class LoadCurrentAdapterTest < Minitest::Test
 
     MultiJSON.parse('{"test":"value"}')
 
-    assert_equal 1, TestHelpers::StrictAdapter.load_calls.size
-    assert_equal '{"test":"value"}', TestHelpers::StrictAdapter.load_calls.first[:string]
+    assert_equal 1, TestHelpers::StrictAdapter.parse_calls.size
+    assert_equal '{"test":"value"}', TestHelpers::StrictAdapter.parse_calls.first[:string]
   ensure
     MultiJSON.use :json_gem
   end

@@ -42,8 +42,8 @@ class DefaultAdapterExcludingTest < Minitest::Test
         assert_equal MultiJSON::Adapters::Yajl, result
         # Exercise the adapter's instance methods so its source file's
         # coverage is tracked once it has been loaded by the line above.
-        assert_equal({"a" => 1}, result.load('{"a":1}'))
-        assert_equal '{"a":1}', result.dump({a: 1})
+        assert_equal({"a" => 1}, result.parse('{"a":1}'))
+        assert_equal '{"a":1}', result.generate({a: 1})
       end
     end
   end

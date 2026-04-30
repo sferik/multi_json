@@ -18,8 +18,6 @@ target :lib do
   # MutexStore version defines the ``Store`` class.
   ignore "lib/multi_json/options_cache/concurrent_store.rb"
 
-  library "singleton"
-
   configure_code_diagnostics(D::Ruby.strict) do |hash|
     # Custom adapters arrive as `Module` and get duck-typed via
     # `respond_to?(:load)` / `respond_to?(:dump)`; the `_Adapter` and

@@ -63,8 +63,8 @@ class ParseErrorClassTest < Minitest::Test
   def adapter_with_parse_error
     Class.new do
       const_set(:ParseError, Class.new(StandardError))
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = nil
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = nil
     end
   end
 end

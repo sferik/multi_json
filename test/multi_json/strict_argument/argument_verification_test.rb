@@ -19,10 +19,10 @@ class ArgumentVerificationTest < Minitest::Test
   def create_mock_adapter
     mock = Module.new do
       class << self
-        attr_accessor :load_args, :dump_args
+        attr_accessor :parse_args, :generate_args
 
-        def load(*args) = (@load_args = args) && {"result" => "parsed"}
-        def dump(*args) = (@dump_args = args) && '{"result":"dumped"}'
+        def parse(*args) = (@parse_args = args) && {"result" => "parsed"}
+        def generate(*args) = (@generate_args = args) && '{"result":"dumped"}'
       end
     end
     mock.const_set(:ParseError, Class.new(StandardError))
@@ -32,33 +32,33 @@ class ArgumentVerificationTest < Minitest::Test
   def test_load_passes_exactly_string_and_options
     MultiJSON.parse('{"test":1}', foo: :bar)
 
-    assert_equal 2, @mock_adapter.load_args.length
-    assert_equal '{"test":1}', @mock_adapter.load_args[0]
-    assert_equal({foo: :bar}, @mock_adapter.load_args[1])
+    assert_equal 2, @mock_adapter.parse_args.length
+    assert_equal '{"test":1}', @mock_adapter.parse_args[0]
+    assert_equal({foo: :bar}, @mock_adapter.parse_args[1])
   end
 
   def test_load_passes_empty_hash_as_default_options
     MultiJSON.parse('{"test":1}')
 
-    assert_equal 2, @mock_adapter.load_args.length
-    assert_equal '{"test":1}', @mock_adapter.load_args[0]
-    assert_empty(@mock_adapter.load_args[1])
+    assert_equal 2, @mock_adapter.parse_args.length
+    assert_equal '{"test":1}', @mock_adapter.parse_args[0]
+    assert_empty(@mock_adapter.parse_args[1])
   end
 
   def test_dump_passes_exactly_object_and_options
     MultiJSON.generate({test: 1}, bar: :baz)
 
-    assert_equal 2, @mock_adapter.dump_args.length
-    assert_equal({test: 1}, @mock_adapter.dump_args[0])
-    assert_equal({bar: :baz}, @mock_adapter.dump_args[1])
+    assert_equal 2, @mock_adapter.generate_args.length
+    assert_equal({test: 1}, @mock_adapter.generate_args[0])
+    assert_equal({bar: :baz}, @mock_adapter.generate_args[1])
   end
 
   def test_dump_passes_empty_hash_as_default_options
     MultiJSON.generate({test: 1})
 
-    assert_equal 2, @mock_adapter.dump_args.length
-    assert_equal({test: 1}, @mock_adapter.dump_args[0])
-    assert_empty(@mock_adapter.dump_args[1])
+    assert_equal 2, @mock_adapter.generate_args.length
+    assert_equal({test: 1}, @mock_adapter.generate_args[0])
+    assert_empty(@mock_adapter.generate_args[1])
   end
 end
 

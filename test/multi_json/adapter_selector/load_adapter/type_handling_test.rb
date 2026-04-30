@@ -45,23 +45,23 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
     assert_equal custom, result
   end
 
-  def test_load_adapter_raises_for_custom_adapter_without_load
-    custom = adapter_without_load
+  def test_load_adapter_raises_for_custom_adapter_without_parse
+    custom = adapter_without_parse
     error = assert_raises(MultiJSON::AdapterError) do
       MultiJSON.send(:load_adapter, custom)
     end
 
-    assert_match(/must respond to \.load/, error.message)
+    assert_match(/must respond to \.parse/, error.message)
     assert_includes error.message, custom.to_s
   end
 
-  def test_load_adapter_raises_for_custom_adapter_without_dump
-    custom = adapter_without_dump
+  def test_load_adapter_raises_for_custom_adapter_without_generate
+    custom = adapter_without_generate
     error = assert_raises(MultiJSON::AdapterError) do
       MultiJSON.send(:load_adapter, custom)
     end
 
-    assert_match(/must respond to \.dump/, error.message)
+    assert_match(/must respond to \.generate/, error.message)
     assert_includes error.message, custom.to_s
   end
 
@@ -97,31 +97,31 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = "{}"
     end
   end
 
-  def adapter_without_load
+  def adapter_without_parse
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.dump(_object, _options) = "{}"
+      def self.generate(_object, _options) = "{}"
     end
   end
 
-  def adapter_without_dump
+  def adapter_without_generate
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
+      def self.parse(_string, _options) = nil
     end
   end
 
   def adapter_without_parse_error
     Module.new do
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = "{}"
     end
   end
 end

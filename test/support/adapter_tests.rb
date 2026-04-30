@@ -2,14 +2,14 @@
 
 require "stringio"
 require_relative "options_tests"
-require_relative "adapter_dump_tests"
-require_relative "adapter_load_tests"
+require_relative "adapter_generate_tests"
+require_relative "adapter_parse_tests"
 
 module AdapterTests
   def self.included(base)
     base.include OptionsTests
-    base.include AdapterDumpTests
-    base.include AdapterLoadTests
+    base.include AdapterGenerateTests
+    base.include AdapterParseTests
   end
 
   def setup

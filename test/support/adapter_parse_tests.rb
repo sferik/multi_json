@@ -2,7 +2,7 @@
 
 require "stringio"
 
-module AdapterLoadTests
+module AdapterParseTests
   def test_load_does_not_modify_input
     input = %(\n\n  {"foo":"bar"} \n\n\t)
     original = input.dup

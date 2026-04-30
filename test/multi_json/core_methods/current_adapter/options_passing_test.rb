@@ -25,7 +25,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
 
     # If options are passed to current_adapter, json_gem will be used
     # If options are NOT passed, StrictAdapter will be used
-    assert_empty TestHelpers::StrictAdapter.load_calls, "StrictAdapter should NOT be called when adapter: :json_gem is specified"
+    assert_empty TestHelpers::StrictAdapter.parse_calls, "StrictAdapter should NOT be called when adapter: :json_gem is specified"
   end
 
   def test_load_current_adapter_not_called_with_nil
@@ -38,7 +38,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
 
     # current_adapter(nil) would use default adapter (StrictAdapter)
     # current_adapter(options) with adapter: :json_gem uses json_gem
-    assert_empty TestHelpers::StrictAdapter.load_calls
+    assert_empty TestHelpers::StrictAdapter.parse_calls
   end
 
   def test_dump_current_adapter_receives_options_hash
@@ -51,7 +51,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
 
     # If options are passed to current_adapter, json_gem will be used
     # If options are NOT passed, StrictAdapter will be used
-    assert_empty TestHelpers::StrictAdapter.dump_calls, "StrictAdapter should NOT be called when adapter: :json_gem is specified"
+    assert_empty TestHelpers::StrictAdapter.generate_calls, "StrictAdapter should NOT be called when adapter: :json_gem is specified"
   end
 
   def test_dump_current_adapter_not_called_with_nil
@@ -64,7 +64,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
 
     # current_adapter(nil) would use default adapter (StrictAdapter)
     # current_adapter(options) with adapter: :json_gem uses json_gem
-    assert_empty TestHelpers::StrictAdapter.dump_calls
+    assert_empty TestHelpers::StrictAdapter.generate_calls
   end
 
   def test_load_with_adapter_option_does_not_use_global_adapter
@@ -72,7 +72,7 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     tracking_adapter = create_load_tracking_adapter
     MultiJSON.parse('{"a":1}', adapter: tracking_adapter)
 
-    assert tracking_adapter.load_called, "The specified adapter should be used"
+    assert tracking_adapter.parse_called, "The specified adapter should be used"
   end
 
   def test_dump_with_adapter_option_does_not_use_global_adapter
@@ -80,34 +80,34 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
     tracking_adapter = create_dump_tracking_adapter
     MultiJSON.generate({a: 1}, adapter: tracking_adapter)
 
-    assert tracking_adapter.dump_called, "The specified adapter should be used"
+    assert tracking_adapter.generate_called, "The specified adapter should be used"
   end
 
   def create_load_tracking_adapter
     adapter = Module.new do
       class << self
-        attr_accessor :load_called
+        attr_accessor :parse_called
 
-        def load(string, _options = {}) = (@load_called = true) && JSON.parse(string)
-        def dump(object, _options = {}) = JSON.generate(object)
+        def parse(string, _options = {}) = (@parse_called = true) && JSON.parse(string)
+        def generate(object, _options = {}) = JSON.generate(object)
       end
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
-    adapter.load_called = false
+    adapter.parse_called = false
     adapter
   end
 
   def create_dump_tracking_adapter
     adapter = Module.new do
       class << self
-        attr_accessor :dump_called
+        attr_accessor :generate_called
 
-        def load(string, _options = {}) = JSON.parse(string)
-        def dump(object, _options = {}) = (@dump_called = true) && JSON.generate(object)
+        def parse(string, _options = {}) = JSON.parse(string)
+        def generate(object, _options = {}) = (@generate_called = true) && JSON.generate(object)
       end
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
-    adapter.dump_called = false
+    adapter.generate_called = false
     adapter
   end
 end

@@ -24,12 +24,12 @@ module MultiJSON
       # so the chain runs at most once and `fallback_adapter`'s one-time
       # warning fires at most once.
       default_adapter: Mutex.new,
-      # Guards the lazy `default_load_options` / `default_dump_options`
+      # Guards the lazy `default_parse_options` / `default_generate_options`
       # initializers in `MultiJSON::Options`.
       default_options: Mutex.new,
-      # Guards the lazy dump-delegate resolution in
+      # Guards the lazy generate-delegate resolution in
       # `MultiJSON::Adapters::FastJsonparser`.
-      dump_delegate: Mutex.new
+      generate_delegate: Mutex.new
     }.freeze
     private_constant :MUTEXES
 

@@ -142,8 +142,8 @@ class ModuleTypeCheckingTest < Minitest::Test
     ::Class.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = "{}"
     end
   end
 
@@ -151,8 +151,8 @@ class ModuleTypeCheckingTest < Minitest::Test
     ::Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.parse(_string, _options) = nil
+      def self.generate(_object, _options) = "{}"
     end
   end
 end

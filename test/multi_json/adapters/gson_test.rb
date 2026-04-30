@@ -15,12 +15,12 @@ if TestHelpers.gson?
       MultiJSON::Adapters::Gson
     end
 
-    # Exercises the non-empty-options branch in Gson#dump that the
+    # Exercises the non-empty-options branch in Gson#generate that the
     # shared adapter tests skip — they pass an :adapter override that
-    # routes the dump through json_gem instead. ``:html_safe`` is one
-    # of the option keys Gson::Encoder.new accepts directly.
-    def test_dump_with_options_allocates_a_fresh_encoder
-      result = MultiJSON::Adapters::Gson.dump({a: 1}, html_safe: true)
+    # routes the generate through json_gem instead. ``:html_safe`` is
+    # one of the option keys Gson::Encoder.new accepts directly.
+    def test_generate_with_options_allocates_a_fresh_encoder
+      result = MultiJSON::Adapters::Gson.generate({a: 1}, html_safe: true)
 
       assert_kind_of String, result
       assert_includes result, "\"a\""

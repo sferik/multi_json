@@ -33,7 +33,7 @@ class DumpArgumentPassingTest < Minitest::Test
 
     MultiJSON.generate({test: true})
 
-    assert adapter.dump_called, "dump should call adapter.dump"
+    assert adapter.generate_called, "dump should call adapter.dump"
   ensure
     MultiJSON.use :json_gem
   end
@@ -80,9 +80,9 @@ class DumpArgumentPassingTest < Minitest::Test
     result = dump_result
     adapter = Module.new do
       class << self; attr_accessor :parse_error_class; end
-      define_method(:load) { |*, **| {} }
-      define_method(:dump) { |*, **| result }
-      module_function :load, :dump
+      define_method(:parse) { |*, **| {} }
+      define_method(:generate) { |*, **| result }
+      module_function :parse, :generate
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
     adapter
@@ -96,20 +96,20 @@ class DumpArgumentPassingTest < Minitest::Test
 
   module TrackingDumpAdapter
     class << self
-      attr_accessor :dump_called, :received_options
+      attr_accessor :generate_called, :received_options
 
       def reset_tracking
-        @dump_called = false
+        @generate_called = false
         @received_options = {}
       end
 
-      def dump(object, options = {})
-        @dump_called = true
+      def generate(object, options = {})
+        @generate_called = true
         @received_options = options
         JSON.generate(object)
       end
 
-      def load(string, _options = {})
+      def parse(string, _options = {})
         JSON.parse(string)
       end
     end

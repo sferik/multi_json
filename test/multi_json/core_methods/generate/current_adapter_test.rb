@@ -22,8 +22,8 @@ class DumpCurrentAdapterTest < Minitest::Test
 
     MultiJSON.generate({test: "value"})
 
-    assert_equal 1, TestHelpers::StrictAdapter.dump_calls.size
-    assert_equal({test: "value"}, TestHelpers::StrictAdapter.dump_calls.first[:object])
+    assert_equal 1, TestHelpers::StrictAdapter.generate_calls.size
+    assert_equal({test: "value"}, TestHelpers::StrictAdapter.generate_calls.first[:object])
   ensure
     MultiJSON.use :json_gem
   end
@@ -34,7 +34,7 @@ class DumpCurrentAdapterTest < Minitest::Test
 
     MultiJSON.generate({a: 1}, pretty: true)
 
-    assert_equal({pretty: true}, TestHelpers::StrictAdapter.dump_calls.first[:options])
+    assert_equal({pretty: true}, TestHelpers::StrictAdapter.generate_calls.first[:options])
   ensure
     MultiJSON.use :json_gem
   end

@@ -18,10 +18,10 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
 
   def test_use_resets_options_cache
     key = :"unique_test_key_#{object_id}"
-    MultiJSON::OptionsCache.dump.fetch(key) { "cached" }
+    MultiJSON::OptionsCache.generate.fetch(key) { "cached" }
     MultiJSON.use(:json_gem)
 
-    assert_nil MultiJSON::OptionsCache.dump.fetch(key, nil)
+    assert_nil MultiJSON::OptionsCache.generate.fetch(key, nil)
   end
 
   def test_adapter_equals_is_alias_for_use
@@ -37,29 +37,29 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def test_use_preserves_cache_on_error
-    MultiJSON::OptionsCache.dump.fetch(:test) { "value" }
+    MultiJSON::OptionsCache.generate.fetch(:test) { "value" }
 
     assert_raises(MultiJSON::AdapterError) do
       MultiJSON.use(:nonexistent_adapter)
     end
 
-    assert_equal "value", MultiJSON::OptionsCache.dump.fetch(:test, nil)
+    assert_equal "value", MultiJSON::OptionsCache.generate.fetch(:test, nil)
   end
 
-  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_load
+  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_parse
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.use(adapter_without_load)
+      MultiJSON.use(adapter_without_parse)
     end
 
-    assert_match(/must respond to \.load/, error.message)
+    assert_match(/must respond to \.parse/, error.message)
   end
 
-  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_dump
+  def test_use_raises_adapter_error_early_when_custom_adapter_lacks_generate
     error = assert_raises(MultiJSON::AdapterError) do
-      MultiJSON.use(adapter_without_dump)
+      MultiJSON.use(adapter_without_generate)
     end
 
-    assert_match(/must respond to \.dump/, error.message)
+    assert_match(/must respond to \.generate/, error.message)
   end
 
   def test_use_calls_load_adapter_with_argument
@@ -101,13 +101,13 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
   end
 
   def test_use_resets_cache_via_options_cache_reset
-    MultiJSON::OptionsCache.dump.fetch(:use_test) { "cached_value" }
+    MultiJSON::OptionsCache.generate.fetch(:use_test) { "cached_value" }
 
-    assert_equal "cached_value", MultiJSON::OptionsCache.dump.fetch(:use_test, nil)
+    assert_equal "cached_value", MultiJSON::OptionsCache.generate.fetch(:use_test, nil)
 
     MultiJSON.use(:json_gem)
 
-    assert_nil MultiJSON::OptionsCache.dump.fetch(:use_test, nil)
+    assert_nil MultiJSON::OptionsCache.generate.fetch(:use_test, nil)
   end
 
   def test_use_returns_loaded_adapter
@@ -187,19 +187,19 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     silence_warnings { MultiJSON::OptionsCache.define_singleton_method(:reset, original) }
   end
 
-  def adapter_without_load
+  def adapter_without_parse
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.dump(_object, _options) = "{}"
+      def self.generate(_object, _options) = "{}"
     end
   end
 
-  def adapter_without_dump
+  def adapter_without_generate
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
+      def self.parse(_string, _options) = nil
     end
   end
 end

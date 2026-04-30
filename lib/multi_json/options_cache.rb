@@ -3,8 +3,8 @@
 module MultiJSON
   # Thread-safe bounded cache for merged options hashes
   #
-  # Caches are separated for load and dump operations. Each cache is
-  # bounded to prevent unbounded memory growth when options are
+  # Caches are separated for parse and generate operations. Each cache
+  # is bounded to prevent unbounded memory growth when options are
   # generated dynamically. The ``Store`` backend is chosen at load time
   # based on ``RUBY_ENGINE``: JRuby uses Concurrent::Map (shipped as a
   # runtime dependency of the java-platform gem); MRI and TruffleRuby
@@ -18,23 +18,23 @@ module MultiJSON
     DEFAULT_MAX_CACHE_SIZE = 1000
 
     class << self
-      # Get the dump options cache
+      # Get the generate options cache
       #
       # @api private
-      # @return [Store] dump cache store
-      attr_reader :dump
+      # @return [Store] generate cache store
+      attr_reader :generate
 
-      # Get the load options cache
+      # Get the parse options cache
       #
       # @api private
-      # @return [Store] load cache store
-      attr_reader :load
+      # @return [Store] parse cache store
+      attr_reader :parse
 
       # Maximum number of entries per cache store
       #
-      # Applies to both the dump and load caches. Existing entries are
-      # left in place until normal eviction trims them below a lowered
-      # limit; call {.reset} if you need to evict immediately.
+      # Applies to both the parse and generate caches. Existing entries
+      # are left in place until normal eviction trims them below a
+      # lowered limit; call {.reset} if you need to evict immediately.
       #
       # @api public
       # @return [Integer] current cache size limit
@@ -62,8 +62,8 @@ module MultiJSON
       # @api private
       # @return [void]
       def reset
-        @dump = Store.new
-        @load = Store.new
+        @generate = Store.new
+        @parse = Store.new
       end
     end
 

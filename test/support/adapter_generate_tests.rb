@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module AdapterDumpTests
+module AdapterGenerateTests
   def test_dump_writes_decodable_json
     examples = [{"abc" => "def"}, [], 1, "2", true, false]
 

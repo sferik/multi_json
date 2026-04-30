@@ -64,7 +64,7 @@ class JsonGemAdapterTest < Minitest::Test
     # even when the bytes are valid UTF-8 (GH-64)
     json = (+"{\"name\":\"Fran\xC3\xA7ois\"}").force_encoding(Encoding::ASCII_8BIT)
 
-    result = MultiJSON::Adapters::JsonGem.load(json)
+    result = MultiJSON::Adapters::JsonGem.parse(json)
 
     assert_equal({"name" => "François"}, result)
   end
@@ -77,7 +77,7 @@ class JsonGemAdapterTest < Minitest::Test
     MultiJSON.parse('{"a":1}', symbolize_names: true)
     MultiJSON.parse('{"a":1}', symbolize_names: true)
 
-    cached = MultiJSON::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
+    cached = MultiJSON::OptionsCache.parse.send(:instance_variable_get, :@cache).values.first
 
     assert_includes cached.keys, :symbolize_names,
       "expected cached load options to retain :symbolize_names key"
