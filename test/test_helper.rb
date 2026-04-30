@@ -124,13 +124,27 @@ module TestHelpers
     MultiJSON.remove_instance_variable(:@default_adapter_warning_shown)
   end
 
+  EXPECTED_DEFAULT_ADAPTER_PROBES = [
+    [:JrJackson, "MultiJSON::Adapters::JrJackson"],
+    ["JSON::Ext::Parser", "MultiJSON::Adapters::JsonGem"],
+    [:FastJsonparser, "MultiJSON::Adapters::FastJsonparser"],
+    [:Oj, "MultiJSON::Adapters::Oj"],
+    [:Yajl, "MultiJSON::Adapters::Yajl"],
+    [:Gson, "MultiJSON::Adapters::Gson"]
+  ].freeze
+
+  # Mirrors AdapterSelector#loaded_adapter: walks the probe list in
+  # preference order and returns the first whose backing constant is
+  # currently defined. Using ``defined?`` rather than gem-availability
+  # checks keeps this in lockstep with the live constant state, which
+  # other tests temporarily mutate.
   def expected_default_adapter
-    if java? && jrjackson? then "MultiJSON::Adapters::JrJackson"
-    elsif java? && json? then "MultiJSON::Adapters::JsonGem"
-    elsif fast_jsonparser? then "MultiJSON::Adapters::FastJsonparser"
-    else
-      "MultiJSON::Adapters::Oj"
+    return "MultiJSON::Adapters::JrJackson" if java? && Object.const_defined?(:JrJackson)
+
+    EXPECTED_DEFAULT_ADAPTER_PROBES.each do |constant_path, adapter_class|
+      return adapter_class if Object.const_defined?(constant_path)
     end
+    "MultiJSON::Adapters::JsonGem"
   end
 
   def track_current_adapter_options(&)

@@ -22,7 +22,8 @@ class MultiJSONBenchmark
     warmup: 0.03,
     time: 0.15,
     samples: 5,
-    format: :plain
+    format: :plain,
+    verify_preference: false
   }.freeze
 
   class << self
@@ -33,6 +34,15 @@ class MultiJSONBenchmark
 
       measurements = Runner.new(adapters:, payloads: PayloadCatalog.new.build, options:).run
       Reporter.new(adapters:, measurements:, options:).print
+      options[:verify_preference] ? verify_preference(adapters, measurements) : 0
+    end
+
+    private
+
+    def verify_preference(adapters, measurements)
+      verifier = PreferenceVerifier.new(adapters: adapters, measurements: measurements)
+      verifier.report
+      verifier.valid? ? 0 : 1
     end
   end
 end
@@ -83,6 +93,9 @@ class MultiJSONBenchmark
     def add_quick_option(parser, options)
       parser.on("--quick", "Smoke-test mode with shorter timings") do
         options.merge!(QUICK_OPTIONS)
+      end
+      parser.on("--verify-preference", "Assert MultiJSON adapter preferences match benchmark ranking") do
+        options[:verify_preference] = true
       end
     end
 
@@ -503,6 +516,90 @@ class MultiJSONBenchmark
 end
 
 class MultiJSONBenchmark
+  # Asserts MultiJSON::AdapterSelector::ADAPTERS matches the overall
+  # benchmark throughput ranking.
+  #
+  # Compares only the adapters that both appear in ADAPTERS and were
+  # benchmarked on this run, so missing native adapters (e.g.
+  # fast_jsonparser on JRuby) are tolerated rather than treated as
+  # failures. Adjacent adapters whose observed scores fall within
+  # TOLERANCE of each other are treated as tied so noisy benchmark
+  # runs that flip close pairs don't trigger a failure.
+  class PreferenceVerifier
+    TOLERANCE = 0.10
+    private_constant :TOLERANCE
+
+    def initialize(adapters:, measurements:)
+      @adapters = adapters
+      @measurements = measurements
+    end
+
+    def valid?
+      violations.empty?
+    end
+
+    def report
+      puts
+      if valid?
+        puts "ADAPTERS matches benchmark ranking within #{tolerance_pct}% tolerance: #{relevant_adapters.join(", ")}"
+      else
+        puts "ADAPTERS does not match benchmark ranking (>#{tolerance_pct}% tolerance):"
+        violations.each { |violation| puts "  #{format_violation(violation)}" }
+      end
+    end
+
+    private
+
+    attr_reader :adapters, :measurements
+
+    def preference_order
+      MultiJSON::AdapterSelector::REQUIREMENT_MAP.keys
+    end
+
+    def scores
+      @scores ||= measurements
+        .group_by(&:adapter)
+        .transform_values { |entries| MultiJSONBenchmark::Formatter.geometric_mean(entries.map(&:ips)) }
+    end
+
+    def relevant_adapters
+      @relevant_adapters ||= preference_order.select { |adapter| scores.key?(adapter) }
+    end
+
+    def violations
+      @violations ||= relevant_adapters.each_cons(2).filter_map do |earlier, later|
+        violation_for(earlier, later)
+      end
+    end
+
+    def violation_for(earlier, later)
+      earlier_score = scores.fetch(earlier)
+      later_score = scores.fetch(later)
+      return nil if later_score <= earlier_score * (1 + TOLERANCE)
+
+      {earlier: earlier, later: later, earlier_score: earlier_score, later_score: later_score}
+    end
+
+    def format_violation(violation)
+      later = violation.fetch(:later)
+      earlier = violation.fetch(:earlier)
+      later_score = format_score(violation.fetch(:later_score))
+      earlier_score = format_score(violation.fetch(:earlier_score))
+      excess = (((violation.fetch(:later_score) / violation.fetch(:earlier_score)) - 1) * 100).round
+      "#{later} (#{later_score} ops/s) outranks #{earlier} (#{earlier_score} ops/s) by #{excess}% but is preferenced after it"
+    end
+
+    def format_score(value)
+      Kernel.format("%.0f", value)
+    end
+
+    def tolerance_pct
+      (TOLERANCE * 100).to_i
+    end
+  end
+end
+
+class MultiJSONBenchmark
   # Computes overall adapter scores and benchmark wins.
   class Summary
     def initialize(adapters, measurements)
@@ -730,4 +827,4 @@ class MultiJSONBenchmark
   end
 end
 
-MultiJSONBenchmark.run if $PROGRAM_NAME == __FILE__
+exit(MultiJSONBenchmark.run) if $PROGRAM_NAME == __FILE__

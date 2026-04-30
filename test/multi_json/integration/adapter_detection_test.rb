@@ -10,21 +10,25 @@ class AdapterDetectionIntegrationTest < Minitest::Test
 
   def test_loaded_adapter_detects_oj
     skip unless defined?(::Oj)
-    undefine_constants(:FastJsonparser) do
-      clear_default_adapter_warning
-      adapter = capture_stderr { MultiJSON.default_adapter }
+    with_json_ext_parser_removed do
+      undefine_constants(:FastJsonparser, :JrJackson) do
+        clear_default_adapter_warning
+        adapter = capture_stderr { MultiJSON.default_adapter }
 
-      assert_equal :oj, adapter
+        assert_equal :oj, adapter
+      end
     end
   end
 
   def test_loaded_adapter_detects_yajl
     skip unless defined?(::Yajl)
-    undefine_constants(:FastJsonparser, :Oj) do
-      clear_default_adapter_warning
-      adapter = capture_stderr { MultiJSON.default_adapter }
+    with_json_ext_parser_removed do
+      undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
+        clear_default_adapter_warning
+        adapter = capture_stderr { MultiJSON.default_adapter }
 
-      assert_equal :yajl, adapter
+        assert_equal :yajl, adapter
+      end
     end
   end
 
@@ -39,12 +43,14 @@ class AdapterDetectionIntegrationTest < Minitest::Test
   end
 
   def test_loaded_adapter_detects_jr_jackson
-    undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-      with_temporary_constant(:JrJackson) do
-        clear_default_adapter_warning
-        adapter = capture_stderr { MultiJSON.default_adapter }
+    with_json_ext_parser_removed do
+      undefine_constants(:FastJsonparser, :Oj, :Yajl) do
+        with_temporary_constant(:JrJackson) do
+          clear_default_adapter_warning
+          adapter = capture_stderr { MultiJSON.default_adapter }
 
-        assert_equal :jr_jackson, adapter
+          assert_equal :jr_jackson, adapter
+        end
       end
     end
   end

@@ -1,0 +1,32 @@
+name: benchmark
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+  workflow_dispatch:
+
+jobs:
+  # TruffleRuby is intentionally absent from the matrix: its pure-Ruby
+  # json gem generator (json-2.19.4 / truffle_ruby/generator.rb) crashes
+  # mid-benchmark on the array_heavy payload through the native interop
+  # layer. The bug lives upstream, not in this repo, so adding
+  # TruffleRuby here just makes the benchmark workflow flake.
+  verify_preference:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby-version: ["4.0", "jruby-10.0"]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    - run: bundle exec ruby benchmark.rb --verify-preference

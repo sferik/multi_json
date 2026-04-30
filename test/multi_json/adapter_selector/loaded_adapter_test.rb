@@ -41,21 +41,27 @@ class LoadedAdapterTest < Minitest::Test
   def test_loaded_adapter_detects_fast_jsonparser
     skip unless defined?(::FastJsonparser)
 
-    undefine_constants(:Oj, :Yajl, :JrJackson) do
-      assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter)
+    without_json_ext_parser do
+      undefine_constants(:Oj, :Yajl, :JrJackson) do
+        assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter)
+      end
     end
   end
 
   def test_loaded_adapter_detects_oj
     skip unless defined?(::Oj)
 
-    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :JrJackson) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
+    end
   end
 
   def test_loaded_adapter_detects_yajl
     skip unless defined?(::Yajl)
 
-    undefine_constants(:FastJsonparser, :Oj) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :Oj, :JrJackson) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
+    end
   end
 
   def test_loaded_adapter_returns_nil_when_none_loaded
@@ -63,8 +69,10 @@ class LoadedAdapterTest < Minitest::Test
   end
 
   def test_loaded_adapter_detects_jr_jackson_when_defined
-    undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :Oj, :Yajl) do
+        with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
+      end
     end
   end
 
@@ -87,35 +95,45 @@ class LoadedAdapterPriorityTest < Minitest::Test
   cover "MultiJSON::AdapterSelector*"
   include LoadedAdapterTestHelpers
 
+  def test_json_gem_takes_priority_over_fast_jsonparser
+    skip unless defined?(::FastJsonparser)
+
+    undefine_constants(:JrJackson) do
+      with_json_ext_parser { assert_equal :json_gem, MultiJSON.send(:loaded_adapter) }
+    end
+  end
+
   def test_fast_jsonparser_takes_priority_over_oj
     skip unless defined?(::FastJsonparser) && defined?(::Oj)
 
-    assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter)
+    without_json_ext_parser do
+      undefine_constants(:JrJackson) { assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter) }
+    end
   end
 
   def test_oj_takes_priority_over_yajl
     skip unless defined?(::Oj) && defined?(::Yajl)
 
-    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :JrJackson) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
+    end
   end
 
   def test_yajl_takes_priority_over_jr_jackson
     skip unless defined?(::Yajl)
-    undefine_constants(:FastJsonparser, :Oj) do
-      with_temporary_constant(:JrJackson) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :Oj) do
+        with_temporary_constant(:JrJackson) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
+      end
     end
   end
 
-  def test_jr_jackson_takes_priority_over_json_gem
-    undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
-    end
-  end
-
-  def test_json_gem_takes_priority_over_gson
-    undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
-      with_json_ext_parser do
-        with_temporary_constant(:Gson) { assert_equal :json_gem, MultiJSON.send(:loaded_adapter) }
+  def test_jr_jackson_takes_priority_over_gson
+    without_json_ext_parser do
+      undefine_constants(:FastJsonparser, :Oj, :Yajl) do
+        with_temporary_constant(:JrJackson) do
+          with_temporary_constant(:Gson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
+        end
       end
     end
   end

@@ -17,14 +17,34 @@ module MultiJSON
     # constant whose presence indicates the backing library is already
     # loaded. ``loaded`` is a ``::``-separated path so we can walk it
     # without an explicit ``defined?`` check.
-    ADAPTERS = {
-      fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
-      oj: {require: "oj", loaded: "Oj"},
-      yajl: {require: "yajl", loaded: "Yajl"},
-      jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
-      json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
-      gson: {require: "gson", loaded: "Gson"}
-    }.freeze
+    #
+    # The hash order is split per platform: on MRI/TruffleRuby the
+    # bundled benchmark suite ranks json_gem ahead of fast_jsonparser/
+    # oj/yajl on Ruby 3.4+; on JRuby the FFI-vs-pure-Ruby tradeoff
+    # hasn't been re-benchmarked yet, so jr_jackson stays first there.
+    # CI re-runs the benchmark with ``--verify-preference`` to fail
+    # if the observed ranking diverges.
+    # :nocov:
+    ADAPTERS = if RUBY_ENGINE == "jruby"
+      {
+        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
+        json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
+        gson: {require: "gson", loaded: "Gson"},
+        fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
+        oj: {require: "oj", loaded: "Oj"},
+        yajl: {require: "yajl", loaded: "Yajl"}
+      }.freeze
+    else
+      {
+        json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
+        fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
+        oj: {require: "oj", loaded: "Oj"},
+        yajl: {require: "yajl", loaded: "Yajl"},
+        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
+        gson: {require: "gson", loaded: "Gson"}
+      }.freeze
+    end
+    # :nocov:
     private_constant :ADAPTERS
 
     # Backwards-compatible view of {ADAPTERS} that exposes only the
