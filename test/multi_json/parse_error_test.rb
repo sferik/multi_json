@@ -3,24 +3,24 @@
 require_relative "../test_helper"
 
 class ParseErrorTest < Minitest::Test
-  cover "MultiJson::ParseError*"
+  cover "MultiJSON::ParseError*"
 
   def test_initialize_with_no_arguments
-    error = MultiJson::ParseError.new
+    error = MultiJSON::ParseError.new
 
     # Ruby returns class name when no message given to super(nil)
-    assert_equal "MultiJson::ParseError", error.message
+    assert_equal "MultiJSON::ParseError", error.message
     assert_nil error.data
   end
 
   def test_initialize_with_message
-    error = MultiJson::ParseError.new("test message")
+    error = MultiJSON::ParseError.new("test message")
 
     assert_equal "test message", error.message
   end
 
   def test_initialize_with_data
-    error = MultiJson::ParseError.new("msg", data: "the data")
+    error = MultiJSON::ParseError.new("msg", data: "the data")
 
     assert_equal "the data", error.data
   end
@@ -31,19 +31,19 @@ class ParseErrorTest < Minitest::Test
     rescue => e
       e
     end
-    error = MultiJson::ParseError.new("msg", cause: cause)
+    error = MultiJSON::ParseError.new("msg", cause: cause)
 
     assert_equal cause.backtrace, error.backtrace
   end
 
   def test_initialize_without_cause_has_nil_backtrace
-    error = MultiJson::ParseError.new("msg")
+    error = MultiJSON::ParseError.new("msg")
 
     assert_nil error.backtrace
   end
 
   def test_data_reader
-    error = MultiJson::ParseError.new(data: "custom_data")
+    error = MultiJSON::ParseError.new(data: "custom_data")
 
     assert_equal "custom_data", error.data
   end
@@ -55,7 +55,7 @@ class ParseErrorTest < Minitest::Test
       e
     end
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     assert_kind_of String, error.message
     assert_equal "original error", error.message
@@ -65,7 +65,7 @@ class ParseErrorTest < Minitest::Test
   def test_build_extracts_message_from_exception
     cause = StandardError.new("extracted message")
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     assert_equal "extracted message", error.message
   end
@@ -73,7 +73,7 @@ class ParseErrorTest < Minitest::Test
   def test_build_sets_data
     cause = StandardError.new("error")
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     assert_equal "data", error.data
   end
@@ -85,7 +85,7 @@ class ParseErrorTest < Minitest::Test
       e
     end
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     assert_equal cause.backtrace, error.backtrace
   end
@@ -94,7 +94,7 @@ class ParseErrorTest < Minitest::Test
     # This test ensures we call .message on the exception, not pass the exception itself
     cause = StandardError.new("the message")
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     # The message should be a string, not an exception object
     assert_instance_of String, error.message
@@ -105,7 +105,7 @@ class ParseErrorTest < Minitest::Test
   def test_build_message_is_string_from_exception_message
     cause = ArgumentError.new("argument error message")
 
-    error = MultiJson::ParseError.build(cause, "input")
+    error = MultiJSON::ParseError.build(cause, "input")
 
     assert_equal "argument error message", error.message
     assert_kind_of String, error.message
@@ -114,7 +114,7 @@ class ParseErrorTest < Minitest::Test
   def test_build_message_is_not_exception_object
     cause = StandardError.new("the error message")
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     # When passed correctly, message should be "the error message"
     # If passed incorrectly (the exception itself), message would be exception.to_s which is also "the error message"
@@ -126,7 +126,7 @@ class ParseErrorTest < Minitest::Test
   def test_build_calls_message_on_exception
     cause = build_custom_exception
 
-    error = MultiJson::ParseError.build(cause, "data")
+    error = MultiJSON::ParseError.build(cause, "data")
 
     # Should use .message result, not the exception object
     assert_equal "custom message from method", error.message

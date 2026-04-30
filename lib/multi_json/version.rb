@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-module MultiJson
-  # Version information for MultiJson
+module MultiJSON
+  # Version information for MultiJSON
   #
   # @api private
   class Version
     # Major version number
-    MAJOR = 1 unless defined? MultiJson::Version::MAJOR
+    MAJOR = 1 unless defined? MultiJSON::Version::MAJOR
     # Minor version number
-    MINOR = 20 unless defined? MultiJson::Version::MINOR
+    MINOR = 20 unless defined? MultiJSON::Version::MINOR
     # Patch version number
-    PATCH = 1 unless defined? MultiJson::Version::PATCH
+    PATCH = 1 unless defined? MultiJSON::Version::PATCH
     # Pre-release version suffix
-    PRE = nil unless defined? MultiJson::Version::PRE
+    PRE = nil unless defined? MultiJSON::Version::PRE
 
     class << self
       # Return the version string

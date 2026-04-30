@@ -6,10 +6,10 @@ require "multi_json/adapter_selector"
 # Tests that load_adapter_by_name normalizes "jrjackson" to "jr_jackson"
 # (the JrJackson gem name differs from the adapter file/class name).
 class JrJacksonAliasTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -26,7 +26,7 @@ class JrJacksonAliasTest < Minitest::Test
 
   def path_capturing_module(callback)
     ::Module.new do
-      include MultiJson::AdapterSelector
+      include MultiJSON::AdapterSelector
 
       define_method(:require_relative) do |path|
         callback.call(path)

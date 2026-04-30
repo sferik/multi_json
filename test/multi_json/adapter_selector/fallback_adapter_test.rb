@@ -8,11 +8,11 @@ require "multi_json/adapter_selector"
 # default gem, this path never fires in production — but it's still
 # exercised by simulate_no_adapters and must remain correct.
 class FallbackAdapterTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def test_fallback_adapter_returns_json_gem
     clear_default_adapter_warning
-    result = capture_stderr { MultiJson.send(:fallback_adapter) }
+    result = capture_stderr { MultiJSON.send(:fallback_adapter) }
 
     assert_equal :json_gem, result
   end
@@ -22,7 +22,7 @@ class FallbackAdapterTest < Minitest::Test
     warned = false
 
     with_stub(Kernel, :warn, ->(_) { warned = true }) do
-      MultiJson.send(:fallback_adapter)
+      MultiJSON.send(:fallback_adapter)
     end
 
     assert warned
@@ -33,8 +33,8 @@ class FallbackAdapterTest < Minitest::Test
     warn_count = 0
 
     with_stub(Kernel, :warn, ->(_) { warn_count += 1 }) do
-      MultiJson.send(:fallback_adapter)
-      MultiJson.send(:fallback_adapter)
+      MultiJSON.send(:fallback_adapter)
+      MultiJSON.send(:fallback_adapter)
     end
 
     assert_equal 1, warn_count
@@ -42,9 +42,9 @@ class FallbackAdapterTest < Minitest::Test
 
   def test_fallback_adapter_sets_warning_shown_flag
     clear_default_adapter_warning
-    capture_stderr { MultiJson.send(:fallback_adapter) }
+    capture_stderr { MultiJSON.send(:fallback_adapter) }
 
-    assert MultiJson.instance_variable_get(:@default_adapter_warning_shown)
+    assert MultiJSON.instance_variable_get(:@default_adapter_warning_shown)
   end
 
   def test_fallback_adapter_warning_mentions_multijson
@@ -52,10 +52,10 @@ class FallbackAdapterTest < Minitest::Test
     captured = nil
 
     with_stub(Kernel, :warn, ->(msg) { captured = msg }) do
-      MultiJson.send(:fallback_adapter)
+      MultiJSON.send(:fallback_adapter)
     end
 
     refute_nil captured
-    assert_includes captured, "MultiJson"
+    assert_includes captured, "MultiJSON"
   end
 end

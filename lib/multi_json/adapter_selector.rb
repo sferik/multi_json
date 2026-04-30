@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   # Handles adapter discovery, loading, and selection
   #
   # Adapters can be specified as:
@@ -46,13 +46,13 @@ module MultiJson
     #
     # Used by adapters that only implement one direction (e.g.
     # FastJsonparser only parses) so the other direction can be delegated
-    # to whichever library MultiJson would otherwise pick.
+    # to whichever library MultiJSON would otherwise pick.
     #
     # @api private
     # @param excluded [Symbol] adapter name to skip during detection
     # @return [Class] the adapter class
     # @example
-    #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJson::Adapters::Oj
+    #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJSON::Adapters::Oj
     def default_adapter_excluding(excluded)
       Concurrency.synchronize(:default_adapter) do
         name = loaded_adapter(excluding: excluded)
@@ -131,7 +131,7 @@ module MultiJson
     # @return [void]
     def warn_about_fallback
       Kernel.warn(
-        "[WARNING] MultiJson is falling back to the json_gem adapter " \
+        "[WARNING] MultiJSON is falling back to the json_gem adapter " \
         "because no other JSON library could be loaded."
       )
     end
@@ -169,7 +169,7 @@ module MultiJson
       require_relative "adapters/#{normalized}"
 
       class_name = normalized.split("_").map(&:capitalize).join
-      ::MultiJson::Adapters.const_get(class_name)
+      ::MultiJSON::Adapters.const_get(class_name)
     end
 
     # Validate that an adapter satisfies the documented contract
@@ -187,7 +187,7 @@ module MultiJson
       raise AdapterError, "Adapter #{adapter} must respond to .load" unless adapter.respond_to?(:load)
       raise AdapterError, "Adapter #{adapter} must respond to .dump" unless adapter.respond_to?(:dump)
 
-      MultiJson.parse_error_class_for(adapter)
+      MultiJSON.parse_error_class_for(adapter)
       adapter
     end
   end

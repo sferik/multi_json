@@ -32,14 +32,14 @@ require "mutant/minitest/coverage"
 require_relative "support/strict_adapter"
 require_relative "support/stub_helpers"
 
-# Most test files declare ``cover "MultiJson*"`` because the public API
+# Most test files declare ``cover "MultiJSON*"`` because the public API
 # methods (load, dump, use, with_adapter, etc.) cross subject boundaries
-# at runtime — a single MultiJson.load call exercises MultiJson.load,
-# MultiJson.current_adapter, MultiJson::Adapter.load, and the underlying
+# at runtime — a single MultiJSON.load call exercises MultiJSON.load,
+# MultiJSON.current_adapter, MultiJSON::Adapter.load, and the underlying
 # adapter's instance #load. Narrower covers risk skipping tests that
 # would have killed mutations in the called subjects. Adapter-specific
 # tests under test/multi_json/adapters/ use a tighter
-# ``cover "MultiJson::Adapters::<Name>*"`` because they have an
+# ``cover "MultiJSON::Adapters::<Name>*"`` because they have an
 # unambiguous single-subject focus.
 
 module TestHelpers
@@ -85,8 +85,8 @@ module TestHelpers
   end
 
   def break_requirements(&)
-    replacements = MultiJson::AdapterSelector::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
-    stub_constant(MultiJson::AdapterSelector, :REQUIREMENT_MAP, replacements, &)
+    replacements = MultiJSON::AdapterSelector::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
+    stub_constant(MultiJSON::AdapterSelector, :REQUIREMENT_MAP, replacements, &)
   end
 
   def stub_constant(mod, const_name, value)
@@ -111,32 +111,32 @@ module TestHelpers
   end
 
   def with_default_options
-    adapter = MultiJson.adapter
-    adapter.load_options = adapter.dump_options = MultiJson.load_options = MultiJson.dump_options = nil
+    adapter = MultiJSON.adapter
+    adapter.load_options = adapter.dump_options = MultiJSON.load_options = MultiJSON.dump_options = nil
     yield
   ensure
-    adapter.load_options = adapter.dump_options = MultiJson.load_options = MultiJson.dump_options = nil
+    adapter.load_options = adapter.dump_options = MultiJSON.load_options = MultiJSON.dump_options = nil
   end
 
   def clear_default_adapter_warning
-    return unless MultiJson.instance_variable_defined?(:@default_adapter_warning_shown)
+    return unless MultiJSON.instance_variable_defined?(:@default_adapter_warning_shown)
 
-    MultiJson.remove_instance_variable(:@default_adapter_warning_shown)
+    MultiJSON.remove_instance_variable(:@default_adapter_warning_shown)
   end
 
   def expected_default_adapter
-    if java? && jrjackson? then "MultiJson::Adapters::JrJackson"
-    elsif java? && json? then "MultiJson::Adapters::JsonGem"
-    elsif fast_jsonparser? then "MultiJson::Adapters::FastJsonparser"
+    if java? && jrjackson? then "MultiJSON::Adapters::JrJackson"
+    elsif java? && json? then "MultiJSON::Adapters::JsonGem"
+    elsif fast_jsonparser? then "MultiJSON::Adapters::FastJsonparser"
     else
-      "MultiJson::Adapters::Oj"
+      "MultiJSON::Adapters::Oj"
     end
   end
 
   def track_current_adapter_options(&)
     adapter = nil
     stub = ->(opts = {}) { adapter = opts[:adapter] if opts.is_a?(Hash) }
-    with_stub(MultiJson, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJSON, :current_adapter, stub, call_original: true, &)
     adapter
   end
 end

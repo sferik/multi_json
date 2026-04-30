@@ -6,15 +6,15 @@ require_relative "../../test_helper"
 # verify only that memory is bounded and that the most recent insert
 # survives. Strict LRU semantics are not required.
 class OptionsCacheSizeTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def setup
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
   end
 
   def test_store_evicts_when_at_max_size
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
     max.times { |i| store.fetch(:"key#{i}") { "value#{i}" } }
 
     store.fetch(:overflow_key) { "overflow_value" }
@@ -26,8 +26,8 @@ class OptionsCacheSizeTest < Minitest::Test
   end
 
   def test_store_size_stays_bounded
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
 
     (max * 2).times { |i| store.fetch(:"key#{i}") { "value#{i}" } }
 
@@ -37,8 +37,8 @@ class OptionsCacheSizeTest < Minitest::Test
   end
 
   def test_store_no_eviction_below_max
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
     (max - 1).times { |i| store.fetch(:"key#{i}") { "value#{i}" } }
     store.fetch(:new_key) { "new_value" }
 

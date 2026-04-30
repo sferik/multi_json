@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   # Raised when JSON parsing fails
   #
   # Wraps the underlying adapter's parse error with the original input

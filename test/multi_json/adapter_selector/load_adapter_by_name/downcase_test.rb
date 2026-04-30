@@ -5,10 +5,10 @@ require "multi_json/adapter_selector"
 
 # Tests that adapter names are downcased for file paths
 class AdapterNameDowncaseTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -23,7 +23,7 @@ class AdapterNameDowncaseTest < Minitest::Test
   def test_load_adapter_by_name_normalizes_case
     result = @instance.send(:load_adapter_by_name, "JSON_GEM")
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_load_adapter_by_name_capitalizes_class_name
@@ -35,7 +35,7 @@ class AdapterNameDowncaseTest < Minitest::Test
   def test_load_adapter_by_name_handles_mixed_case
     result = @instance.send(:load_adapter_by_name, "JSON_GEM")
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   private
@@ -49,7 +49,7 @@ class AdapterNameDowncaseTest < Minitest::Test
 
   def create_path_capturing_module(callback)
     ::Module.new do
-      include MultiJson::AdapterSelector
+      include MultiJSON::AdapterSelector
 
       define_method(:require_relative) do |path|
         callback.call(path)

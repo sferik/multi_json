@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module MultiJson
-  # Catalog of process-wide mutexes used to serialize MultiJson's lazy
+module MultiJSON
+  # Catalog of process-wide mutexes used to serialize MultiJSON's lazy
   # initializers and adapter swaps. Each mutex protects a distinct
   # piece of mutable state. Callers go through {.synchronize} rather
   # than touching the mutex constants directly so the constants
@@ -15,10 +15,10 @@ module MultiJson
     # instance. The names are documented inline so callers can find
     # what each mutex protects without leaving this file.
     MUTEXES = {
-      # Guards the {DEPRECATION_WARNINGS_SHOWN} set in `MultiJson` so the
+      # Guards the {DEPRECATION_WARNINGS_SHOWN} set in `MultiJSON` so the
       # check-then-add pair in `warn_deprecation_once` doesn't race.
       deprecation_warnings: Mutex.new,
-      # Guards the process-wide `@adapter` swap in `MultiJson.use` so two
+      # Guards the process-wide `@adapter` swap in `MultiJSON.use` so two
       # threads can't interleave their `OptionsCache.reset` and adapter
       # assignment.
       adapter: Mutex.new,
@@ -28,10 +28,10 @@ module MultiJson
       # warning fires at most once.
       default_adapter: Mutex.new,
       # Guards the lazy `default_load_options` / `default_dump_options`
-      # initializers in `MultiJson::Options`.
+      # initializers in `MultiJSON::Options`.
       default_options: Mutex.new,
       # Guards the lazy dump-delegate resolution in
-      # `MultiJson::Adapters::FastJsonparser`.
+      # `MultiJSON::Adapters::FastJsonparser`.
       dump_delegate: Mutex.new
     }.freeze
     private_constant :MUTEXES
@@ -49,7 +49,7 @@ module MultiJson
     # @return [Object] the block's return value
     # @raise [KeyError] when ``name`` does not match a known mutex
     # @example
-    #   MultiJson::Concurrency.synchronize(:adapter) { ... }
+    #   MultiJSON::Concurrency.synchronize(:adapter) { ... }
     def self.synchronize(name, &)
       MUTEXES.fetch(name).synchronize(&)
     end

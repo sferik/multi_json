@@ -3,27 +3,27 @@
 require_relative "../../../test_helper"
 
 class DeprecatedMethodsTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
+    MultiJSON.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
   end
 
   def test_default_options_setter_is_deprecated
     warned = false
     with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
-      silence_warnings { MultiJson.default_options = {foo: "bar"} }
+      silence_warnings { MultiJSON.default_options = {foo: "bar"} }
     end
 
     assert warned
   ensure
-    MultiJson.load_options = MultiJson.dump_options = nil
+    MultiJSON.load_options = MultiJSON.dump_options = nil
   end
 
   def test_default_options_getter_is_deprecated
     warned = false
     with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
-      silence_warnings { MultiJson.default_options }
+      silence_warnings { MultiJSON.default_options }
     end
 
     assert warned
@@ -32,7 +32,7 @@ class DeprecatedMethodsTest < Minitest::Test
   def test_cached_options_is_deprecated
     warned = false
     with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
-      silence_warnings { MultiJson.cached_options }
+      silence_warnings { MultiJSON.cached_options }
     end
 
     assert warned
@@ -41,35 +41,35 @@ class DeprecatedMethodsTest < Minitest::Test
   def test_reset_cached_options_is_deprecated
     warned = false
     with_stub(Kernel, :warn, ->(msg) { warned = true if /deprecated/i.match?(msg) }) do
-      silence_warnings { MultiJson.reset_cached_options! }
+      silence_warnings { MultiJSON.reset_cached_options! }
     end
 
     assert warned
   end
 
   def test_default_options_setter_sets_load_options
-    silence_warnings { MultiJson.default_options = {test: "value"} }
+    silence_warnings { MultiJSON.default_options = {test: "value"} }
 
-    assert_equal({test: "value"}, MultiJson.load_options)
+    assert_equal({test: "value"}, MultiJSON.load_options)
   ensure
-    MultiJson.load_options = MultiJson.dump_options = nil
+    MultiJSON.load_options = MultiJSON.dump_options = nil
   end
 
   def test_default_options_setter_sets_dump_options
-    silence_warnings { MultiJson.default_options = {test: "value"} }
+    silence_warnings { MultiJSON.default_options = {test: "value"} }
 
-    assert_equal({test: "value"}, MultiJson.dump_options)
+    assert_equal({test: "value"}, MultiJSON.dump_options)
   ensure
-    MultiJson.load_options = MultiJson.dump_options = nil
+    MultiJSON.load_options = MultiJSON.dump_options = nil
   end
 
   def test_default_options_getter_returns_load_options
-    MultiJson.load_options = {specific: "value"}
+    MultiJSON.load_options = {specific: "value"}
 
-    result = silence_warnings { MultiJson.default_options }
+    result = silence_warnings { MultiJSON.default_options }
 
     assert_equal({specific: "value"}, result)
   ensure
-    MultiJson.load_options = nil
+    MultiJSON.load_options = nil
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   # Thread-safe bounded cache for merged options hashes
   #
   # Caches are separated for load and dump operations. Each cache is
@@ -39,8 +39,8 @@ module MultiJson
       # @api public
       # @return [Integer] current cache size limit
       # @example
-      #   MultiJson::OptionsCache.max_cache_size = 5000
-      #   MultiJson::OptionsCache.max_cache_size  #=> 5000
+      #   MultiJSON::OptionsCache.max_cache_size = 5000
+      #   MultiJSON::OptionsCache.max_cache_size  #=> 5000
       attr_reader :max_cache_size
 
       # Set the maximum number of entries per cache store
@@ -50,7 +50,7 @@ module MultiJson
       # @return [Integer] the validated value
       # @raise [ArgumentError] when value is not a positive Integer
       # @example
-      #   MultiJson::OptionsCache.max_cache_size = 5000
+      #   MultiJSON::OptionsCache.max_cache_size = 5000
       def max_cache_size=(value)
         raise ArgumentError, "max_cache_size must be a positive Integer, got #{value.inspect}" unless Integer === value && value.positive? # rubocop:disable Style/CaseEquality
 
@@ -71,7 +71,7 @@ module MultiJson
   end
 end
 
-module MultiJson
+module MultiJSON
   module OptionsCache
     # Dynamic require path so MRI (mutex_store) and JRuby
     # (concurrent_store) execute the same physical line, avoiding a
@@ -82,5 +82,5 @@ module MultiJson
   end
 end
 
-require_relative "options_cache/#{MultiJson::OptionsCache.send(:const_get, :BACKENDS).fetch(RUBY_ENGINE, "mutex_store")}"
-MultiJson::OptionsCache.reset
+require_relative "options_cache/#{MultiJSON::OptionsCache.send(:const_get, :BACKENDS).fetch(RUBY_ENGINE, "mutex_store")}"
+MultiJSON::OptionsCache.reset

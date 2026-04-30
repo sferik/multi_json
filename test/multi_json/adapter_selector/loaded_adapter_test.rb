@@ -35,87 +35,87 @@ module LoadedAdapterTestHelpers
 end
 
 class LoadedAdapterTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
   include LoadedAdapterTestHelpers
 
   def test_loaded_adapter_detects_fast_jsonparser
     skip unless defined?(::FastJsonparser)
 
     undefine_constants(:Oj, :Yajl, :JrJackson) do
-      assert_equal :fast_jsonparser, MultiJson.send(:loaded_adapter)
+      assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter)
     end
   end
 
   def test_loaded_adapter_detects_oj
     skip unless defined?(::Oj)
 
-    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJson.send(:loaded_adapter) }
+    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
   end
 
   def test_loaded_adapter_detects_yajl
     skip unless defined?(::Yajl)
 
-    undefine_constants(:FastJsonparser, :Oj) { assert_equal :yajl, MultiJson.send(:loaded_adapter) }
+    undefine_constants(:FastJsonparser, :Oj) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
   end
 
   def test_loaded_adapter_returns_nil_when_none_loaded
-    simulate_no_adapters { assert_nil MultiJson.send(:loaded_adapter) }
+    simulate_no_adapters { assert_nil MultiJSON.send(:loaded_adapter) }
   end
 
   def test_loaded_adapter_detects_jr_jackson_when_defined
     undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJson.send(:loaded_adapter) }
+      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
     end
   end
 
   def test_loaded_adapter_detects_json_gem_when_defined
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
-      with_json_ext_parser { assert_equal :json_gem, MultiJson.send(:loaded_adapter) }
+      with_json_ext_parser { assert_equal :json_gem, MultiJSON.send(:loaded_adapter) }
     end
   end
 
   def test_loaded_adapter_detects_gson_when_defined
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       without_json_ext_parser do
-        with_temporary_constant(:Gson) { assert_equal :gson, MultiJson.send(:loaded_adapter) }
+        with_temporary_constant(:Gson) { assert_equal :gson, MultiJSON.send(:loaded_adapter) }
       end
     end
   end
 end
 
 class LoadedAdapterPriorityTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
   include LoadedAdapterTestHelpers
 
   def test_fast_jsonparser_takes_priority_over_oj
     skip unless defined?(::FastJsonparser) && defined?(::Oj)
 
-    assert_equal :fast_jsonparser, MultiJson.send(:loaded_adapter)
+    assert_equal :fast_jsonparser, MultiJSON.send(:loaded_adapter)
   end
 
   def test_oj_takes_priority_over_yajl
     skip unless defined?(::Oj) && defined?(::Yajl)
 
-    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJson.send(:loaded_adapter) }
+    undefine_constants(:FastJsonparser) { assert_equal :oj, MultiJSON.send(:loaded_adapter) }
   end
 
   def test_yajl_takes_priority_over_jr_jackson
     skip unless defined?(::Yajl)
     undefine_constants(:FastJsonparser, :Oj) do
-      with_temporary_constant(:JrJackson) { assert_equal :yajl, MultiJson.send(:loaded_adapter) }
+      with_temporary_constant(:JrJackson) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
     end
   end
 
   def test_jr_jackson_takes_priority_over_json_gem
     undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJson.send(:loaded_adapter) }
+      with_temporary_constant(:JrJackson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
     end
   end
 
   def test_json_gem_takes_priority_over_gson
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       with_json_ext_parser do
-        with_temporary_constant(:Gson) { assert_equal :json_gem, MultiJson.send(:loaded_adapter) }
+        with_temporary_constant(:Gson) { assert_equal :json_gem, MultiJSON.send(:loaded_adapter) }
       end
     end
   end
@@ -123,25 +123,25 @@ end
 
 # Tests for loaded_adapter and installable_adapter methods
 class AdapterDetectionEdgeCasesTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def test_loaded_adapter_returns_nil_when_none_defined
     simulate_no_adapters do
-      result = MultiJson.send(:loaded_adapter)
+      result = MultiJSON.send(:loaded_adapter)
 
       assert_nil result
     end
   end
 
   def test_installable_adapter_iterates_requirement_map
-    result = MultiJson.send(:installable_adapter)
+    result = MultiJSON.send(:installable_adapter)
 
     refute_nil result
   end
 
   def test_installable_adapter_returns_nil_when_none_installable
     break_requirements do
-      result = MultiJson.send(:installable_adapter)
+      result = MultiJSON.send(:installable_adapter)
 
       assert_nil result
     end

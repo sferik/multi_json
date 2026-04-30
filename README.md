@@ -16,28 +16,76 @@ fastest available JSON coder. Here's how to use it:
 ```ruby
 require "multi_json"
 
-MultiJson.load('{"abc":"def"}')                       #=> {"abc" => "def"}
-MultiJson.load('{"abc":"def"}', symbolize_keys: true) #=> {abc: "def"}
-MultiJson.dump({abc: "def"})                          # convert Ruby back to JSON
-MultiJson.dump({abc: "def"}, pretty: true)            # encoded in a pretty form (if supported by the coder)
+MultiJSON.parse('{"abc":"def"}')                        #=> {"abc" => "def"}
+MultiJSON.parse('{"abc":"def"}', symbolize_names: true) #=> {abc: "def"}
+MultiJSON.generate({abc: "def"})                       # convert Ruby back to JSON
+MultiJSON.generate({abc: "def"}, pretty: true)         # encoded in a pretty form (if supported by the coder)
 ```
 
-`MultiJson.load` returns `nil` for `nil`, empty, and whitespace-only inputs
+`MultiJSON.parse` returns `nil` for `nil`, empty, and whitespace-only inputs
 instead of raising, so a missing or blank payload is observable as a `nil`
-return value rather than an exception. When loading invalid JSON, MultiJSON
-will throw a `MultiJson::ParseError`. `MultiJson::DecodeError` and
-`MultiJson::LoadError` are aliases for backwards compatibility.
+return value rather than an exception. When parsing invalid JSON, MultiJSON
+will throw a `MultiJSON::ParseError`. `MultiJSON::DecodeError` and
+`MultiJSON::LoadError` are aliases for backwards compatibility.
 
 ```ruby
 begin
-  MultiJson.load("{invalid json}")
-rescue MultiJson::ParseError => exception
+  MultiJSON.parse("{invalid json}")
+rescue MultiJSON::ParseError => exception
   exception.data    #=> "{invalid json}"
   exception.cause   #=> JSON::ParserError: ...
   exception.line    #=> 1 (for adapters that report a location, e.g. Oj or the json gem)
   exception.column  #=> 2
 end
 ```
+
+### Drop-in replacement for stdlib `JSON`
+
+MultiJSON mirrors the surface of Ruby's stdlib [`JSON`][json-gem] so
+most call sites swap in with a one-line change:
+
+```diff
+- require "json"
++ require "multi_json"
+
+- JSON.parse(text, symbolize_names: true)
++ MultiJSON.parse(text, symbolize_names: true)
+
+- JSON.generate(object, pretty: true)
++ MultiJSON.generate(object, pretty: true)
+```
+
+Method names and the common options line up with stdlib so existing
+pretty-print calls and option keys keep working without changes:
+
+| stdlib `JSON`          | `MultiJSON`                | Status |
+| ---------------------- | -------------------------- | :---:  |
+| `JSON.parse(str)`      | `MultiJSON.parse(str)`     | ✓ |
+| `JSON.generate(obj)`   | `MultiJSON.generate(obj)`  | ✓ |
+| `pretty: true`         | `pretty: true`             | ✓ |
+| `symbolize_names: true` | `symbolize_names: true`   | ✓ |
+
+### Deprecated in 1.21.0
+
+The module constant and primary verbs were renamed to match Ruby
+stdlib `JSON.parse` / `JSON.generate` and the JSON spec (RFC 8259).
+The old names still work in 1.x but now emit a one-time deprecation
+warning; they will be removed in 2.0.
+
+| Deprecated                    | Use instead                     |
+| ----------------------------- | ------------------------------- |
+| `MultiJson` (constant)        | `MultiJSON` (all-caps)          |
+| `MultiJSON.load(str)`         | `MultiJSON.parse(str)`          |
+| `MultiJSON.dump(obj)`         | `MultiJSON.generate(obj)`       |
+| `MultiJSON.load_options=`     | `MultiJSON.parse_options=`      |
+| `MultiJSON.load_options`      | `MultiJSON.parse_options`       |
+| `MultiJSON.dump_options=`     | `MultiJSON.generate_options=`   |
+| `MultiJSON.dump_options`      | `MultiJSON.generate_options`    |
+| `symbolize_keys:` option      | `symbolize_names:` option       |
+
+The `MultiJson` constant (CamelCase) continues to work as a thin
+delegator; every method call, constant lookup, and rescue clause
+routes through `MultiJSON` transparently.
 
 `ParseError` instance has `cause` reader which contains the original exception.
 It also has `data` reader with the input that caused the problem, and `line`/`column`
@@ -52,7 +100,7 @@ entries per direction — and applications that generate many distinct option ha
 can raise the ceiling at runtime:
 
 ```ruby
-MultiJson::OptionsCache.max_cache_size = 5000
+MultiJSON::OptionsCache.max_cache_size = 5000
 ```
 
 `max_cache_size` must be a positive integer; `0`, negative values, and
@@ -60,14 +108,14 @@ non-integers raise `ArgumentError`.
 
 Lowering the limit only takes effect for *new* inserts; existing cache
 entries are left in place until normal eviction trims them below the
-new ceiling. Call `MultiJson::OptionsCache.reset` if you want to evict
+new ceiling. Call `MultiJSON::OptionsCache.reset` if you want to evict
 immediately.
 
 The `use` method, which sets the MultiJSON adapter, takes either a symbol or a
 class (to allow for custom JSON parsers) that responds to both `.load` and `.dump`
 at the class level.
 
-When MultiJSON fails to load the specified adapter, it'll throw `MultiJson::AdapterError`
+When MultiJSON fails to load the specified adapter, it'll throw `MultiJSON::AdapterError`
 which inherits from `ArgumentError`.
 
 ### Writing a custom adapter
@@ -88,15 +136,15 @@ class MyAdapter
   end
 end
 
-MultiJson.use(MyAdapter)
+MultiJSON.use(MyAdapter)
 ```
 
-`ParseError` is required: `MultiJson.load` rescues `MyAdapter::ParseError`
-to wrap parse failures in `MultiJson::ParseError`, and an adapter that
-omits the constant raises `MultiJson::AdapterError` on the first parse
+`ParseError` is required: `MultiJSON.parse` rescues `MyAdapter::ParseError`
+to wrap parse failures in `MultiJSON::ParseError`, and an adapter that
+omits the constant raises `MultiJSON::AdapterError` on the first parse
 attempt instead of producing a confusing `NameError`.
 
-For more, inherit from `MultiJson::Adapter` to pick up shared option
+For more, inherit from `MultiJSON::Adapter` to pick up shared option
 merging, the `defaults :load, ...` / `defaults :dump, ...` DSL, and the
 blank-input short-circuit. The built-in adapters in
 `lib/multi_json/adapters/` are working examples.
@@ -119,7 +167,7 @@ performance depends on the document shape, the Ruby implementation, and
 whether you're calling `load` or `dump`. The JSON gem is a Ruby default gem,
 so it's always available as a last-resort fallback on any supported Ruby. If
 you have a workload where a different backend is faster, set it explicitly
-with `MultiJson.use(:your_adapter)`.
+with `MultiJSON.use(:your_adapter)`.
 
 ## Gem Variants
 

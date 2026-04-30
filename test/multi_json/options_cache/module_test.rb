@@ -4,39 +4,39 @@ require_relative "../../test_helper"
 
 # Tests for module-level reset behavior
 class OptionsCacheModuleTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def setup
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
   end
 
   def test_module_reset_creates_new_stores
-    old_dump = MultiJson::OptionsCache.dump
-    old_load = MultiJson::OptionsCache.load
+    old_dump = MultiJSON::OptionsCache.dump
+    old_load = MultiJSON::OptionsCache.load
 
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
 
-    refute_same old_dump, MultiJson::OptionsCache.dump
-    refute_same old_load, MultiJson::OptionsCache.load
+    refute_same old_dump, MultiJSON::OptionsCache.dump
+    refute_same old_load, MultiJSON::OptionsCache.load
   end
 
   def test_module_dump_returns_store
-    assert_kind_of MultiJson::OptionsCache::Store, MultiJson::OptionsCache.dump
+    assert_kind_of MultiJSON::OptionsCache::Store, MultiJSON::OptionsCache.dump
   end
 
   def test_module_load_returns_store
-    assert_kind_of MultiJson::OptionsCache::Store, MultiJson::OptionsCache.load
+    assert_kind_of MultiJSON::OptionsCache::Store, MultiJSON::OptionsCache.load
   end
 
   def test_module_reset_creates_dump_store
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
 
-    assert_kind_of MultiJson::OptionsCache::Store, MultiJson::OptionsCache.dump
+    assert_kind_of MultiJSON::OptionsCache::Store, MultiJSON::OptionsCache.dump
   end
 
   def test_module_reset_creates_load_store
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
 
-    assert_kind_of MultiJson::OptionsCache::Store, MultiJson::OptionsCache.load
+    assert_kind_of MultiJSON::OptionsCache::Store, MultiJSON::OptionsCache.load
   end
 end

@@ -3,7 +3,7 @@
 require_relative "../../../test_helper"
 
 class ParseErrorClassTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   # Verifies the lookup is performed via ``const_get(:ParseError, false)``
   # rather than the ``::`` operator. The two are equivalent on MRI but
@@ -22,7 +22,7 @@ class ParseErrorClassTest < Minitest::Test
       super(name, inherit)
     end
 
-    MultiJson.parse_error_class_for(custom)
+    MultiJSON.parse_error_class_for(custom)
 
     refute inherit_argument
   end
@@ -32,7 +32,7 @@ class ParseErrorClassTest < Minitest::Test
     sentinel = Class.new(StandardError)
     custom.instance_variable_set(:@_multi_json_parse_error, sentinel)
 
-    assert_same sentinel, MultiJson.parse_error_class_for(custom)
+    assert_same sentinel, MultiJSON.parse_error_class_for(custom)
   end
 
   def test_parse_error_class_for_skips_const_get_on_cache_hit
@@ -44,7 +44,7 @@ class ParseErrorClassTest < Minitest::Test
       super(*args)
     end
 
-    MultiJson.parse_error_class_for(custom)
+    MultiJSON.parse_error_class_for(custom)
 
     refute const_get_called
   end
@@ -52,7 +52,7 @@ class ParseErrorClassTest < Minitest::Test
   def test_parse_error_class_for_caches_resolved_class_on_adapter
     custom = adapter_with_parse_error
 
-    resolved = MultiJson.parse_error_class_for(custom)
+    resolved = MultiJSON.parse_error_class_for(custom)
 
     assert_same resolved, custom.instance_variable_get(:@_multi_json_parse_error)
     assert_same custom::ParseError, resolved

@@ -5,10 +5,10 @@ require "multi_json/options"
 
 # Tests for Options module callable and hashable handling
 class OptionsCallableAndHashableTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { extend MultiJson::Options }
+    @test_class = Class.new { extend MultiJSON::Options }
   end
 
   def teardown

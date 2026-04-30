@@ -2,7 +2,7 @@
 
 require "concurrent/map"
 
-module MultiJson
+module MultiJSON
   module OptionsCache
     # Thread-safe cache store backed by Concurrent::Map
     #

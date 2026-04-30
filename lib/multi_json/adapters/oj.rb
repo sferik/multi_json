@@ -4,7 +4,7 @@ require "oj"
 require_relative "../adapter"
 require_relative "oj_common"
 
-module MultiJson
+module MultiJSON
   # Namespace for JSON adapter implementations
   #
   # Each adapter wraps a specific JSON library and provides a consistent
@@ -14,7 +14,7 @@ module MultiJson
     class Oj < Adapter
       include OjCommon
 
-      defaults :load, mode: :strict, symbolize_keys: false
+      defaults :load, mode: :strict, symbolize_names: false
       defaults :dump, mode: :compat, time_format: :ruby, use_to_json: true
 
       # In certain cases the Oj gem may throw a ``JSON::ParserError``
@@ -69,10 +69,10 @@ module MultiJson
 
       private
 
-      # Translate ``:symbolize_keys`` into Oj's ``:symbol_keys``
+      # Translate ``:symbolize_names`` into Oj's ``:symbol_keys``
       #
       # Returns a new hash without mutating the input.
-      # ``:symbol_keys`` is always set (true or false) so MultiJson's
+      # ``:symbol_keys`` is always set (true or false) so MultiJSON's
       # behavior is independent of any global ``Oj.default_options``
       # the host application may have set. The input is the cached hash
       # returned from {Adapter.merged_load_options}, so in-place edits
@@ -80,9 +80,9 @@ module MultiJson
       #
       # @api private
       # @param options [Hash] merged load options
-      # @return [Hash] options with ``:symbolize_keys`` translated
+      # @return [Hash] options with ``:symbolize_names`` translated
       def translate_load_options(options)
-        options.except(:symbolize_keys).merge(symbol_keys: options[:symbolize_keys] == true)
+        options.except(:symbolize_names).merge(symbol_keys: options[:symbolize_names] == true)
       end
     end
   end

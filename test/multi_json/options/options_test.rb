@@ -4,10 +4,10 @@ require_relative "../../test_helper"
 require "multi_json/options"
 
 class OptionsTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { extend MultiJson::Options }
+    @test_class = Class.new { extend MultiJSON::Options }
   end
 
   def teardown
@@ -38,9 +38,9 @@ class OptionsTest < Minitest::Test
   end
 
   def test_load_options_setter_stores_options
-    @test_class.load_options = {symbolize_keys: true}
+    @test_class.load_options = {symbolize_names: true}
 
-    assert_equal({symbolize_keys: true}, @test_class.load_options)
+    assert_equal({symbolize_names: true}, @test_class.load_options)
   end
 
   def test_dump_options_setter_stores_options
@@ -50,25 +50,25 @@ class OptionsTest < Minitest::Test
   end
 
   def test_load_options_setter_resets_cache
-    MultiJson::OptionsCache.dump.fetch(:test_key) { "test_value" }
+    MultiJSON::OptionsCache.dump.fetch(:test_key) { "test_value" }
 
     @test_class.load_options = {foo: :bar}
 
-    assert_nil MultiJson::OptionsCache.dump.fetch(:test_key, nil)
+    assert_nil MultiJSON::OptionsCache.dump.fetch(:test_key, nil)
   end
 
   def test_dump_options_setter_resets_cache
-    MultiJson::OptionsCache.load.fetch(:test_key) { "test_value" }
+    MultiJSON::OptionsCache.load.fetch(:test_key) { "test_value" }
 
     @test_class.dump_options = {foo: :bar}
 
-    assert_nil MultiJson::OptionsCache.load.fetch(:test_key, nil)
+    assert_nil MultiJSON::OptionsCache.load.fetch(:test_key, nil)
   end
 
   def test_load_options_with_callable_zero_arity
-    @test_class.load_options = -> { {symbolize_keys: true} }
+    @test_class.load_options = -> { {symbolize_names: true} }
 
-    assert_equal({symbolize_keys: true}, @test_class.load_options)
+    assert_equal({symbolize_names: true}, @test_class.load_options)
   end
 
   def test_dump_options_with_callable_zero_arity
@@ -78,11 +78,11 @@ class OptionsTest < Minitest::Test
   end
 
   def test_load_options_with_callable_with_arity
-    @test_class.load_options = ->(opts) { opts.merge(symbolize_keys: true) }
+    @test_class.load_options = ->(opts) { opts.merge(symbolize_names: true) }
 
     result = @test_class.load_options({mode: :strict})
 
-    assert_equal({mode: :strict, symbolize_keys: true}, result)
+    assert_equal({mode: :strict, symbolize_names: true}, result)
   end
 
   def test_dump_options_with_callable_with_arity
@@ -95,11 +95,11 @@ class OptionsTest < Minitest::Test
 
   def test_load_options_with_to_hash_object
     options_obj = Object.new
-    def options_obj.to_hash = {symbolize_keys: true}
+    def options_obj.to_hash = {symbolize_names: true}
 
     @test_class.load_options = options_obj
 
-    assert_equal({symbolize_keys: true}, @test_class.load_options)
+    assert_equal({symbolize_names: true}, @test_class.load_options)
   end
 
   def test_dump_options_with_to_hash_object

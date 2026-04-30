@@ -5,10 +5,10 @@ require "multi_json/options"
 
 # Tests for get_options return behavior
 class OptionsGetOptionsTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { extend MultiJson::Options }
+    @test_class = Class.new { extend MultiJSON::Options }
   end
 
   def teardown

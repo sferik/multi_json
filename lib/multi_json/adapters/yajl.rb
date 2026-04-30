@@ -3,7 +3,7 @@
 require "yajl"
 require_relative "../adapter"
 
-module MultiJson
+module MultiJSON
   module Adapters
     # Use the Yajl-Ruby library to dump/load.
     class Yajl < Adapter

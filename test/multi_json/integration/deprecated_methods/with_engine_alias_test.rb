@@ -3,41 +3,41 @@
 require_relative "../../../test_helper"
 
 class DeprecatedWithEngineAliasTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    @registry = MultiJson.send(:const_get, :DEPRECATION_WARNINGS_SHOWN)
+    @registry = MultiJSON.send(:const_get, :DEPRECATION_WARNINGS_SHOWN)
     @registry.clear
-    @original_adapter = MultiJson.adapter
-    MultiJson.use :json_gem
+    @original_adapter = MultiJSON.adapter
+    MultiJSON.use :json_gem
   end
 
   def teardown
-    MultiJson.adapter = @original_adapter
+    MultiJSON.adapter = @original_adapter
   end
 
   def test_with_engine_delegates_to_with_adapter
     skip unless defined?(::Oj)
     @registry.add(:with_engine)
     inside = nil
-    MultiJson.with_engine(:oj) { inside = MultiJson.adapter }
+    MultiJSON.with_engine(:oj) { inside = MultiJSON.adapter }
 
-    assert_equal MultiJson::Adapters::Oj, inside
+    assert_equal MultiJSON::Adapters::Oj, inside
   end
 
   def test_with_engine_warns_with_method_name
     msg = nil
     capture_warn { |m| msg ||= m }
-    MultiJson.with_engine(:json_gem) { nil }
+    MultiJSON.with_engine(:json_gem) { nil }
     restore_warn
 
-    assert_includes msg, "MultiJson.with_engine"
+    assert_includes msg, "MultiJSON.with_engine"
   end
 
   def test_with_engine_warns_only_once
     n = 0
     capture_warn { |_m| n += 1 }
-    3.times { MultiJson.with_engine(:json_gem) { nil } }
+    3.times { MultiJSON.with_engine(:json_gem) { nil } }
     restore_warn
 
     assert_equal 1, n
@@ -47,7 +47,7 @@ class DeprecatedWithEngineAliasTest < Minitest::Test
     @registry.add(:with_engine)
     n = 0
     capture_warn { |_m| n += 1 }
-    MultiJson.with_engine(:json_gem) { nil }
+    MultiJSON.with_engine(:json_gem) { nil }
     restore_warn
 
     assert_equal 0, n

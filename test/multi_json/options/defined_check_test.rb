@@ -5,10 +5,10 @@ require "multi_json/options"
 
 # Tests for defined? check behavior
 class OptionsDefinedCheckTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { extend MultiJson::Options }
+    @test_class = Class.new { extend MultiJSON::Options }
   end
 
   def teardown

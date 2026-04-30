@@ -4,13 +4,13 @@ require "fast_jsonparser"
 require_relative "../adapter"
 require_relative "../adapter_selector"
 
-module MultiJson
+module MultiJSON
   module Adapters
     # Use the FastJsonparser library to load, and the fastest other
     # available adapter to dump.
     #
     # FastJsonparser only implements parsing, so the ``dump`` side of
-    # the adapter is delegated to whichever adapter MultiJson would
+    # the adapter is delegated to whichever adapter MultiJSON would
     # pick if FastJsonparser weren't installed (oj → yajl → jr_jackson
     # → json_gem → gson). The delegate is resolved lazily at the first
     # ``dump`` call, not at file load time, so load order doesn't lock
@@ -18,7 +18,7 @@ module MultiJson
     # the first ``dump`` call (typical applications already have ``oj``
     # loaded by then).
     class FastJsonparser < Adapter
-      defaults :load, symbolize_keys: false
+      defaults :load, symbolize_names: false
 
       # Exception raised when JSON parsing fails
       ParseError = ::FastJsonparser::ParseError
@@ -43,8 +43,8 @@ module MultiJson
         # @api private
         # @return [Class] delegate adapter class
         def dump_delegate
-          MultiJson::Concurrency.synchronize(:dump_delegate) do
-            @dump_delegate ||= MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+          MultiJSON::Concurrency.synchronize(:dump_delegate) do
+            @dump_delegate ||= MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
           end
         end
       end
@@ -53,19 +53,21 @@ module MultiJson
       #
       # FastJsonparser.parse only accepts ``symbolize_keys`` and raises
       # on unknown keyword arguments, so the adapter explicitly forwards
-      # only that option and silently drops the rest. Pass other options
-      # through ``MultiJson.load_options=`` and they'll apply to whichever
-      # adapter MultiJson selects when fast_jsonparser isn't installed.
+      # MultiJSON's canonical ``:symbolize_names`` option as
+      # FastJsonparser's native ``symbolize_keys:`` kwarg and silently
+      # drops the rest. Pass other options through
+      # ``MultiJSON.parse_options=`` and they'll apply to whichever
+      # adapter MultiJSON selects when fast_jsonparser isn't installed.
       #
       # @api private
       # @param string [String] JSON string to parse
-      # @param options [Hash] parsing options (only :symbolize_keys is honored)
+      # @param options [Hash] parsing options (only :symbolize_names is honored)
       # @return [Object] parsed Ruby object
       #
       # @example Parse JSON string
       #   adapter.load('{"key":"value"}') #=> {"key" => "value"}
       def load(string, options = {})
-        ::FastJsonparser.parse(string, symbolize_keys: options[:symbolize_keys])
+        ::FastJsonparser.parse(string, symbolize_keys: options[:symbolize_names])
       end
     end
   end

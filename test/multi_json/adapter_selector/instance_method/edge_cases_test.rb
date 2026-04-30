@@ -5,10 +5,10 @@ require "multi_json/adapter_selector"
 
 # Additional tests for instance method edge cases and error handling
 class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -30,7 +30,7 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_raises_with_adapter_in_message
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, 12_345) }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, 12_345) }
 
     assert_kind_of LoadError, error.cause
   end
@@ -39,28 +39,28 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
     result = @instance.send(:installable_adapter)
 
     refute_nil result
-    assert_includes MultiJson::AdapterSelector::REQUIREMENT_MAP.keys, result
+    assert_includes MultiJSON::AdapterSelector::REQUIREMENT_MAP.keys, result
   end
 
   def test_instance_load_adapter_by_name_with_symbol
-    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "json_gem")
+    assert_equal MultiJSON::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "json_gem")
   end
 
   def test_instance_load_adapter_by_name_uses_aliases
     skip "JrJackson not available" unless TestHelpers.jrjackson?
 
-    assert_equal MultiJson::Adapters::JrJackson, @instance.send(:load_adapter_by_name, "jrjackson")
+    assert_equal MultiJSON::Adapters::JrJackson, @instance.send(:load_adapter_by_name, "jrjackson")
   end
 
   def test_instance_load_adapter_by_name_downcases
-    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
+    assert_equal MultiJSON::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
   end
 
   def test_instance_load_adapter_by_name_uses_multijson_adapters
     result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal MultiJson::Adapters::JsonGem, result
-    assert_equal "MultiJson::Adapters::JsonGem", result.name
+    assert_equal MultiJSON::Adapters::JsonGem, result
+    assert_equal "MultiJSON::Adapters::JsonGem", result.name
   end
 
   def test_instance_loaded_adapter_returns_nil_when_none_defined
@@ -77,33 +77,33 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_error_includes_adapter_value
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, 99_999) }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, 99_999) }
 
     assert_kind_of LoadError, error.cause
     assert_includes error.cause.message, "99999"
   end
 
   def test_instance_load_adapter_error_message_not_nil
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, "bad_type_here") }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, "bad_type_here") }
 
     refute_nil error.cause.message
     refute_empty error.cause.message
   end
 
   def test_instance_load_adapter_error_has_cause
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, :nonexistent) }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, :nonexistent) }
 
     assert_kind_of LoadError, error.cause
   end
 
   def test_instance_load_adapter_error_is_built_correctly
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, :nonexistent) }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, :nonexistent) }
 
-    assert_kind_of MultiJson::AdapterError, error
+    assert_kind_of MultiJSON::AdapterError, error
   end
 
   def test_instance_require_relative_uses_downcase
-    assert_equal MultiJson::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
+    assert_equal MultiJSON::Adapters::JsonGem, @instance.send(:load_adapter_by_name, "JSON_GEM")
   end
 
   def test_instance_loaded_adapter_explicit_nil_return
@@ -111,7 +111,7 @@ class IncludedAdapterSelectorEdgeCasesTest < Minitest::Test
   end
 
   def test_instance_load_adapter_error_is_built_from_exception
-    error = assert_raises(MultiJson::AdapterError) { @instance.send(:load_adapter, :nonexistent_adapter) }
+    error = assert_raises(MultiJSON::AdapterError) { @instance.send(:load_adapter, :nonexistent_adapter) }
 
     assert_includes error.message, "Did not recognize", "Error message should come from build()"
   end

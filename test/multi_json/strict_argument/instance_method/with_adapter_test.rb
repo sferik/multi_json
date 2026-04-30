@@ -4,7 +4,7 @@ require_relative "../../../test_helper"
 require_relative "dump_test"
 
 class InstanceMethodWithAdapterTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
     @object = create_multi_json_object
@@ -12,7 +12,7 @@ class InstanceMethodWithAdapterTest < Minitest::Test
   end
 
   def teardown
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_instance_with_adapter_changes_adapter
@@ -22,7 +22,7 @@ class InstanceMethodWithAdapterTest < Minitest::Test
       inner_adapter = @object.send(:adapter)
     end
 
-    assert_equal MultiJson::Adapters::JsonGem, inner_adapter
+    assert_equal MultiJSON::Adapters::JsonGem, inner_adapter
   end
 
   def test_instance_with_adapter_restores_adapter
@@ -30,7 +30,7 @@ class InstanceMethodWithAdapterTest < Minitest::Test
 
     @object.send(:with_adapter, :json_gem) { nil }
 
-    assert_equal MultiJson::Adapters::JsonGem, @object.send(:adapter)
+    assert_equal MultiJSON::Adapters::JsonGem, @object.send(:adapter)
   end
 
   def test_instance_with_adapter_returns_block_value

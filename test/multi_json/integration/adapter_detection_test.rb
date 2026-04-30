@@ -4,7 +4,7 @@ require_relative "../../test_helper"
 require_relative "adapter_selection_test"
 
 class AdapterDetectionIntegrationTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   include IntegrationTestSetup
 
@@ -12,7 +12,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     skip unless defined?(::Oj)
     undefine_constants(:FastJsonparser) do
       clear_default_adapter_warning
-      adapter = capture_stderr { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJSON.default_adapter }
 
       assert_equal :oj, adapter
     end
@@ -22,7 +22,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     skip unless defined?(::Yajl)
     undefine_constants(:FastJsonparser, :Oj) do
       clear_default_adapter_warning
-      adapter = capture_stderr { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJSON.default_adapter }
 
       assert_equal :yajl, adapter
     end
@@ -32,7 +32,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     skip unless defined?(::JSON::Ext::Parser)
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       clear_default_adapter_warning
-      adapter = capture_stderr { MultiJson.default_adapter }
+      adapter = capture_stderr { MultiJSON.default_adapter }
 
       assert_equal :json_gem, adapter
     end
@@ -42,7 +42,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     undefine_constants(:FastJsonparser, :Oj, :Yajl) do
       with_temporary_constant(:JrJackson) do
         clear_default_adapter_warning
-        adapter = capture_stderr { MultiJson.default_adapter }
+        adapter = capture_stderr { MultiJSON.default_adapter }
 
         assert_equal :jr_jackson, adapter
       end
@@ -54,7 +54,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
       with_json_ext_parser_removed do
         with_temporary_constant(:Gson) do
           clear_default_adapter_warning
-          adapter = capture_stderr { MultiJson.default_adapter }
+          adapter = capture_stderr { MultiJSON.default_adapter }
 
           assert_equal :gson, adapter
         end
@@ -83,15 +83,15 @@ end
 if TestHelpers.jrjackson?
   class JrJacksonAliasIntegrationTest < Minitest::Test
     def test_allows_jrjackson_alias_as_symbol
-      MultiJson.use :jrjackson
+      MultiJSON.use :jrjackson
 
-      assert_equal MultiJson::Adapters::JrJackson, MultiJson.adapter
+      assert_equal MultiJSON::Adapters::JrJackson, MultiJSON.adapter
     end
 
     def test_allows_jrjackson_alias_as_string
-      MultiJson.use "jrjackson"
+      MultiJSON.use "jrjackson"
 
-      assert_equal MultiJson::Adapters::JrJackson, MultiJson.adapter
+      assert_equal MultiJSON::Adapters::JrJackson, MultiJSON.adapter
     end
   end
 end

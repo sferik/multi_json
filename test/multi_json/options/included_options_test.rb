@@ -5,10 +5,10 @@ require "multi_json/options"
 
 # Tests for Options via instance methods (using include)
 class IncludedOptionsTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { include MultiJson::Options }
+    @test_class = Class.new { include MultiJSON::Options }
     @instance = @test_class.new
   end
 

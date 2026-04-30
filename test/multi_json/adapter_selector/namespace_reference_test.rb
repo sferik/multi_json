@@ -5,10 +5,10 @@ require "multi_json/adapter_selector"
 
 # Tests that absolute namespace references work correctly with conflicting constants
 class AbsoluteNamespaceReferenceTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -23,7 +23,7 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
     result = @instance.send(:installable_adapter)
 
     refute_nil result, "installable_adapter should resolve REQUIREMENT_MAP from AdapterSelector"
-    assert_includes MultiJson::AdapterSelector::REQUIREMENT_MAP.keys, result
+    assert_includes MultiJSON::AdapterSelector::REQUIREMENT_MAP.keys, result
   end
 
   def test_load_adapter_by_name_uses_absolute_namespace_for_adapters
@@ -31,8 +31,8 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
 
     result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal ::MultiJson::Adapters::JsonGem, result
-    assert_equal "MultiJson::Adapters::JsonGem", result.name
+    assert_equal ::MultiJSON::Adapters::JsonGem, result
+    assert_equal "MultiJSON::Adapters::JsonGem", result.name
   end
 
   def test_load_adapter_by_name_uses_absolute_not_relative_multijson
@@ -40,25 +40,25 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
 
     result = @instance.send(:load_adapter_by_name, "json_gem")
 
-    assert_equal ::MultiJson::Adapters::JsonGem, result
-    assert_equal "MultiJson::Adapters::JsonGem", result.name
+    assert_equal ::MultiJSON::Adapters::JsonGem, result
+    assert_equal "MultiJSON::Adapters::JsonGem", result.name
   end
 
   private
 
   def define_conflicting_adapters
-    return if MultiJson::AdapterSelector.const_defined?(:Adapters, false)
+    return if MultiJSON::AdapterSelector.const_defined?(:Adapters, false)
 
     fake_adapters = Module.new do
       def self.const_get(_name)
         Module.new
       end
     end
-    MultiJson::AdapterSelector.const_set(:Adapters, fake_adapters)
+    MultiJSON::AdapterSelector.const_set(:Adapters, fake_adapters)
   end
 
   def define_nested_multijson_with_adapters
-    return if MultiJson::AdapterSelector.const_defined?(:MultiJson, false)
+    return if MultiJSON::AdapterSelector.const_defined?(:MultiJSON, false)
 
     fake_adapters = Module.new do
       def self.const_get(_name)
@@ -67,27 +67,27 @@ class AbsoluteNamespaceReferenceTest < Minitest::Test
     end
     nested = Module.new
     nested.const_set(:Adapters, fake_adapters)
-    MultiJson::AdapterSelector.const_set(:MultiJson, nested)
+    MultiJSON::AdapterSelector.const_set(:MultiJSON, nested)
   end
 
   def remove_conflicting_constants
     remove_const_if_defined(:Adapters)
-    remove_const_if_defined(:MultiJson)
+    remove_const_if_defined(:MultiJSON)
   end
 
   def remove_const_if_defined(const_name)
-    return unless MultiJson::AdapterSelector.const_defined?(const_name, false)
+    return unless MultiJSON::AdapterSelector.const_defined?(const_name, false)
 
-    MultiJson::AdapterSelector.send(:remove_const, const_name)
+    MultiJSON::AdapterSelector.send(:remove_const, const_name)
   end
 end
 
 # Tests that module type checking works correctly
 class ModuleTypeCheckingTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -104,14 +104,14 @@ class ModuleTypeCheckingTest < Minitest::Test
       fake.define_singleton_method(:===) { |_| false }
       fake.define_singleton_method(:name) { "FakeModule" }
     end
-    MultiJson::AdapterSelector.const_set(:Module, fake_module)
+    MultiJSON::AdapterSelector.const_set(:Module, fake_module)
 
     custom_module = valid_custom_module
     result = @instance.send(:load_adapter, custom_module)
 
     assert_equal custom_module, result
   ensure
-    MultiJson::AdapterSelector.send(:remove_const, :Module) if MultiJson::AdapterSelector.const_defined?(:Module, false)
+    MultiJSON::AdapterSelector.send(:remove_const, :Module) if MultiJSON::AdapterSelector.const_defined?(:Module, false)
   end
 
   def test_load_adapter_handles_module_instance
@@ -127,13 +127,13 @@ class ModuleTypeCheckingTest < Minitest::Test
       fake.define_singleton_method(:===) { |_| false }
       fake.define_singleton_method(:name) { "FakeString" }
     end
-    MultiJson::AdapterSelector.const_set(:String, fake_string)
+    MultiJSON::AdapterSelector.const_set(:String, fake_string)
 
     result = @instance.send(:load_adapter, "json_gem")
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   ensure
-    MultiJson::AdapterSelector.send(:remove_const, :String) if MultiJson::AdapterSelector.const_defined?(:String, false)
+    MultiJSON::AdapterSelector.send(:remove_const, :String) if MultiJSON::AdapterSelector.const_defined?(:String, false)
   end
 
   def test_load_adapter_uses_absolute_symbol_reference
@@ -141,13 +141,13 @@ class ModuleTypeCheckingTest < Minitest::Test
       fake.define_singleton_method(:===) { |_| false }
       fake.define_singleton_method(:name) { "FakeSymbol" }
     end
-    MultiJson::AdapterSelector.const_set(:Symbol, fake_symbol)
+    MultiJSON::AdapterSelector.const_set(:Symbol, fake_symbol)
 
     result = @instance.send(:load_adapter, :json_gem)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   ensure
-    MultiJson::AdapterSelector.send(:remove_const, :Symbol) if MultiJson::AdapterSelector.const_defined?(:Symbol, false)
+    MultiJSON::AdapterSelector.send(:remove_const, :Symbol) if MultiJSON::AdapterSelector.const_defined?(:Symbol, false)
   end
 
   private

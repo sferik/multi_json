@@ -5,10 +5,10 @@ require "multi_json/options"
 
 # Tests for default options behavior
 class OptionsDefaultOptionsTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   def setup
-    @test_class = Class.new { extend MultiJson::Options }
+    @test_class = Class.new { extend MultiJSON::Options }
   end
 
   def teardown
@@ -76,7 +76,7 @@ class OptionsDefaultOptionsTest < Minitest::Test
   private
 
   def stub_default_options_synchronize
-    @options_mutex = MultiJson::Concurrency.const_get(:MUTEXES).fetch(:default_options)
+    @options_mutex = MultiJSON::Concurrency.const_get(:MUTEXES).fetch(:default_options)
     flag = Struct.new(:value).new(false)
     @options_mutex.define_singleton_method(:synchronize) do |&block|
       flag.value = true

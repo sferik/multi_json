@@ -7,35 +7,35 @@ require "multi_json/adapter_selector"
 # the FastJsonparser adapter to delegate dump operations to the fastest
 # available adapter other than itself.
 class DefaultAdapterExcludingTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def test_returns_an_adapter_class
-    result = MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+    result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
     assert_kind_of Class, result
   end
 
   def test_does_not_return_the_excluded_adapter
-    result = MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+    result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
-    refute_equal MultiJson::Adapters::FastJsonparser, result if defined?(MultiJson::Adapters::FastJsonparser)
+    refute_equal MultiJSON::Adapters::FastJsonparser, result if defined?(MultiJSON::Adapters::FastJsonparser)
   end
 
   def test_returns_oj_when_oj_is_loaded_and_fast_jsonparser_is_excluded
     skip unless defined?(::Oj)
 
-    result = MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+    result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
-    assert_equal MultiJson::Adapters::Oj, result
+    assert_equal MultiJSON::Adapters::Oj, result
   end
 
   def test_returns_yajl_when_oj_excluded_and_yajl_loaded
     skip unless defined?(::Yajl)
 
     undefine_constants(:FastJsonparser) do
-      result = MultiJson::AdapterSelector.default_adapter_excluding(:oj)
+      result = MultiJSON::AdapterSelector.default_adapter_excluding(:oj)
 
-      assert_equal MultiJson::Adapters::Yajl, result
+      assert_equal MultiJSON::Adapters::Yajl, result
       # Exercise the adapter's instance methods so its source file's
       # coverage is tracked once it has been loaded by the line above.
       assert_equal({"a" => 1}, result.load('{"a":1}'))
@@ -53,29 +53,29 @@ class DefaultAdapterExcludingTest < Minitest::Test
     skip unless defined?(::Oj)
 
     undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
-      result = MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+      result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
-      assert_equal MultiJson::Adapters::Oj, result
+      assert_equal MultiJSON::Adapters::Oj, result
     end
   end
 
   def test_falls_back_to_json_gem_when_no_other_adapter_is_available
     simulate_no_adapters do
-      result = capture_stderr { MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser) }
+      result = capture_stderr { MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser) }
 
-      assert_equal MultiJson::Adapters::JsonGem, result
+      assert_equal MultiJSON::Adapters::JsonGem, result
     end
   end
 
   def test_default_adapter_excluding_holds_mutex_during_detection
-    mutex = MultiJson::Concurrency.const_get(:MUTEXES).fetch(:default_adapter)
+    mutex = MultiJSON::Concurrency.const_get(:MUTEXES).fetch(:default_adapter)
     synchronized = false
     mutex.define_singleton_method(:synchronize) do |&block|
       synchronized = true
       block.call
     end
 
-    MultiJson::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
+    MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
     assert synchronized
   ensure

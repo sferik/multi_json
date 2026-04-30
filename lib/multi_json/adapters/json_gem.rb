@@ -3,7 +3,7 @@
 require_relative "../adapter"
 require "json"
 
-module MultiJson
+module MultiJSON
   module Adapters
     # Use the JSON gem to dump/load.
     class JsonGem < Adapter
@@ -44,7 +44,7 @@ module MultiJson
           raise ::JSON::ParserError, "Invalid UTF-8 byte sequence in JSON input" unless string.valid_encoding?
         end
 
-        ::JSON.parse(string, translate_load_options(options))
+        ::JSON.parse(string, options)
       end
 
       # Serialize a Ruby object to JSON
@@ -66,23 +66,6 @@ module MultiJson
         return ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE) if options.size == 1
 
         ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE.merge(options.except(:pretty)))
-      end
-
-      private
-
-      # Translate ``:symbolize_keys`` into JSON gem's ``:symbolize_names``
-      #
-      # Returns a new hash without mutating the input. ``options`` is the
-      # cached hash returned from {Adapter.merged_load_options}, so in-place
-      # edits would pollute the cache and corrupt subsequent calls.
-      #
-      # @api private
-      # @param options [Hash] merged load options
-      # @return [Hash] options with ``:symbolize_keys`` translated
-      def translate_load_options(options)
-        return options unless options[:symbolize_keys]
-
-        options.except(:symbolize_keys).merge(symbolize_names: true)
       end
     end
   end

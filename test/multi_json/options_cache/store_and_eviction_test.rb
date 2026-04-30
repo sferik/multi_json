@@ -3,10 +3,10 @@
 require_relative "../../test_helper"
 
 class OptionsCacheStoreAndEvictionTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def test_store_returns_value_from_assignment
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     result = store.fetch(:sv_test) { "stored_value" }
 
@@ -14,7 +14,7 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
   end
 
   def test_store_persists_value_across_calls
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     store.fetch(:direct_store) { "direct_value" }
 
@@ -22,15 +22,15 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
   end
 
   def test_store_returns_existing_value_when_key_present
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:preexist) { "old" }
 
     assert_equal "old", store.fetch(:preexist) { "new" }
   end
 
   def test_cache_size_bounded_at_max
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
 
     (max + 1).times { |i| store.fetch(:"k#{i}") { i } }
 
@@ -40,8 +40,8 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
   end
 
   def test_cache_evicts_some_entry_when_at_max
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
     max.times { |i| store.fetch(:"k#{i}") { i } }
 
     cache = store.instance_variable_get(:@cache)
@@ -55,8 +55,8 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
   end
 
   def test_cache_no_eviction_below_max
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
     (max - 1).times { |i| store.fetch(:"below#{i}") { i } }
 
     cache = store.instance_variable_get(:@cache)
@@ -74,8 +74,8 @@ class OptionsCacheStoreAndEvictionTest < Minitest::Test
     # does not. Assert the size dropped after fetch (one entry shifted).
     skip "Concurrent::Map on JRuby does not support direct []=" if RUBY_ENGINE == "jruby"
 
-    store = MultiJson::OptionsCache::Store.new
-    max = MultiJson::OptionsCache.max_cache_size
+    store = MultiJSON::OptionsCache::Store.new
+    max = MultiJSON::OptionsCache.max_cache_size
     cache = store.instance_variable_get(:@cache)
     (max + 5).times { |i| cache[:"pre#{i}"] = i }
     size_before = cache.size

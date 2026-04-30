@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   # Raised when an adapter cannot be loaded or is not recognized
   #
   # @api public

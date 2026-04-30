@@ -4,10 +4,10 @@ require_relative "../../test_helper"
 
 # Tests for the no-block fetch path
 class OptionsCacheEarlyReturnTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def test_fetch_without_block_returns_default
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     result = store.fetch(:nonexistent, "default_value")
 
@@ -15,7 +15,7 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
   end
 
   def test_fetch_without_block_or_default_returns_nil
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     result = store.fetch(:nonexistent)
 
@@ -23,7 +23,7 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
   end
 
   def test_fetch_body_executes_not_nil
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     result = store.fetch(:new_key) { "computed" }
 
@@ -32,7 +32,7 @@ class OptionsCacheEarlyReturnTest < Minitest::Test
   end
 
   def test_fetch_stores_and_returns_block_result
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     # Block form is required here to test that the value is stored
     result = store.fetch(:compute_key) { 42 }

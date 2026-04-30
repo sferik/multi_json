@@ -1,4 +1,11 @@
+# Backward-compatible alias for MultiJSON — to be removed in v2.0.
 module MultiJson
+  def self.method_missing: (Symbol name, *untyped args, **untyped kwargs) ?{ (*untyped) -> untyped } -> untyped
+  def self.respond_to_missing?: ((Symbol | String) name, bool include_private) -> bool
+  def self.const_missing: (Symbol name) -> untyped
+end
+
+module MultiJSON
   VERSION: String
 
   DEPRECATION_WARNINGS_SHOWN: Set[Symbol]
@@ -53,7 +60,7 @@ module MultiJson
   end
 
   # Singleton-only helpers (not module functions)
-  private def self.warn_deprecation_once: (Symbol key, String message) -> void
+  def self.warn_deprecation_once: (Symbol key, String message) -> void
   private def self.deprecate_alias: (Symbol name, Symbol replacement) -> Symbol
   private def self.deprecate_method: (Symbol name, String message) { (*untyped, **untyped) -> untyped } -> Symbol
   def self.parse_error_class_for: (untyped adapter_class) -> untyped
@@ -69,9 +76,11 @@ module MultiJson
   def self.use: (adapter_spec new_adapter) -> _Adapter
   def self.adapter=: (adapter_spec new_adapter) -> _Adapter
   def self.engine=: (adapter_spec new_adapter) -> _Adapter
+  def self.parse: (string_input string, ?options options) -> json
   def self.load: (string_input string, ?options options) -> json
   def self.decode: (string_input string, ?options options) -> json
   def self.current_adapter: (?options? options) -> _Adapter
+  def self.generate: (json_input object, ?options options) -> String
   def self.dump: (json_input object, ?options options) -> String
   def self.encode: (json_input object, ?options options) -> String
   def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
@@ -85,9 +94,11 @@ module MultiJson
   def use: (adapter_spec new_adapter) -> _Adapter
   def adapter=: (adapter_spec new_adapter) -> _Adapter
   def engine=: (adapter_spec new_adapter) -> _Adapter
+  def parse: (string_input string, ?options options) -> json
   def load: (string_input string, ?options options) -> json
   def decode: (string_input string, ?options options) -> json
   def current_adapter: (?options? options) -> _Adapter
+  def generate: (json_input object, ?options options) -> String
   def dump: (json_input object, ?options options) -> String
   def encode: (json_input object, ?options options) -> String
   def with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
@@ -139,6 +150,13 @@ module MultiJson
   module Options
     EMPTY_OPTIONS: options
 
+    def parse_options=: (options_input value) -> options_input
+    def generate_options=: (options_input value) -> options_input
+    def parse_options: (*options) -> options
+    def generate_options: (*options) -> options
+    def default_parse_options: () -> options
+    def default_generate_options: () -> options
+
     def load_options=: (options_input value) -> options_input
     def dump_options=: (options_input value) -> options_input
     def load_options: (*options) -> options
@@ -146,10 +164,10 @@ module MultiJson
     def default_load_options: () -> options
     def default_dump_options: () -> options
 
-    @load_options: options_input?
-    @dump_options: options_input?
-    @default_load_options: options?
-    @default_dump_options: options?
+    @parse_options: options_input?
+    @generate_options: options_input?
+    @default_parse_options: options?
+    @default_generate_options: options?
 
     private
 
@@ -210,6 +228,8 @@ module MultiJson
     extend Options
     include Singleton
 
+    def self.default_parse_options: () -> options
+    def self.default_generate_options: () -> options
     def self.default_load_options: () -> options
     def self.default_dump_options: () -> options
     def self.defaults: (:load | :dump action, options value) -> void
@@ -226,6 +246,7 @@ module MultiJson
     def self.blank?: (String? input) -> bool
     def self.merged_dump_options: (options options) -> options?
     def self.merged_load_options: (options options) -> options?
+    def self.normalize_symbolize_option: (options options) -> options
     def self.strip_adapter_key: (options options) -> options
 
     BLANK_PATTERN: Regexp
@@ -245,6 +266,10 @@ module MultiJson
 
       def load: (String string, options options) -> untyped
       def dump: (json_input object, options options) -> String
+
+      private
+
+      def translate_load_options: (options options) -> options
     end
 
     class Gson < Adapter
@@ -254,6 +279,10 @@ module MultiJson
 
       def load: (String string, options options) -> untyped
       def dump: (json_input object, options options) -> String
+
+      private
+
+      def translate_load_options: (options options) -> options
     end
   end
 end

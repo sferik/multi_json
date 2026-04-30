@@ -5,10 +5,10 @@ require "multi_json/adapter_selector"
 
 # Tests adapter selector via instance methods (using include)
 class IncludedAdapterSelectorTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def setup
-    @test_class = Class.new { include MultiJson::AdapterSelector }
+    @test_class = Class.new { include MultiJSON::AdapterSelector }
     @instance = @test_class.new
   end
 
@@ -61,7 +61,7 @@ class IncludedAdapterSelectorTest < Minitest::Test
 
     result = @instance.send(:load_adapter, nil)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_instance_load_adapter_handles_false
@@ -69,6 +69,6 @@ class IncludedAdapterSelectorTest < Minitest::Test
 
     result = @instance.send(:load_adapter, false)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 end

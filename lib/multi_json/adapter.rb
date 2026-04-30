@@ -3,7 +3,7 @@
 require "singleton"
 require_relative "options"
 
-module MultiJson
+module MultiJSON
   # Base class for JSON adapter implementations
   #
   # Each adapter wraps a specific JSON library (Oj, JSON gem, etc.) and
@@ -24,7 +24,7 @@ module MultiJson
       VALID_DEFAULTS_ACTIONS = %i[load dump].freeze
       private_constant :BLANK_PATTERN, :VALID_DEFAULTS_ACTIONS
 
-      # Get default load options, walking the superclass chain
+      # Get default parse options, walking the superclass chain
       #
       # Returns the closest ancestor's `@default_load_options` ivar so a
       # parent class calling {.defaults} after a subclass has been
@@ -33,16 +33,34 @@ module MultiJson
       #
       # @api private
       # @return [Hash] frozen options hash
-      def default_load_options
+      def default_parse_options
         walk_default_options(:@default_load_options)
       end
 
-      # Get default dump options, walking the superclass chain
+      # Get default generate options, walking the superclass chain
       #
       # @api private
       # @return [Hash] frozen options hash
-      def default_dump_options
+      def default_generate_options
         walk_default_options(:@default_dump_options)
+      end
+
+      # Get default parse options, walking the superclass chain
+      #
+      # @api private
+      # @deprecated Use {.default_parse_options} instead. Will be removed in v2.0.
+      # @return [Hash] frozen options hash
+      def default_load_options
+        default_parse_options
+      end
+
+      # Get default generate options, walking the superclass chain
+      #
+      # @api private
+      # @deprecated Use {.default_generate_options} instead. Will be removed in v2.0.
+      # @return [Hash] frozen options hash
+      def default_dump_options
+        default_generate_options
       end
 
       # DSL for setting adapter-specific default options
@@ -59,7 +77,7 @@ module MultiJson
       # @raise [ArgumentError] when action is anything other than :load
       #   or :dump, or when value isn't a Hash
       # @example Set load defaults for an adapter
-      #   class MyAdapter < MultiJson::Adapter
+      #   class MyAdapter < MultiJSON::Adapter
       #     defaults :load, symbolize_keys: false
       #   end
       def defaults(action, value)
@@ -139,7 +157,7 @@ module MultiJson
         BLANK_PATTERN.match?(input.valid_encoding? ? input : input.scrub)
       end
 
-      # Merges dump options from adapter, global, and call-site
+      # Merges generate options from adapter, global, and call-site
       #
       # @api private
       # @param options [Hash] call-site options
@@ -147,11 +165,18 @@ module MultiJson
       def merged_dump_options(options)
         cache_key = strip_adapter_key(options)
         OptionsCache.dump.fetch(cache_key) do
-          dump_options(cache_key).merge(MultiJson.dump_options(cache_key)).merge!(cache_key)
+          generate_options(cache_key).merge(MultiJSON.generate_options(cache_key)).merge!(cache_key)
         end
       end
 
-      # Merges load options from adapter, global, and call-site
+      # Merges parse options from adapter, global, and call-site
+      #
+      # Each layer is normalized first so a deprecated ``:symbolize_keys``
+      # key in any source becomes the canonical ``:symbolize_names`` —
+      # done per-layer rather than post-merge so the expected override
+      # semantics (call-site > global > adapter default) still apply
+      # when a caller mixes the deprecated and canonical names across
+      # layers.
       #
       # @api private
       # @param options [Hash] call-site options
@@ -159,8 +184,35 @@ module MultiJson
       def merged_load_options(options)
         cache_key = strip_adapter_key(options)
         OptionsCache.load.fetch(cache_key) do
-          load_options(cache_key).merge(MultiJson.load_options(cache_key)).merge!(cache_key)
+          adapter = normalize_symbolize_option(parse_options(cache_key))
+          global = normalize_symbolize_option(MultiJSON.parse_options(cache_key))
+          call_site = normalize_symbolize_option(cache_key)
+          adapter.merge(global).merge!(call_site)
         end
+      end
+
+      # Translate the deprecated ``:symbolize_keys`` option to ``:symbolize_names``
+      #
+      # Matches Ruby stdlib's ``JSON.parse`` naming. Emits a one-time
+      # deprecation warning on first encounter of ``:symbolize_keys``.
+      # When both names appear in the same layer (unusual — only
+      # possible if the caller explicitly set both), the canonical
+      # ``:symbolize_names`` value wins and ``:symbolize_keys`` is
+      # silently dropped.
+      #
+      # @api private
+      # @param options [Hash] options layer to normalize
+      # @return [Hash] hash with ``:symbolize_keys`` translated, or the
+      #   original hash when no translation is needed
+      def normalize_symbolize_option(options)
+        return options unless options.key?(:symbolize_keys)
+
+        MultiJSON.warn_deprecation_once(:symbolize_keys_option,
+          "The :symbolize_keys option is deprecated and will be removed in v2.0. Use :symbolize_names instead.")
+
+        new_opts = options.except(:symbolize_keys)
+        new_opts[:symbolize_names] = options[:symbolize_keys] unless new_opts.key?(:symbolize_names)
+        new_opts
       end
 
       # Removes the :adapter key from options for cache key

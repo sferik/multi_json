@@ -4,13 +4,13 @@ require_relative "../../../test_helper"
 require "multi_json/adapter_selector"
 
 class DefaultAdapterFallbackChainTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def test_default_adapter_uses_loaded_adapter_when_available
     skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
     clear_default_adapter_state
 
-    result = capture_stderr { MultiJson.default_adapter }
+    result = capture_stderr { MultiJSON.default_adapter }
 
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
   end
@@ -18,7 +18,7 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
   def test_default_adapter_falls_back_to_installable_when_none_loaded
     simulate_no_adapters do
       clear_default_adapter_state
-      result = capture_stderr { MultiJson.default_adapter }
+      result = capture_stderr { MultiJSON.default_adapter }
 
       assert_equal :json_gem, result
     end
@@ -28,7 +28,7 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
     simulate_no_adapters do
       clear_default_adapter_state
 
-      result = capture_stderr { MultiJson.default_adapter }
+      result = capture_stderr { MultiJSON.default_adapter }
 
       assert_equal :json_gem, result
     end
@@ -51,7 +51,7 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
     installable = false
     with_adapter_method_tracking(:loaded_adapter, -> { loaded = true }) do
       with_adapter_method_tracking(:installable_adapter, -> { installable = true }) do
-        capture_stderr { MultiJson.default_adapter }
+        capture_stderr { MultiJSON.default_adapter }
       end
     end
     [loaded, installable]
@@ -60,20 +60,20 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
   private
 
   def clear_default_adapter_state
-    MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
     clear_default_adapter_warning
   end
 
   def with_adapter_method_tracking(method_name, tracker)
-    original = MultiJson.method(method_name)
+    original = MultiJSON.method(method_name)
     silence_warnings do
-      MultiJson.define_singleton_method(method_name) do
+      MultiJSON.define_singleton_method(method_name) do
         tracker.call
         original.call
       end
     end
     yield
   ensure
-    silence_warnings { MultiJson.define_singleton_method(method_name, original) }
+    silence_warnings { MultiJSON.define_singleton_method(method_name, original) }
   end
 end

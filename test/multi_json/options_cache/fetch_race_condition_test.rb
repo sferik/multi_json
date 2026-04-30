@@ -6,10 +6,10 @@ require_relative "../../test_helper"
 # are inserted by another thread between the lookup and the compute step.
 # Concurrent::Map's compute_if_absent provides this guarantee internally.
 class OptionsCacheFetchRaceConditionTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def test_fetch_returns_existing_value_when_pre_populated
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:race_key] = "existing_from_race"
     block_executed = false
@@ -24,7 +24,7 @@ class OptionsCacheFetchRaceConditionTest < Minitest::Test
   end
 
   def test_fetch_returns_specific_value_not_nil
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:inner_test] = "specific_value"
 
@@ -35,7 +35,7 @@ class OptionsCacheFetchRaceConditionTest < Minitest::Test
   end
 
   def test_fetch_uses_correct_key
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:correct_key] = "correct_value"
     cache[nil] = "nil_key_value"
@@ -47,7 +47,7 @@ class OptionsCacheFetchRaceConditionTest < Minitest::Test
   end
 
   def test_fetch_skips_block_when_value_already_present
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:exists] = "pre_existing"
     block_executed = false

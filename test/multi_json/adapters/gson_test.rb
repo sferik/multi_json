@@ -7,12 +7,12 @@ if TestHelpers.gson?
   require "multi_json/adapters/gson"
 
   class GsonAdapterTest < Minitest::Test
-    cover "MultiJson::Adapters::Gson*"
+    cover "MultiJSON::Adapters::Gson*"
 
     include AdapterTests
 
     def adapter_class
-      MultiJson::Adapters::Gson
+      MultiJSON::Adapters::Gson
     end
 
     # Exercises the non-empty-options branch in Gson#dump that the
@@ -20,7 +20,7 @@ if TestHelpers.gson?
     # routes the dump through json_gem instead. ``:html_safe`` is one
     # of the option keys Gson::Encoder.new accepts directly.
     def test_dump_with_options_allocates_a_fresh_encoder
-      result = MultiJson::Adapters::Gson.dump({a: 1}, html_safe: true)
+      result = MultiJSON::Adapters::Gson.dump({a: 1}, html_safe: true)
 
       assert_kind_of String, result
       assert_includes result, "\"a\""

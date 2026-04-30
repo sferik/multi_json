@@ -9,13 +9,13 @@ require "rbconfig"
 require "tempfile"
 
 class JsonGemAdapterTest < Minitest::Test
-  cover "MultiJson::Adapters::JsonGem*"
+  cover "MultiJSON::Adapters::JsonGem*"
 
   include AdapterTests
   include JsonCommonAdapterTests
 
   def adapter_class
-    MultiJson::Adapters::JsonGem
+    MultiJSON::Adapters::JsonGem
   end
 
   def test_dump_calls_as_json_on_objects
@@ -29,7 +29,7 @@ class JsonGemAdapterTest < Minitest::Test
     end
 
     object = klass.new
-    MultiJson.dump(object)
+    MultiJSON.dump(object)
 
     assert object.as_json_called
   end
@@ -45,7 +45,7 @@ class JsonGemAdapterTest < Minitest::Test
     end
 
     object = klass.new
-    MultiJson.dump(object, pretty: true)
+    MultiJSON.dump(object, pretty: true)
 
     assert object.as_json_called
   end
@@ -54,8 +54,8 @@ class JsonGemAdapterTest < Minitest::Test
     # 0xFF is not a valid UTF-8 byte sequence
     invalid = (+"\xFF").force_encoding(Encoding::ASCII_8BIT)
 
-    assert_raises(MultiJson::ParseError) do
-      MultiJson.load(invalid, adapter: :json_gem)
+    assert_raises(MultiJSON::ParseError) do
+      MultiJSON.load(invalid, adapter: :json_gem)
     end
   end
 
@@ -64,25 +64,23 @@ class JsonGemAdapterTest < Minitest::Test
     # even when the bytes are valid UTF-8 (GH-64)
     json = (+"{\"name\":\"Fran\xC3\xA7ois\"}").force_encoding(Encoding::ASCII_8BIT)
 
-    result = MultiJson::Adapters::JsonGem.load(json)
+    result = MultiJSON::Adapters::JsonGem.load(json)
 
     assert_equal({"name" => "François"}, result)
   end
 
   def test_load_does_not_mutate_cached_options
-    MultiJson.use :json_gem
-    MultiJson.load_options = nil
-    MultiJson::OptionsCache.reset
+    MultiJSON.use :json_gem
+    MultiJSON.parse_options = nil
+    MultiJSON::OptionsCache.reset
 
-    MultiJson.load('{"a":1}', symbolize_keys: true)
-    MultiJson.load('{"a":1}', symbolize_keys: true)
+    MultiJSON.parse('{"a":1}', symbolize_names: true)
+    MultiJSON.parse('{"a":1}', symbolize_names: true)
 
-    cached = MultiJson::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
+    cached = MultiJSON::OptionsCache.load.send(:instance_variable_get, :@cache).values.first
 
-    assert_includes cached.keys, :symbolize_keys,
-      "expected cached load options to retain :symbolize_keys key"
-    refute_includes cached.keys, :symbolize_names,
-      "expected cached load options to NOT have JSON-gem-specific keys merged in"
+    assert_includes cached.keys, :symbolize_names,
+      "expected cached load options to retain :symbolize_names key"
   end
 
   private
@@ -110,14 +108,14 @@ class JsonGemAdapterTest < Minitest::Test
 end
 
 class JsonGemWithActiveSupportTest < Minitest::Test
-  cover "MultiJson::Adapters::JsonGem*"
+  cover "MultiJSON::Adapters::JsonGem*"
 
   def setup
-    MultiJson.use MultiJson::Adapters::JsonGem
+    MultiJSON.use MultiJSON::Adapters::JsonGem
   end
 
   def test_prettifies_output_when_pretty_is_true
-    script = activesupport_script("puts MultiJson.dump({a: 1, b: 2, c: {d: {f: 2}}}, pretty: true, adapter: :json_gem)")
+    script = activesupport_script("puts MultiJSON.dump({a: 1, b: 2, c: {d: {f: 2}}}, pretty: true, adapter: :json_gem)")
     output, status = run_script(script)
 
     expected = JSON.pretty_generate({a: 1, b: 2, c: {d: {f: 2}}})
@@ -127,7 +125,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_serializes_objects_that_define_to_hash
-    script = activesupport_script('Class.new { def to_hash = {abc: "def"} }.then { puts MultiJson.dump(_1.new, adapter: :json_gem) }')
+    script = activesupport_script('Class.new { def to_hash = {abc: "def"} }.then { puts MultiJSON.dump(_1.new, adapter: :json_gem) }')
     output, status = run_script(script)
 
     assert_predicate status, :success?
@@ -135,7 +133,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_serializes_time_using_activesupport_format
-    script = activesupport_script("puts MultiJson.dump(Time.utc(2025, 12, 4, 13, 39, 46, 705000), adapter: :json_gem)")
+    script = activesupport_script("puts MultiJSON.dump(Time.utc(2025, 12, 4, 13, 39, 46, 705000), adapter: :json_gem)")
     output, status = run_script(script)
 
     assert_predicate status, :success?

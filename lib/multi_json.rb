@@ -10,7 +10,7 @@ require_relative "multi_json/adapter_selector"
 
 # A unified interface for JSON libraries in Ruby
 #
-# MultiJson allows swapping between JSON backends without changing your code.
+# MultiJSON allows swapping between JSON backends without changing your code.
 # It auto-detects available JSON libraries and uses the fastest one available.
 #
 # ## Method-definition patterns
@@ -19,9 +19,9 @@ require_relative "multi_json/adapter_selector"
 #
 # 1. ``module_function`` creates both a class method and a private instance
 #    method from a single ``def``. This is used for the hot-path API
-#    (``adapter``, ``use``, ``adapter=``, ``load``, ``dump``,
-#    ``current_adapter``) so that both ``MultiJson.load(...)`` and legacy
-#    ``Class.new { include MultiJson }.new.send(:load, ...)`` invocations
+#    (``adapter``, ``use``, ``adapter=``, ``parse``, ``generate``,
+#    ``current_adapter``) so that both ``MultiJSON.parse(...)`` and legacy
+#    ``Class.new { include MultiJSON }.new.send(:parse, ...)`` invocations
 #    work through the same body. The instance versions are re-publicized
 #    below so YARD renders them as part of the public API.
 # 2. ``def self.foo`` creates only a singleton method, giving mutation
@@ -29,20 +29,20 @@ require_relative "multi_json/adapter_selector"
 #    {.with_adapter}, which needs precise mutation coverage of its
 #    fiber-local save/restore logic.
 #
-# Deprecated public API (``decode``, ``encode``, ``engine``, etc.) lives in
-# {file:lib/multi_json/deprecated.rb} so this file stays focused on the
-# current surface.
+# Deprecated public API (``decode``, ``encode``, ``engine``, ``load``,
+# ``dump``, etc.) lives in {file:lib/multi_json/deprecated.rb} so this
+# file stays focused on the current surface.
 #
 # @example Basic usage
-#   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
-#   MultiJson.dump({foo: "bar"})     #=> '{"foo":"bar"}'
+#   MultiJSON.parse('{"foo":"bar"}')  #=> {"foo" => "bar"}
+#   MultiJSON.generate({foo: "bar"})  #=> '{"foo":"bar"}'
 #
 # @example Specifying an adapter
-#   MultiJson.use(:oj)
-#   MultiJson.load('{"foo":"bar"}', adapter: :json_gem)
+#   MultiJSON.use(:oj)
+#   MultiJSON.parse('{"foo":"bar"}', adapter: :json_gem)
 #
 # @api public
-module MultiJson
+module MultiJSON
   extend Options
   extend AdapterSelector
 
@@ -52,37 +52,33 @@ module MultiJson
   DEPRECATION_WARNINGS_SHOWN = Set.new
   private_constant :DEPRECATION_WARNINGS_SHOWN
 
-  class << self
-    private
+  # Emit a deprecation warning at most once per process for the given key
+  #
+  # Defined as a singleton method (rather than via module_function) so
+  # there is exactly one definition for mutation tests to target.
+  # Public so the deprecated ``load_options`` / ``dump_options``
+  # aliases on the {Options} mixin can invoke it without routing
+  # through ``MultiJSON.send(...)``.
+  #
+  # @api private
+  # @param key [Symbol] identifier for the deprecation (typically the method name)
+  # @param message [String] warning message to emit on first call
+  # @return [void]
+  # @example
+  #   MultiJSON.warn_deprecation_once(:foo, "MultiJSON.foo is deprecated")
+  def self.warn_deprecation_once(key, message)
+    Concurrency.synchronize(:deprecation_warnings) do
+      return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
-    # Emit a deprecation warning at most once per process for the given key
-    #
-    # Defined as a singleton method (rather than via module_function) so
-    # there is exactly one definition for mutation tests to target. The
-    # deprecated method bodies invoke this via ``warn_deprecation_once(...)``
-    # (singleton callers) and via the private instance delegates routing
-    # through the singleton for legacy ``include MultiJson`` consumers.
-    #
-    # @api private
-    # @param key [Symbol] identifier for the deprecation (typically the method name)
-    # @param message [String] warning message to emit on first call
-    # @return [void]
-    # @example
-    #   MultiJson.send(:warn_deprecation_once, :foo, "MultiJson.foo is deprecated")
-    def warn_deprecation_once(key, message)
-      Concurrency.synchronize(:deprecation_warnings) do
-        return if DEPRECATION_WARNINGS_SHOWN.include?(key)
-
-        Kernel.warn(message)
-        DEPRECATION_WARNINGS_SHOWN.add(key)
-      end
+      Kernel.warn(message)
+      DEPRECATION_WARNINGS_SHOWN.add(key)
     end
   end
 
   # Resolve the ``ParseError`` constant for an adapter class
   #
   # The result is memoized on the adapter class itself in a
-  # ``@_multi_json_parse_error`` ivar so subsequent ``MultiJson.load``
+  # ``@_multi_json_parse_error`` ivar so subsequent ``MultiJSON.load``
   # calls skip the constant lookup entirely. The lookup is performed
   # with ``inherit: false`` so a stray top-level ``::ParseError``
   # constant in the host process is correctly ignored on every
@@ -122,7 +118,7 @@ module MultiJson
   # @api public
   # @return [Class] the current adapter class
   # @example
-  #   MultiJson.adapter  #=> MultiJson::Adapters::Oj
+  #   MultiJSON.adapter  #=> MultiJSON::Adapters::Oj
   def adapter
     override = Fiber[:multi_json_adapter]
     return override if override
@@ -140,7 +136,7 @@ module MultiJson
   # @param new_adapter [Symbol, String, Module, nil] adapter specification
   # @return [Class] the loaded adapter class
   # @example
-  #   MultiJson.use(:oj)
+  #   MultiJSON.use(:oj)
   def use(new_adapter)
     loaded = load_adapter(new_adapter)
     Concurrency.synchronize(:adapter) do
@@ -154,7 +150,7 @@ module MultiJson
   # @api public
   # @return [Class] the loaded adapter class
   # @example
-  #   MultiJson.adapter = :json_gem
+  #   MultiJSON.adapter = :json_gem
   alias_method :adapter=, :use
   module_function :adapter=
 
@@ -171,12 +167,12 @@ module MultiJson
   # @raise [ParseError] if parsing fails
   # @raise [AdapterError] if the adapter doesn't define a ``ParseError`` constant
   # @example
-  #   MultiJson.load('{"foo":"bar"}')  #=> {"foo" => "bar"}
-  #   MultiJson.load("")               #=> nil
-  #   MultiJson.load("   \n")          #=> nil
-  def load(string, options = {})
+  #   MultiJSON.parse('{"foo":"bar"}')  #=> {"foo" => "bar"}
+  #   MultiJSON.parse("")               #=> nil
+  #   MultiJSON.parse("   \n")          #=> nil
+  def parse(string, options = {})
     adapter_class = current_adapter(options)
-    parse_error_class = MultiJson.parse_error_class_for(adapter_class)
+    parse_error_class = MultiJSON.parse_error_class_for(adapter_class)
     begin
       adapter_class.load(string, options)
     rescue parse_error_class => e
@@ -195,7 +191,7 @@ module MultiJson
   #   nil to use the process default
   # @return [Class] adapter class
   # @example
-  #   MultiJson.current_adapter(adapter: :oj)  #=> MultiJson::Adapters::Oj
+  #   MultiJSON.current_adapter(adapter: :oj)  #=> MultiJSON::Adapters::Oj
   def current_adapter(options = {})
     options ||= Options::EMPTY_OPTIONS
     adapter_override = options[:adapter]
@@ -209,15 +205,15 @@ module MultiJson
   # @param options [Hash] serialization options (adapter-specific)
   # @return [String] JSON string
   # @example
-  #   MultiJson.dump({foo: "bar"})  #=> '{"foo":"bar"}'
-  def dump(object, options = {})
+  #   MultiJSON.generate({foo: "bar"})  #=> '{"foo":"bar"}'
+  def generate(object, options = {})
     current_adapter(options).dump(object, options)
   end
 
   # Re-publicize the instance versions of the module_function methods so
   # YARD/yardstick render them as part of the public API and legacy
-  # ``include MultiJson`` consumers can call them without ``.send``.
-  public :adapter, :use, :adapter=, :load, :current_adapter, :dump
+  # ``include MultiJSON`` consumers can call them without ``.send``.
+  public :adapter, :use, :adapter=, :parse, :current_adapter, :generate
 
   # ===========================================================================
   # Public API (def self.foo: singleton-only, for mutation-test precision)
@@ -236,7 +232,7 @@ module MultiJson
   # @yield block to execute with the temporary adapter
   # @return [Object] result of the block
   # @example
-  #   MultiJson.with_adapter(:json_gem) { MultiJson.dump({}) }
+  #   MultiJSON.with_adapter(:json_gem) { MultiJSON.dump({}) }
   def self.with_adapter(new_adapter)
     previous_override = Fiber[:multi_json_adapter]
     Fiber[:multi_json_adapter] = load_adapter(new_adapter)
@@ -251,18 +247,87 @@ module MultiJson
 
   private
 
-  # Instance-method delegate for {MultiJson.with_adapter}
+  # Instance-method delegate for {MultiJSON.with_adapter}
   #
   # @api private
   # @param new_adapter [Symbol, String, Module] adapter to use
   # @yield block to execute with the temporary adapter
   # @return [Object] result of the block
   # @example
-  #   class Foo; include MultiJson; end
+  #   class Foo; include MultiJSON; end
   #   Foo.new.send(:with_adapter, :json_gem) { ... }
   def with_adapter(new_adapter, &)
-    MultiJson.with_adapter(new_adapter, &)
+    MultiJSON.with_adapter(new_adapter, &)
   end
 end
 
 require_relative "multi_json/deprecated"
+
+# Backward-compatible alias for the legacy ``MultiJson`` constant name
+#
+# Downstream code that still writes ``MultiJson.parse(...)`` or
+# ``rescue MultiJson::ParseError`` continues to work, but emits a
+# one-time deprecation warning pointing at ``MultiJSON``. The module
+# forwards every method call to {MultiJSON} via {.method_missing} and
+# resolves constant access via {.const_missing}, so both dotted calls
+# and ``::`` constant lookups (including rescue clauses) route through
+# the canonical module.
+#
+# @api public
+# @deprecated Use {MultiJSON} (all-caps) instead. Will be removed in v2.0.
+module MultiJson
+  class << self
+    # Forward method calls to {MultiJSON}, emitting a one-time warning
+    #
+    # Uses explicit ``*args, **kwargs, &block`` forwarding because
+    # mutant's AST structure table on the current parser version does
+    # not yet recognize ``...`` forwarding nodes, so the module would
+    # crash mutation analysis. The rubocop exclusions below document
+    # that intent.
+    #
+    # @api public
+    # @return [Object] the delegated call's return value
+    # @example
+    #   MultiJson.parse('{"a":1}')   # delegates to MultiJSON.parse
+    # rubocop:disable Naming/BlockForwarding, Style/ArgumentsForwarding
+    def method_missing(name, *args, **kwargs, &block)
+      ::MultiJSON.warn_deprecation_once(:multi_json_constant,
+        "The MultiJson constant is deprecated and will be removed in v2.0. Use MultiJSON instead.")
+      if ::MultiJSON.respond_to?(name)
+        ::MultiJSON.public_send(name, *args, **kwargs, &block)
+      else
+        super
+      end
+    end
+    # rubocop:enable Naming/BlockForwarding, Style/ArgumentsForwarding
+
+    # Respond to any method {MultiJSON} responds to
+    #
+    # @api public
+    # @param name [Symbol] method name
+    # @param include_private [Boolean] include private methods
+    # @return [Boolean] true if {MultiJSON} responds to the method
+    # @example
+    #   MultiJson.respond_to?(:parse)  #=> true
+    def respond_to_missing?(name, include_private)
+      ::MultiJSON.respond_to?(name, include_private)
+    end
+
+    # Resolve missing constants to their {MultiJSON} counterparts
+    #
+    # Enables ``rescue MultiJson::ParseError`` and
+    # ``MultiJson::Adapters::Oj`` to keep working during the
+    # deprecation cycle.
+    #
+    # @api public
+    # @param name [Symbol] constant name
+    # @return [Object] the resolved constant from {MultiJSON}
+    # @example
+    #   MultiJson::ParseError  # returns MultiJSON::ParseError
+    def const_missing(name)
+      ::MultiJSON.warn_deprecation_once(:multi_json_constant,
+        "The MultiJson constant is deprecated and will be removed in v2.0. Use MultiJSON instead.")
+      ::MultiJSON.const_get(name)
+    end
+  end
+end

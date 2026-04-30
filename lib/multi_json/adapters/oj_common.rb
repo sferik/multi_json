@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   module Adapters
     # Shared functionality for the Oj adapter
     #

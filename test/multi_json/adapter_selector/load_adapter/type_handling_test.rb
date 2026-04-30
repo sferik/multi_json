@@ -5,56 +5,56 @@ require "multi_json/adapter_selector"
 
 # Tests for load_adapter method behavior
 class LoadAdapterTypeHandlingTest < Minitest::Test
-  cover "MultiJson::AdapterSelector*"
+  cover "MultiJSON::AdapterSelector*"
 
   def test_load_adapter_with_string_calls_to_s
-    result = MultiJson.send(:load_adapter, "json_gem")
+    result = MultiJSON.send(:load_adapter, "json_gem")
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_load_adapter_with_symbol_calls_to_s
-    result = MultiJson.send(:load_adapter, :json_gem)
+    result = MultiJSON.send(:load_adapter, :json_gem)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_load_adapter_with_nil_calls_default_adapter
     clear_default_adapter_state
-    MultiJson.instance_variable_set(:@default_adapter, :json_gem)
+    MultiJSON.instance_variable_set(:@default_adapter, :json_gem)
 
-    result = MultiJson.send(:load_adapter, nil)
+    result = MultiJSON.send(:load_adapter, nil)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_load_adapter_with_false_calls_default_adapter
     clear_default_adapter_state
-    MultiJson.instance_variable_set(:@default_adapter, :json_gem)
+    MultiJSON.instance_variable_set(:@default_adapter, :json_gem)
 
-    result = MultiJson.send(:load_adapter, false)
+    result = MultiJSON.send(:load_adapter, false)
 
-    assert_equal MultiJson::Adapters::JsonGem, result
+    assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
   def test_load_adapter_with_class_returns_class
     custom = valid_custom_adapter
-    result = MultiJson.send(:load_adapter, custom)
+    result = MultiJSON.send(:load_adapter, custom)
 
     assert_equal custom, result
   end
 
   def test_load_adapter_with_module_returns_module
     custom = valid_custom_adapter
-    result = MultiJson.send(:load_adapter, custom)
+    result = MultiJSON.send(:load_adapter, custom)
 
     assert_equal custom, result
   end
 
   def test_load_adapter_raises_for_custom_adapter_without_load
     custom = adapter_without_load
-    error = assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, custom)
+    error = assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, custom)
     end
 
     assert_match(/must respond to \.load/, error.message)
@@ -63,8 +63,8 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
 
   def test_load_adapter_raises_for_custom_adapter_without_dump
     custom = adapter_without_dump
-    error = assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, custom)
+    error = assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, custom)
     end
 
     assert_match(/must respond to \.dump/, error.message)
@@ -72,22 +72,22 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
   end
 
   def test_load_adapter_raises_for_custom_adapter_without_parse_error
-    error = assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, adapter_without_parse_error)
+    error = assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, adapter_without_parse_error)
     end
 
     assert_match(/ParseError constant/, error.message)
   end
 
   def test_load_adapter_raises_for_other_types
-    assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, 12_345)
+    assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, 12_345)
     end
   end
 
   def test_load_adapter_wraps_load_error_in_adapter_error
-    error = assert_raises(MultiJson::AdapterError) do
-      MultiJson.send(:load_adapter, "nonexistent")
+    error = assert_raises(MultiJSON::AdapterError) do
+      MultiJSON.send(:load_adapter, "nonexistent")
     end
 
     assert_kind_of LoadError, error.cause
@@ -96,7 +96,7 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
   private
 
   def clear_default_adapter_state
-    MultiJson.remove_instance_variable(:@default_adapter) if MultiJson.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
   end
 
   def valid_custom_adapter

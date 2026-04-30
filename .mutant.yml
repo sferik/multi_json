@@ -5,7 +5,7 @@ integration:
 
 matcher:
   subjects:
-    - "MultiJson*"
+    - "MultiJSON*"
 
 requires:
   - multi_json

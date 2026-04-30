@@ -4,11 +4,11 @@ require_relative "../../test_helper"
 require_relative "../../support/options_tests"
 
 class OptionsIntegrationTest < Minitest::Test
-  cover "MultiJson::Options*"
+  cover "MultiJSON::Options*"
 
   include OptionsTests
 
   def subject
-    MultiJson
+    MultiJSON
   end
 end

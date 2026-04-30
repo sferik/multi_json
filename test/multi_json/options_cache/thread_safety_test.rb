@@ -6,14 +6,14 @@ require_relative "../../test_helper"
 # handles synchronization internally; we verify only the externally
 # visible contract.
 class OptionsCacheThreadSafetyTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def setup
-    MultiJson::OptionsCache.reset
+    MultiJSON::OptionsCache.reset
   end
 
   def test_existing_value_wins_over_compute_block
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:race_key] = "existing_value"
 
@@ -28,7 +28,7 @@ class OptionsCacheThreadSafetyTest < Minitest::Test
   end
 
   def test_fetch_with_specific_key_does_not_collide_with_nil_key
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[nil] = "nil_key_value"
 
@@ -39,7 +39,7 @@ class OptionsCacheThreadSafetyTest < Minitest::Test
   end
 
   def test_concurrent_writers_observe_consistent_value
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     threads = Array.new(20) do
       Thread.new { store.fetch(:hot_key) { Thread.current.object_id } }
     end

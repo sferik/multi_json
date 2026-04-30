@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MultiJson
+module MultiJSON
   module OptionsCache
     # Thread-safe cache store backed by a Hash guarded by a Mutex
     #

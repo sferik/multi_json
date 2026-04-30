@@ -3,86 +3,86 @@
 require_relative "../../test_helper"
 
 class LoadArgumentPassingTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def teardown
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_load_returns_parsed_data_not_nil
-    result = MultiJson.load('{"a":1}')
+    result = MultiJSON.load('{"a":1}')
 
     refute_nil result
     assert_equal({"a" => 1}, result)
   end
 
   def test_load_returns_correct_parsed_structure
-    result = MultiJson.load('{"key":"value","num":42}')
+    result = MultiJSON.load('{"key":"value","num":42}')
 
     assert_equal({"key" => "value", "num" => 42}, result)
   end
 
   def test_load_actually_calls_adapter_load
     adapter = create_tracking_adapter
-    MultiJson.use adapter
+    MultiJSON.use adapter
 
-    MultiJson.load('{"test":true}')
+    MultiJSON.load('{"test":true}')
 
     assert adapter.load_called, "load should call adapter.load"
   ensure
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_load_uses_string_argument
-    result = MultiJson.load('{"unique_key":"unique_value"}')
+    result = MultiJSON.load('{"unique_key":"unique_value"}')
 
     assert_equal "unique_value", result["unique_key"]
   end
 
   def test_load_passes_options_to_adapter
     adapter = create_tracking_adapter
-    MultiJson.use adapter
+    MultiJSON.use adapter
 
-    MultiJson.load('{"a":1}', symbolize_keys: true)
+    MultiJSON.load('{"a":1}', symbolize_names: true)
 
-    assert adapter.received_options[:symbolize_keys], "options should be passed to adapter"
+    assert adapter.received_options[:symbolize_names], "options should be passed to adapter"
   ensure
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_load_passes_options_to_current_adapter
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
 
-    result = MultiJson.load('{"x":1}', adapter: :json_gem)
+    result = MultiJSON.load('{"x":1}', adapter: :json_gem)
 
     refute_nil result
   end
 
   def test_load_returns_adapter_result
     adapter = build_custom_adapter(load_result: {"custom" => "result"})
-    MultiJson.use adapter
+    MultiJSON.use adapter
 
-    assert_equal({"custom" => "result"}, MultiJson.load("{}"))
+    assert_equal({"custom" => "result"}, MultiJSON.load("{}"))
   ensure
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_load_wraps_parse_error_from_adapter
-    error = assert_raises(MultiJson::ParseError) do
-      MultiJson.load("{invalid json}")
+    error = assert_raises(MultiJSON::ParseError) do
+      MultiJSON.load("{invalid json}")
     end
 
-    assert_kind_of MultiJson::ParseError, error
+    assert_kind_of MultiJSON::ParseError, error
     refute_nil error.cause
   end
 
   def test_load_error_includes_original_string
-    error = assert_raises(MultiJson::ParseError) do
-      MultiJson.load("{bad data}")
+    error = assert_raises(MultiJSON::ParseError) do
+      MultiJSON.load("{bad data}")
     end
 
     assert_equal "{bad data}", error.data

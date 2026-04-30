@@ -7,21 +7,21 @@ require_relative "../../../test_helper"
 # state. Before the fiber-local change this would race on the module-level
 # @adapter ivar.
 class WithAdapterThreadIsolationTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_with_adapter_isolated_across_threads
     skip unless defined?(::Oj)
-    process_default = MultiJson.adapter
-    observed = run_overlapping_threads(json_gem: MultiJson::Adapters::JsonGem,
-      oj: MultiJson::Adapters::Oj)
+    process_default = MultiJSON.adapter
+    observed = run_overlapping_threads(json_gem: MultiJSON::Adapters::JsonGem,
+      oj: MultiJSON::Adapters::Oj)
 
-    assert_equal MultiJson::Adapters::JsonGem, observed[:json_gem]
-    assert_equal MultiJson::Adapters::Oj, observed[:oj]
-    assert_equal process_default, MultiJson.adapter
+    assert_equal MultiJSON::Adapters::JsonGem, observed[:json_gem]
+    assert_equal MultiJSON::Adapters::Oj, observed[:oj]
+    assert_equal process_default, MultiJSON.adapter
   end
 
   private
@@ -37,9 +37,9 @@ class WithAdapterThreadIsolationTest < Minitest::Test
   end
 
   def observe_in_block(target, mutex, observed)
-    MultiJson.with_adapter(target) do
+    MultiJSON.with_adapter(target) do
       sleep 0.05 # encourage overlap
-      mutex.synchronize { observed[target] = MultiJson.adapter }
+      mutex.synchronize { observed[target] = MultiJSON.adapter }
     end
   end
 end

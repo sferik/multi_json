@@ -3,19 +3,19 @@
 require_relative "../../../test_helper"
 
 class StrictAdapterDumpTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    MultiJson.use TestHelpers::StrictAdapter
+    MultiJSON.use TestHelpers::StrictAdapter
     TestHelpers::StrictAdapter.reset_calls
   end
 
   def teardown
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_dump_passes_object_as_first_argument
-    MultiJson.dump({key: "value"})
+    MultiJSON.dump({key: "value"})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -23,7 +23,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_passes_options_hash_as_second_argument
-    MultiJson.dump({a: 1}, pretty: true)
+    MultiJSON.dump({a: 1}, pretty: true)
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -31,7 +31,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_passes_empty_hash_when_no_options_given
-    MultiJson.dump({a: 1})
+    MultiJSON.dump({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -39,7 +39,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_options_not_nil
-    MultiJson.dump({a: 1})
+    MultiJSON.dump({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 
@@ -47,7 +47,7 @@ class StrictAdapterDumpTest < Minitest::Test
   end
 
   def test_dump_object_not_nil
-    MultiJson.dump({a: 1})
+    MultiJSON.dump({a: 1})
 
     call = TestHelpers::StrictAdapter.dump_calls.first
 

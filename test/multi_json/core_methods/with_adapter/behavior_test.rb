@@ -4,81 +4,81 @@ require_relative "../../../test_helper"
 
 # Tests for with_adapter method behavior
 class WithAdapterBehaviorTest < Minitest::Test
-  cover "MultiJson*"
+  cover "MultiJSON*"
 
   def setup
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
   end
 
   def test_with_adapter_uses_new_adapter_argument
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
 
-    MultiJson.with_adapter(:json_gem) do
-      assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
-      refute_nil MultiJson.adapter
+    MultiJSON.with_adapter(:json_gem) do
+      assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
+      refute_nil MultiJSON.adapter
     end
   end
 
   def test_with_adapter_sets_adapter_not_just_reads
     skip unless defined?(::Oj)
-    MultiJson.use :json_gem
-    original = MultiJson.adapter
+    MultiJSON.use :json_gem
+    original = MultiJSON.adapter
 
-    MultiJson.with_adapter(:oj) do
-      refute_equal original, MultiJson.adapter
+    MultiJSON.with_adapter(:oj) do
+      refute_equal original, MultiJSON.adapter
     end
   end
 
   def test_with_adapter_captures_old_adapter_correctly
-    MultiJson.use :json_gem
-    expected_after = MultiJson.adapter
+    MultiJSON.use :json_gem
+    expected_after = MultiJSON.adapter
 
-    MultiJson.with_adapter(:json_gem) do
-      assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
+    MultiJSON.with_adapter(:json_gem) do
+      assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
     end
 
-    assert_equal expected_after, MultiJson.adapter
-    refute_nil MultiJson.adapter
+    assert_equal expected_after, MultiJSON.adapter
+    refute_nil MultiJSON.adapter
   end
 
   def test_with_adapter_ensure_restores_old_adapter
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
 
     begin
-      MultiJson.with_adapter(:json_gem) do
+      MultiJSON.with_adapter(:json_gem) do
         raise "test error"
       end
     rescue RuntimeError
       # Expected
     end
 
-    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
   end
 
   def test_with_adapter_nested_restores_outer_override
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
     observed = {}
-    MultiJson.with_adapter(:json_gem) do
-      MultiJson.with_adapter(:json_gem) { observed[:inner] = MultiJson.adapter }
-      observed[:after_inner] = MultiJson.adapter
+    MultiJSON.with_adapter(:json_gem) do
+      MultiJSON.with_adapter(:json_gem) { observed[:inner] = MultiJSON.adapter }
+      observed[:after_inner] = MultiJSON.adapter
     end
 
-    assert_equal MultiJson::Adapters::JsonGem, observed[:inner]
-    assert_equal MultiJson::Adapters::JsonGem, observed[:after_inner]
+    assert_equal MultiJSON::Adapters::JsonGem, observed[:inner]
+    assert_equal MultiJSON::Adapters::JsonGem, observed[:after_inner]
   end
 
   def test_with_adapter_body_executes_all_statements
-    MultiJson.use :json_gem
+    MultiJSON.use :json_gem
     block_executed = false
     adapter_changed = false
 
-    MultiJson.with_adapter(:json_gem) do
+    MultiJSON.with_adapter(:json_gem) do
       block_executed = true
-      adapter_changed = MultiJson.adapter == MultiJson::Adapters::JsonGem
+      adapter_changed = MultiJSON.adapter == MultiJSON::Adapters::JsonGem
     end
 
     assert block_executed, "Block should be executed"
     assert adapter_changed, "Adapter should be changed inside block"
-    assert_equal MultiJson::Adapters::JsonGem, MultiJson.adapter, "Adapter should be restored"
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter, "Adapter should be restored"
   end
 end

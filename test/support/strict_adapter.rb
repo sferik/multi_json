@@ -18,7 +18,7 @@ class StrictAdapter
       @load_calls ||= []
       @load_calls << {string: string, options: options}
 
-      return symbolize_keys(::JSON.parse(string)) if options[:symbolize_keys]
+      return symbolize_keys(::JSON.parse(string)) if options[:symbolize_names]
 
       ::JSON.parse(string)
     rescue ::JSON::ParserError => e

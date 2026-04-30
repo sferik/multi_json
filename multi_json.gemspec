@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_path = "lib"
   spec.required_ruby_version = ">= 3.2"
   spec.summary = "A common interface to multiple JSON libraries."
-  spec.version = MultiJson::Version
+  spec.version = MultiJSON::Version
 
   # JRuby-only sources: gson/jr_jackson adapter wrappers and the
   # Concurrent::Map-backed options cache store. Only shipped in the

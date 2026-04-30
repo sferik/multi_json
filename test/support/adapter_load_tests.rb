@@ -6,7 +6,7 @@ module AdapterLoadTests
   def test_load_does_not_modify_input
     input = %(\n\n  {"foo":"bar"} \n\n\t)
     original = input.dup
-    MultiJson.load(input)
+    MultiJSON.load(input)
 
     assert_equal original, input
   end
@@ -15,18 +15,18 @@ module AdapterLoadTests
     input = +"[123]"
     input.force_encoding("iso-8859-1")
     original_encoding = input.encoding
-    MultiJson.load(input)
+    MultiJSON.load(input)
 
     assert_equal original_encoding, input.encoding
   end
 
   def test_load_properly_loads_valid_json
-    assert_equal({"abc" => "def"}, MultiJson.load('{"abc":"def"}'))
+    assert_equal({"abc" => "def"}, MultiJSON.load('{"abc":"def"}'))
   end
 
   def test_load_returns_nil_on_blank_input
     [nil, "", " ", "\t\t\t", "\n", StringIO.new("")].each do |input|
-      assert_nil MultiJson.load(input)
+      assert_nil MultiJSON.load(input)
     end
   end
 
@@ -35,13 +35,13 @@ module AdapterLoadTests
     invalid_inputs << "\x82\xAC\xEF" unless adapter_class.name.include?("Gson")
 
     invalid_inputs.each do |input|
-      assert_raises(MultiJson::ParseError) { MultiJson.load(input) }
+      assert_raises(MultiJSON::ParseError) { MultiJSON.load(input) }
     end
   end
 
   def test_load_raises_parse_error_with_data
     data = "{invalid}"
-    exception = get_exception(MultiJson::ParseError) { MultiJson.load(data) }
+    exception = get_exception(MultiJSON::ParseError) { MultiJSON.load(data) }
 
     assert_equal data, exception.data
     assert_operator adapter_class::ParseError, :===, exception.cause,
@@ -50,7 +50,7 @@ module AdapterLoadTests
 
   def test_load_catches_decode_error_for_legacy_support
     data = "{invalid}"
-    exception = get_exception(MultiJson::DecodeError) { MultiJson.load(data) }
+    exception = get_exception(MultiJSON::DecodeError) { MultiJSON.load(data) }
 
     assert_equal data, exception.data
     assert_operator adapter_class::ParseError, :===, exception.cause,
@@ -59,7 +59,7 @@ module AdapterLoadTests
 
   def test_load_catches_load_error_for_legacy_support
     data = "{invalid}"
-    exception = get_exception(MultiJson::LoadError) { MultiJson.load(data) }
+    exception = get_exception(MultiJSON::LoadError) { MultiJSON.load(data) }
 
     assert_equal data, exception.data
     assert_operator adapter_class::ParseError, :===, exception.cause,
@@ -67,8 +67,8 @@ module AdapterLoadTests
   end
 
   def test_load_stringifies_symbol_keys_when_encoding
-    dumped_json = MultiJson.dump(a: 1, b: {c: 2})
-    loaded_json = MultiJson.load(dumped_json)
+    dumped_json = MultiJSON.dump(a: 1, b: {c: 2})
+    loaded_json = MultiJSON.load(dumped_json)
 
     assert_equal({"a" => 1, "b" => {"c" => 2}}, loaded_json)
   end
@@ -76,7 +76,7 @@ module AdapterLoadTests
   def test_load_properly_loads_json_from_stringio
     json = StringIO.new('{"abc":"def"}')
 
-    assert_equal({"abc" => "def"}, MultiJson.load(json))
+    assert_equal({"abc" => "def"}, MultiJSON.load(json))
   end
 
   def test_load_allows_symbolization_of_keys
@@ -87,15 +87,15 @@ module AdapterLoadTests
     ]
 
     examples.each do |json, expected|
-      assert_equal expected, MultiJson.load(json, symbolize_keys: true)
+      assert_equal expected, MultiJSON.load(json, symbolize_names: true)
     end
   end
 
   def test_load_json_values
-    assert_equal 42, MultiJson.load("42")
+    assert_equal 42, MultiJSON.load("42")
   end
 
   def test_load_json_with_utf8
-    assert_equal({"color" => "żółć"}, MultiJson.load('{"color":"żółć"}'))
+    assert_equal({"color" => "żółć"}, MultiJSON.load('{"color":"żółć"}'))
   end
 end

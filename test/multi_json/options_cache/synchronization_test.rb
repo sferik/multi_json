@@ -6,10 +6,10 @@ require_relative "../../test_helper"
 # returning corrupt values. The store wraps Concurrent::Map, which
 # handles synchronization internally.
 class OptionsCacheSynchronizationTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def test_reset_clears_cache
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:key1) { "value1" }
     cache = store.instance_variable_get(:@cache)
 
@@ -21,7 +21,7 @@ class OptionsCacheSynchronizationTest < Minitest::Test
   end
 
   def test_reset_holds_mutex_during_clear
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     mutex_ivar = (RUBY_ENGINE == "jruby") ? :@eviction_mutex : :@mutex
     mutex = store.instance_variable_get(mutex_ivar)
     calls = stub_mutex_synchronize(mutex)
@@ -34,7 +34,7 @@ class OptionsCacheSynchronizationTest < Minitest::Test
   def test_fetch_without_block_holds_mutex_during_lookup
     skip "JRuby ConcurrentStore uses lock-free reads" if RUBY_ENGINE == "jruby"
 
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     mutex = store.instance_variable_get(:@mutex)
     calls = stub_mutex_synchronize(mutex)
 
@@ -44,7 +44,7 @@ class OptionsCacheSynchronizationTest < Minitest::Test
   end
 
   def test_concurrent_fetches_do_not_raise
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     threads = 10.times.map do |i|
       Thread.new { 100.times { store.fetch(:"k#{i}") { i } } }
@@ -54,7 +54,7 @@ class OptionsCacheSynchronizationTest < Minitest::Test
 
     cache = store.instance_variable_get(:@cache)
 
-    assert_operator cache.size, :<=, MultiJson::OptionsCache.max_cache_size
+    assert_operator cache.size, :<=, MultiJSON::OptionsCache.max_cache_size
   end
 
   private

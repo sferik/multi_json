@@ -4,10 +4,10 @@ require_relative "../../test_helper"
 
 # Tests for cache lookup behavior
 class OptionsCacheLookupTest < Minitest::Test
-  cover "MultiJson::OptionsCache*"
+  cover "MultiJSON::OptionsCache*"
 
   def test_fetch_checks_cache_key_before_lock
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:preexisting) { "original" }
 
     # Second fetch should return cached value without calling block
@@ -17,7 +17,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_fast_path_returns_value_for_correct_key
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:key_a) { "value_a" }
     store.fetch(:key_b) { "value_b" }
 
@@ -27,7 +27,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_fast_path_distinguishes_nil_key
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:key_a) { "value_a" }
     store.fetch(nil) { "nil_value" }
 
@@ -36,7 +36,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_fast_path_returns_nil_value_correctly
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     # Block form required to store nil value in cache
     store.fetch(:nil_val_key) { nil }
 
@@ -54,7 +54,7 @@ class OptionsCacheLookupTest < Minitest::Test
   def test_fetch_checks_cache_key_inside_lock
     # This is tested by the race condition tests above
     # The double-check inside synchronize is for thread safety
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
 
     # Simulate race: key added between first check and lock
@@ -65,7 +65,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_store_returns_stored_value
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
 
     result = store.fetch(:key) { "stored" }
 
@@ -73,7 +73,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_first_cache_check_returns_cached_value
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:test_key) { "original" }
 
     block_called = false
@@ -87,7 +87,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_returns_value_from_cache_bracket_access
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:bracket_test) { "cached_value" }
 
     result = store.fetch(:bracket_test) { "should_not_use" }
@@ -96,7 +96,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_returns_correct_cached_value_not_nil
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:specific_val) { "the_specific_value" }
 
     result = store.fetch(:specific_val)
@@ -106,7 +106,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_first_check_returns_value_immediately
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     store.fetch(:immediate) { "immediate_value" }
 
     # This tests that the first check (before synchronize) returns the value
@@ -116,7 +116,7 @@ class OptionsCacheLookupTest < Minitest::Test
   end
 
   def test_fetch_inside_lock_returns_cached_value
-    store = MultiJson::OptionsCache::Store.new
+    store = MultiJSON::OptionsCache::Store.new
     cache = store.instance_variable_get(:@cache)
     cache[:inside_lock] = "lock_value"
 

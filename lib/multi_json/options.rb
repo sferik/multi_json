@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-module MultiJson
-  # Mixin providing configurable load/dump options
+module MultiJSON
+  # Mixin providing configurable parse/generate options
   #
   # Supports static hashes or dynamic callables (procs/lambdas).
-  # Extended by both MultiJson (global options) and Adapter classes.
+  # Extended by both MultiJSON (global options) and Adapter classes.
   #
   # @api private
   module Options
@@ -15,71 +15,145 @@ module MultiJson
     # because the `#:` cast only applies to method-call results.
     EMPTY_OPTIONS = Hash.new.freeze #: options # rubocop:disable Style/EmptyLiteral
 
-    # Set options for load operations
+    # Set options for parse operations
     #
     # @api public
     # @param options [Hash, Proc] options hash or callable
     # @return [Hash, Proc] the options
     # @example
-    #   MultiJson.load_options = {symbolize_keys: true}
-    def load_options=(options)
+    #   MultiJSON.parse_options = {symbolize_keys: true}
+    def parse_options=(options)
       OptionsCache.reset
-      @load_options = options
+      @parse_options = options
     end
 
-    # Set options for dump operations
+    # Set options for generate operations
     #
     # @api public
     # @param options [Hash, Proc] options hash or callable
     # @return [Hash, Proc] the options
     # @example
-    #   MultiJson.dump_options = {pretty: true}
-    def dump_options=(options)
+    #   MultiJSON.generate_options = {pretty: true}
+    def generate_options=(options)
       OptionsCache.reset
-      @dump_options = options
+      @generate_options = options
     end
 
-    # Get options for load operations
+    # Get options for parse operations
     #
-    # When `@load_options` is a callable (proc/lambda), it's invoked
+    # When `@parse_options` is a callable (proc/lambda), it's invoked
     # with `args` as positional arguments — typically the merged
-    # options hash from `Adapter.merged_load_options`. When it's a
+    # options hash from `Adapter.merged_parse_options`. When it's a
     # plain hash, `args` is ignored.
     #
     # @api public
     # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
     # @example
-    #   MultiJson.load_options  #=> {}
-    def load_options(*args)
-      resolve_options(@load_options, *args) || default_load_options
+    #   MultiJSON.parse_options  #=> {}
+    def parse_options(*args)
+      resolve_options(@parse_options, *args) || default_parse_options
     end
 
-    # Get options for dump operations
+    # Get options for generate operations
     #
     # @api public
     # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
     # @example
-    #   MultiJson.dump_options  #=> {}
-    def dump_options(*args)
-      resolve_options(@dump_options, *args) || default_dump_options
+    #   MultiJSON.generate_options  #=> {}
+    def generate_options(*args)
+      resolve_options(@generate_options, *args) || default_generate_options
     end
 
-    # Get default load options
+    # Get default parse options
     #
     # @api private
+    # @return [Hash] frozen empty hash
+    def default_parse_options
+      Concurrency.synchronize(:default_options) { @default_parse_options ||= EMPTY_OPTIONS }
+    end
+
+    # Get default generate options
+    #
+    # @api private
+    # @return [Hash] frozen empty hash
+    def default_generate_options
+      Concurrency.synchronize(:default_options) { @default_generate_options ||= EMPTY_OPTIONS }
+    end
+
+    # Set options for parse operations
+    #
+    # @api public
+    # @deprecated Use {#parse_options=} instead. Will be removed in v2.0.
+    # @param options [Hash, Proc] options hash or callable
+    # @return [Hash, Proc] the options
+    # @example
+    #   MultiJSON.load_options = {symbolize_keys: true}
+    def load_options=(options)
+      MultiJSON.warn_deprecation_once(:load_options=,
+        "MultiJSON.load_options= is deprecated and will be removed in v2.0. Use MultiJSON.parse_options= instead.")
+      self.parse_options = options
+    end
+
+    # Set options for generate operations
+    #
+    # @api public
+    # @deprecated Use {#generate_options=} instead. Will be removed in v2.0.
+    # @param options [Hash, Proc] options hash or callable
+    # @return [Hash, Proc] the options
+    # @example
+    #   MultiJSON.dump_options = {pretty: true}
+    def dump_options=(options)
+      MultiJSON.warn_deprecation_once(:dump_options=,
+        "MultiJSON.dump_options= is deprecated and will be removed in v2.0. Use MultiJSON.generate_options= instead.")
+      self.generate_options = options
+    end
+
+    # Get options for parse operations
+    #
+    # @api public
+    # @deprecated Use {#parse_options} instead. Will be removed in v2.0.
+    # @param args [Array<Object>] forwarded to the callable, ignored otherwise
+    # @return [Hash] resolved options hash
+    # @example
+    #   MultiJSON.load_options  #=> {}
+    def load_options(*args)
+      MultiJSON.warn_deprecation_once(:load_options,
+        "MultiJSON.load_options is deprecated and will be removed in v2.0. Use MultiJSON.parse_options instead.")
+      parse_options(*args)
+    end
+
+    # Get options for generate operations
+    #
+    # @api public
+    # @deprecated Use {#generate_options} instead. Will be removed in v2.0.
+    # @param args [Array<Object>] forwarded to the callable, ignored otherwise
+    # @return [Hash] resolved options hash
+    # @example
+    #   MultiJSON.dump_options  #=> {}
+    def dump_options(*args)
+      MultiJSON.warn_deprecation_once(:dump_options,
+        "MultiJSON.dump_options is deprecated and will be removed in v2.0. Use MultiJSON.generate_options instead.")
+      generate_options(*args)
+    end
+
+    # Get default parse options
+    #
+    # @api private
+    # @deprecated Use {#default_parse_options} instead. Will be removed in v2.0.
     # @return [Hash] frozen empty hash
     def default_load_options
-      Concurrency.synchronize(:default_options) { @default_load_options ||= EMPTY_OPTIONS }
+      default_parse_options
     end
 
-    # Get default dump options
+    # Get default generate options
     #
     # @api private
+    # @deprecated Use {#default_generate_options} instead. Will be removed in v2.0.
     # @return [Hash] frozen empty hash
     def default_dump_options
-      Concurrency.synchronize(:default_options) { @default_dump_options ||= EMPTY_OPTIONS }
+      default_generate_options
     end
 
     private
