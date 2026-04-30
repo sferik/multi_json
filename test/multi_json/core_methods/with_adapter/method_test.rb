@@ -87,4 +87,22 @@ class WithAdapterMethodTest < Minitest::Test
 
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
   end
+
+  def test_with_adapter_nil_uses_default_parse_and_generate_adapters
+    MultiJSON.use :oj
+
+    MultiJSON.with_adapter(nil) do
+      assert_equal MultiJSON.send(:load_adapter, MultiJSON.default_parse_adapter), MultiJSON.parse_adapter
+      assert_equal MultiJSON.send(:load_adapter, MultiJSON.default_generate_adapter), MultiJSON.generate_adapter
+    end
+  end
+
+  def test_with_adapter_directional_nil_resets_one_side_to_default
+    MultiJSON.use :oj
+
+    MultiJSON.with_adapter(parse: nil) do
+      assert_equal MultiJSON.send(:load_adapter, MultiJSON.default_parse_adapter), MultiJSON.parse_adapter
+      assert_equal MultiJSON::Adapters::Oj, MultiJSON.generate_adapter
+    end
+  end
 end

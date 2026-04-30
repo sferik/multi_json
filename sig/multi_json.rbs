@@ -7,10 +7,10 @@ module MultiJSON
     def self.synchronize: [T] (Symbol name) { () -> T } -> T
   end
 
-
-
   extend Options
   extend AdapterSelector
+  extend AdapterOverrides
+  extend AdapterStateHelpers
 
   # JSON value type - what parse() returns
   type json = nil | bool | Integer | Float | String | Array[json] | Hash[String, json]
@@ -26,6 +26,7 @@ module MultiJSON
 
   # Adapter specification - can be symbol, module, or nil/false for default
   type adapter_spec = Symbol | Module | nil | false
+  type directional_adapter_spec = Hash[Symbol, adapter_spec]
 
   # String or IO-like object for parse input
   type string_input = String | _Readable
@@ -38,24 +39,30 @@ module MultiJSON
     def as_json: () -> json_input
   end
 
-  # Adapter interface - accepts string_input since adapters handle IO internally
   interface _Adapter
-    def load: (string_input string, options options) -> json
-    def dump: (json_input object, options options) -> String
+    def parse: (string_input string, options options) -> json
+    def generate: (json_input object, options options) -> String
   end
 
   def self.parse_error_class_for: (untyped adapter_class) -> untyped
 
   def self.adapter: () -> (_Adapter | Module)
+  def self.parse_adapter: () -> (_Adapter | Module)
+  def self.generate_adapter: () -> (_Adapter | Module)
   def self.use: (adapter_spec new_adapter) -> (_Adapter | Module)
   def self.adapter=: (adapter_spec new_adapter) -> (_Adapter | Module)
+  def self.parse_adapter=: (adapter_spec new_adapter) -> (_Adapter | Module)
+  def self.generate_adapter=: (adapter_spec new_adapter) -> (_Adapter | Module)
   def self.parse: (string_input string, ?symbolize_names: bool, ?adapter: adapter_spec, **untyped opts) -> json
-  def self.current_adapter: (**untyped options) -> (_Adapter | Module)
+  def self.current_adapter: (?Hash[Symbol, untyped]? options, ?adapter: adapter_spec, **untyped kwargs) -> (_Adapter | Module)
+  def self.current_parse_adapter: (?Hash[Symbol, untyped]? options, ?adapter: adapter_spec, **untyped _opts) -> (_Adapter | Module)
+  def self.current_generate_adapter: (?Hash[Symbol, untyped]? options, ?adapter: adapter_spec, **untyped _opts) -> (_Adapter | Module)
   def self.generate: (json_input object, ?pretty: bool, ?adapter: adapter_spec, **untyped opts) -> String
-  def self.with_adapter: [T] (adapter_spec new_adapter) { () -> T } -> T
+  def self.with_adapter: [T] ((adapter_spec | directional_adapter_spec) new_adapter) { () -> T } -> T
 
-  # Module-level instance variable for adapter caching
   self.@adapter: (_Adapter | Module)?
+  self.@parse_adapter: (_Adapter | Module)?
+  self.@generate_adapter: (_Adapter | Module)?
 
   class Version
     MAJOR: Integer
@@ -74,13 +81,8 @@ module MultiJSON
   class ParseError < StandardError
     LOCATION_PATTERN: Regexp
 
-    # The raw data that failed to parse (string or IO-like object)
     attr_reader data: string_input?
-
-    # 1-based line number extracted from the adapter's error message
     attr_reader line: Integer?
-
-    # 1-based column number extracted from the adapter's error message
     attr_reader column: Integer?
 
     @data: string_input?
@@ -140,24 +142,61 @@ module MultiJSON
 
     ADAPTERS: Hash[Symbol, Hash[Symbol, String]]
     REQUIREMENT_MAP: Hash[Symbol, String]
+    PARSE_ADAPTERS: Array[Symbol]
+    GENERATE_ADAPTERS: Array[Symbol]
 
     def default_adapter: () -> Symbol
-    def default_adapter_excluding: (Symbol excluded) -> (_Adapter | Module)
+    def default_parse_adapter: () -> Symbol
+    def default_generate_adapter: () -> Symbol
+    def default_adapter_excluding: (Symbol excluded, ?operation: Symbol) -> (_Adapter | Module)
 
     @default_adapter: Symbol?
+    @default_parse_adapter: Symbol?
+    @default_generate_adapter: Symbol?
     @default_adapter_warning_shown: bool?
 
     private
 
-    def detect_best_adapter: () -> Symbol
-    def loaded_adapter: (?excluding: Symbol?) -> Symbol?
-    def installable_adapter: (?excluding: Symbol?) -> Symbol?
+    def detect_best_adapter: (Symbol operation) -> Symbol
+    def loaded_adapter: (?Array[Symbol]? preferences, ?excluding: Symbol?) -> Symbol?
+    def installable_adapter: (?Array[Symbol]? preferences, ?excluding: Symbol?) -> Symbol?
     def try_require: (Symbol adapter_name) -> bool
     def fallback_adapter: () -> Symbol
     def warn_about_fallback: () -> void
+    def adapter_preferences: (Symbol operation) -> Array[Symbol]
+    def default_adapter_for: (Symbol operation) -> Symbol
+    def cached_default_adapter_for: (Symbol operation, Symbol ivar) -> Symbol?
+    def detect_and_cache_default_adapter: (Symbol operation, Symbol ivar) -> Symbol
     def load_adapter: (adapter_spec new_adapter) -> (_Adapter | Module)
     def load_adapter_by_name: (String name) -> _Adapter
     def validate_adapter!: ((_Adapter | Module) adapter) -> (_Adapter | Module)
+  end
+
+  module AdapterOverrides
+    def with_adapter: [T] ((adapter_spec | directional_adapter_spec) new_adapter) { () -> T } -> T
+
+    private
+
+    def apply_adapter_override: ((adapter_spec | directional_adapter_spec) new_adapter, (_Adapter | Module)? previous_parse_override, (_Adapter | Module)? previous_generate_override) -> void
+    def apply_directional_override: (directional_adapter_spec new_adapter, (_Adapter | Module)? previous_parse_override, (_Adapter | Module)? previous_generate_override) -> void
+    def apply_default_override: () -> void
+    def override_adapter_for: (directional_adapter_spec new_adapter, Symbol key, Symbol default_adapter, (_Adapter | Module)? previous_override) -> (_Adapter | Module)?
+  end
+
+  module AdapterStateHelpers
+    @adapter: (_Adapter | Module)?
+    @parse_adapter: (_Adapter | Module)?
+    @generate_adapter: (_Adapter | Module)?
+
+    private
+
+    def resolve_adapter_or_default: (adapter_spec new_adapter, Symbol operation) -> (_Adapter | Module)
+    def default_adapter_name_for: (Symbol operation) -> Symbol
+    def default_adapter_spec?: (untyped adapter_spec) -> bool
+    def store_directional_adapters: ((_Adapter | Module) parse_loaded, (_Adapter | Module) generate_loaded) -> (_Adapter | Module)
+    def store_parse_adapter: ((_Adapter | Module) loaded) -> (_Adapter | Module)
+    def store_generate_adapter: ((_Adapter | Module) loaded) -> (_Adapter | Module)
+    def shared_adapter: (((_Adapter | Module)?) left, ((_Adapter | Module)?) right) -> ((_Adapter | Module)?)
   end
 
   class Adapter

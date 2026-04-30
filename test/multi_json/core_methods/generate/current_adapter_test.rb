@@ -2,7 +2,7 @@
 
 require_relative "../../../test_helper"
 
-# Tests for dump method's current_adapter interaction
+# Tests for dump method's current_generate_adapter interaction
 class DumpCurrentAdapterTest < Minitest::Test
   cover "MultiJSON*"
 
@@ -10,8 +10,8 @@ class DumpCurrentAdapterTest < Minitest::Test
     MultiJSON.use :json_gem
   end
 
-  def test_dump_calls_current_adapter_with_options
-    opts_received = with_current_adapter_tracking { MultiJSON.generate({a: 1}, pretty: true) }
+  def test_dump_calls_current_generate_adapter_with_options
+    opts_received = with_current_generate_adapter_tracking { MultiJSON.generate({a: 1}, pretty: true) }
 
     assert_equal({pretty: true}, opts_received)
   end
@@ -48,10 +48,10 @@ class DumpCurrentAdapterTest < Minitest::Test
 
   private
 
-  def with_current_adapter_tracking(&)
+  def with_current_generate_adapter_tracking(&)
     opts_received = nil
     stub = ->(opts = {}) { opts_received = opts }
-    with_stub(MultiJSON, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJSON, :current_generate_adapter, stub, call_original: true, &)
     opts_received
   end
 end

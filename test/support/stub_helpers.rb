@@ -4,11 +4,11 @@
 module StubHelpers
   module_function
 
-  def with_stub(object, method_name, replacement, call_original: false)
+  def with_stub(object, method_name, replacement, call_original: false, &block)
     original = object.method(method_name)
     metaclass = class << object; self; end
     define_stub_method(metaclass, method_name, replacement, original, call_original)
-    yield
+    block.call
   ensure
     silence_warnings { metaclass.define_method(method_name, original) }
   end

@@ -17,6 +17,13 @@ class DefaultAdapterExcludingTest < Minitest::Test
     assert_kind_of Class, result
   end
 
+  def test_generate_default_adapter_excluding_prefers_generate_order
+    result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser, operation: :generate)
+
+    assert_kind_of Class, result
+    assert_equal MultiJSON::Adapters::JsonGem, result if defined?(::JSON::Ext::Parser)
+  end
+
   def test_does_not_return_the_excluded_adapter
     result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
@@ -32,18 +39,23 @@ class DefaultAdapterExcludingTest < Minitest::Test
     end
   end
 
-  def test_returns_yajl_when_oj_excluded_and_yajl_loaded
+  # ``break_requirements`` disables installable_adapter so the
+  # loaded_adapter path drives selection: with json_gem first in
+  # PARSE_ADAPTERS, requiring "json" succeeds and short-circuits before
+  # yajl gets a turn. The two #parse / #generate assertions exercise
+  # the adapter's instance methods so its source file's coverage is
+  # tracked once it has been loaded.
+  def test_returns_yajl_when_oj_excluded_and_yajl_loaded # rubocop:disable Metrics/MethodLength
     skip unless defined?(::Yajl)
+    break_requirements do
+      without_json_ext_parser do
+        undefine_constants(:FastJsonparser, :JrJackson) do
+          result = MultiJSON::AdapterSelector.default_adapter_excluding(:oj)
 
-    without_json_ext_parser do
-      undefine_constants(:FastJsonparser) do
-        result = MultiJSON::AdapterSelector.default_adapter_excluding(:oj)
-
-        assert_equal MultiJSON::Adapters::Yajl, result
-        # Exercise the adapter's instance methods so its source file's
-        # coverage is tracked once it has been loaded by the line above.
-        assert_equal({"a" => 1}, result.parse('{"a":1}'))
-        assert_equal '{"a":1}', result.generate({a: 1})
+          assert_equal MultiJSON::Adapters::Yajl, result
+          assert_equal({"a" => 1}, result.parse('{"a":1}'))
+          assert_equal '{"a":1}', result.generate({a: 1})
+        end
       end
     end
   end
@@ -86,5 +98,13 @@ class DefaultAdapterExcludingTest < Minitest::Test
     assert synchronized
   ensure
     mutex&.singleton_class&.send(:remove_method, :synchronize)
+  end
+
+  def test_adapter_preferences_rejects_unknown_operation
+    error = assert_raises(ArgumentError) do
+      MultiJSON::AdapterSelector.send(:adapter_preferences, :wat)
+    end
+
+    assert_includes error.message, ":wat"
   end
 end

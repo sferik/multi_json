@@ -78,4 +78,15 @@ class LoadMethodTest < Minitest::Test
 
     assert result.key?(:key)
   end
+
+  def test_load_uses_parse_adapter_not_generate_adapter
+    MultiJSON.parse_adapter = TestHelpers::StrictAdapter
+    MultiJSON.generate_adapter = :json_gem
+    TestHelpers::StrictAdapter.reset_calls
+
+    assert_equal({"a" => 1}, MultiJSON.parse('{"a":1}'))
+    assert_equal 1, TestHelpers::StrictAdapter.parse_calls.size
+  ensure
+    MultiJSON.use :json_gem
+  end
 end

@@ -46,15 +46,10 @@ class BehaviorIntegrationTest < Minitest::Test
       capture_stderr { MultiJSON.default_adapter }
 
       # Clear @default_adapter but keep @default_adapter_warning_shown
-      MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
+      clear_default_adapter_caches
 
       # Second call should NOT warn (exercises else branch at line 17)
-      warn_count = 0
-      with_stub(Kernel, :warn, ->(msg, **) { warn_count += 1 if /warning/i.match?(msg) }) do
-        MultiJSON.default_adapter
-      end
-
-      assert_equal 0, warn_count
+      assert_equal(0, warning_count_for { MultiJSON.default_adapter })
     end
   end
 
@@ -89,13 +84,12 @@ class BehaviorIntegrationTest < Minitest::Test
 
   def assert_warns_about_no_adapters(times:)
     clear_default_adapter_warning
-    warn_count = 0
-    with_stub(Kernel, :warn, ->(msg, **) { warn_count += 1 if /warning/i.match?(msg) }) do
+    warning_count = warning_count_for do
       MultiJSON.default_adapter
       yield if block_given?
     end
 
-    assert_equal times, warn_count
+    assert_equal times, warning_count
   end
 
   def assert_cache_busting
@@ -113,6 +107,18 @@ class BehaviorIntegrationTest < Minitest::Test
 
     assert results[:generate_called] && results[:parse_called]
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
+  end
+
+  def clear_default_adapter_caches
+    %i[@default_adapter @default_parse_adapter @default_generate_adapter].each do |ivar|
+      MultiJSON.remove_instance_variable(ivar) if MultiJSON.instance_variable_defined?(ivar)
+    end
+  end
+
+  def warning_count_for(&block)
+    warn_count = 0
+    with_stub(Kernel, :warn, ->(msg, **) { warn_count += 1 if /warning/i.match?(msg) }) { block.call }
+    warn_count
   end
 
   def track_json_gem_calls(&)

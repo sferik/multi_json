@@ -3,26 +3,21 @@
 module MultiJSON
   # Catalog of process-wide mutexes used to serialize MultiJSON's lazy
   # initializers and adapter swaps. Each mutex protects a distinct
-  # piece of mutable state. Callers go through {.synchronize} rather
-  # than touching the mutex constants directly so the constants
-  # themselves can stay {.private_constant} and the surface of the
-  # module is documented in one place.
+  # piece of mutable state.
   #
   # @api private
   module Concurrency
     # Catalog of mutexes keyed by symbolic name. Each entry maps the
     # public name passed to {.synchronize} to the underlying mutex
-    # instance. The names are documented inline so callers can find
-    # what each mutex protects without leaving this file.
+    # instance.
     MUTEXES = {
-      # Guards the process-wide `@adapter` swap in `MultiJSON.use` so two
-      # threads can't interleave their `OptionsCache.reset` and adapter
-      # assignment.
+      # Guards the process-wide parse/generate adapter swaps in
+      # `MultiJSON.use`, `MultiJSON.parse_adapter=`, and
+      # `MultiJSON.generate_adapter=`.
       adapter: Mutex.new,
-      # Guards the lazy `@default_adapter` initializer and the
-      # `default_adapter_excluding` detection chain in `AdapterSelector`,
-      # so the chain runs at most once and `fallback_adapter`'s one-time
-      # warning fires at most once.
+      # Guards the lazy parse/generate default-adapter initializers and
+      # the `default_adapter_excluding` detection chain in
+      # `AdapterSelector`.
       default_adapter: Mutex.new,
       # Guards the lazy `default_parse_options` / `default_generate_options`
       # initializers in `MultiJSON::Options`.
@@ -34,11 +29,6 @@ module MultiJSON
     private_constant :MUTEXES
 
     # Run a block while holding the named mutex
-    #
-    # The ``name`` symbol must be one of the keys in the internal
-    # ``MUTEXES`` table; an unknown name raises ``KeyError`` so a
-    # typo at the call site fails fast instead of silently dropping
-    # synchronization on the floor.
     #
     # @api private
     # @param name [Symbol] mutex identifier

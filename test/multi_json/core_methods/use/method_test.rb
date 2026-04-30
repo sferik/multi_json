@@ -129,6 +129,43 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     refute_nil result
   end
 
+  def test_use_nil_resets_parse_and_generate_to_defaults
+    MultiJSON.use :oj
+
+    MultiJSON.use(nil)
+
+    assert_equal MultiJSON.send(:load_adapter, MultiJSON.default_parse_adapter), MultiJSON.parse_adapter
+    assert_equal MultiJSON.send(:load_adapter, MultiJSON.default_generate_adapter), MultiJSON.generate_adapter
+  end
+
+  def test_parse_adapter_setter_only_changes_parse_side
+    skip unless defined?(::FastJsonparser)
+
+    MultiJSON.use :json_gem
+    begin
+      MultiJSON.parse_adapter = :fast_jsonparser
+
+      assert_equal MultiJSON::Adapters::FastJsonparser, MultiJSON.parse_adapter
+      assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.generate_adapter
+    ensure
+      MultiJSON.use :json_gem
+    end
+  end
+
+  def test_generate_adapter_setter_only_changes_generate_side
+    skip unless defined?(::Oj)
+
+    MultiJSON.use :json_gem
+    begin
+      MultiJSON.generate_adapter = :oj
+
+      assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.parse_adapter
+      assert_equal MultiJSON::Adapters::Oj, MultiJSON.generate_adapter
+    ensure
+      MultiJSON.use :json_gem
+    end
+  end
+
   def test_use_stores_result_in_adapter_ivar
     MultiJSON.use(:json_gem)
 

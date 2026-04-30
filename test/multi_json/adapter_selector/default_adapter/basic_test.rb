@@ -15,20 +15,43 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
     assert_equal first_call, second_call
   end
 
+  def test_default_generate_adapter_caches_result
+    clear_default_adapter_state
+
+    first_call = capture_stderr { MultiJSON.default_generate_adapter }
+    second_call = MultiJSON.default_generate_adapter
+
+    assert_equal first_call, second_call
+  end
+
   def test_default_adapter_returns_cached_value_when_set
     clear_default_adapter_state
     capture_stderr { MultiJSON.default_adapter }
 
-    assert MultiJSON.instance_variable_defined?(:@default_adapter)
+    assert MultiJSON.instance_variable_defined?(:@default_parse_adapter)
   end
 
-  def test_default_adapter_prefers_loaded_adapter
-    skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
+  def test_default_generate_adapter_returns_cached_value_when_set
+    clear_default_adapter_state
+    capture_stderr { MultiJSON.default_generate_adapter }
+
+    assert MultiJSON.instance_variable_defined?(:@default_generate_adapter)
+  end
+
+  def test_default_adapter_returns_supported_parse_adapter
     clear_default_adapter_state
 
     result = capture_stderr { MultiJSON.default_adapter }
 
     assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
+  end
+
+  def test_default_generate_adapter_returns_supported_generate_adapter
+    clear_default_adapter_state
+
+    result = capture_stderr { MultiJSON.default_generate_adapter }
+
+    assert_includes %i[json_gem oj yajl jr_jackson gson], result
   end
 
   def test_default_adapter_fallback_to_json_gem
@@ -67,5 +90,7 @@ class AdapterSelectorDefaultAdapterTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_parse_adapter) if MultiJSON.instance_variable_defined?(:@default_parse_adapter)
+    MultiJSON.remove_instance_variable(:@default_generate_adapter) if MultiJSON.instance_variable_defined?(:@default_generate_adapter)
   end
 end

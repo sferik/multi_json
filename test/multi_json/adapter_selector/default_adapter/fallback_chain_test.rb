@@ -7,7 +7,6 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
   cover "MultiJSON::AdapterSelector*"
 
   def test_default_adapter_uses_loaded_adapter_when_available
-    skip unless defined?(::Oj) || defined?(::JSON::Ext::Parser)
     clear_default_adapter_state
 
     result = capture_stderr { MultiJSON.default_adapter }
@@ -61,15 +60,17 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_parse_adapter) if MultiJSON.instance_variable_defined?(:@default_parse_adapter)
+    MultiJSON.remove_instance_variable(:@default_generate_adapter) if MultiJSON.instance_variable_defined?(:@default_generate_adapter)
     clear_default_adapter_warning
   end
 
   def with_adapter_method_tracking(method_name, tracker)
     original = MultiJSON.method(method_name)
     silence_warnings do
-      MultiJSON.define_singleton_method(method_name) do
+      MultiJSON.define_singleton_method(method_name) do |*args, **kwargs|
         tracker.call
-        original.call
+        original.call(*args, **kwargs)
       end
     end
     yield

@@ -12,8 +12,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     skip unless defined?(::Oj)
     with_json_ext_parser_removed do
       undefine_constants(:FastJsonparser, :JrJackson) do
-        clear_default_adapter_warning
-        adapter = capture_stderr { MultiJSON.default_adapter }
+        adapter = MultiJSON::AdapterSelector.send(:loaded_adapter)
 
         assert_equal :oj, adapter
       end
@@ -24,8 +23,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     skip unless defined?(::Yajl)
     with_json_ext_parser_removed do
       undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
-        clear_default_adapter_warning
-        adapter = capture_stderr { MultiJSON.default_adapter }
+        adapter = MultiJSON::AdapterSelector.send(:loaded_adapter)
 
         assert_equal :yajl, adapter
       end
@@ -35,8 +33,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
   def test_loaded_adapter_detects_json_gem
     skip unless defined?(::JSON::Ext::Parser)
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
-      clear_default_adapter_warning
-      adapter = capture_stderr { MultiJSON.default_adapter }
+      adapter = MultiJSON::AdapterSelector.send(:loaded_adapter)
 
       assert_equal :json_gem, adapter
     end
@@ -46,8 +43,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     with_json_ext_parser_removed do
       undefine_constants(:FastJsonparser, :Oj, :Yajl) do
         with_temporary_constant(:JrJackson) do
-          clear_default_adapter_warning
-          adapter = capture_stderr { MultiJSON.default_adapter }
+          adapter = MultiJSON::AdapterSelector.send(:loaded_adapter)
 
           assert_equal :jr_jackson, adapter
         end
@@ -59,8 +55,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       with_json_ext_parser_removed do
         with_temporary_constant(:Gson) do
-          clear_default_adapter_warning
-          adapter = capture_stderr { MultiJSON.default_adapter }
+          adapter = MultiJSON::AdapterSelector.send(:loaded_adapter)
 
           assert_equal :gson, adapter
         end

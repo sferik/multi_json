@@ -14,6 +14,8 @@ class IncludedAdapterSelectorTest < Minitest::Test
 
   def teardown
     remove_instance_var(:@default_adapter)
+    remove_instance_var(:@default_parse_adapter)
+    remove_instance_var(:@default_generate_adapter)
     remove_instance_var(:@default_adapter_warning_shown)
   end
 

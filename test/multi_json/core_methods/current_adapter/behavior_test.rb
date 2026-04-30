@@ -43,6 +43,14 @@ class CurrentAdapterBehaviorTest < Minitest::Test
     assert_equal MultiJSON::Adapters::JsonGem, result
   end
 
+  def test_current_adapter_accepts_positional_options_hash
+    MultiJSON.use :json_gem
+
+    result = MultiJSON.current_adapter({adapter: :json_gem})
+
+    assert_equal MultiJSON::Adapters::JsonGem, result
+  end
+
   def test_current_adapter_uses_assignment_value
     MultiJSON.use :json_gem
 
@@ -59,7 +67,51 @@ class CurrentAdapterBehaviorTest < Minitest::Test
     refute_nil result
   end
 
-  def test_current_adapter_returns_default_with_no_arguments
+  def test_current_generate_adapter_returns_generate_adapter
+    MultiJSON.generate_adapter = :json_gem
+
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.current_generate_adapter
+  end
+
+  def test_current_generate_adapter_uses_passed_options
+    MultiJSON.generate_adapter = :json_gem
+
+    result = MultiJSON.current_generate_adapter(adapter: :json_gem)
+
+    assert_equal MultiJSON::Adapters::JsonGem, result
+  end
+
+  def test_current_parse_adapter_returns_parse_adapter
+    MultiJSON.parse_adapter = :json_gem
+
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.current_parse_adapter(nil)
+  end
+
+  def test_current_parse_adapter_uses_passed_options
+    MultiJSON.parse_adapter = :json_gem
+
+    result = MultiJSON.current_parse_adapter(adapter: :json_gem)
+
+    assert_equal MultiJSON::Adapters::JsonGem, result
+  end
+
+  def test_current_parse_adapter_accepts_positional_options_hash
+    MultiJSON.parse_adapter = :json_gem
+
+    result = MultiJSON.current_parse_adapter({adapter: :json_gem})
+
+    assert_equal MultiJSON::Adapters::JsonGem, result
+  end
+
+  def test_current_generate_adapter_accepts_positional_options_hash
+    MultiJSON.generate_adapter = :json_gem
+
+    result = MultiJSON.current_generate_adapter({adapter: :json_gem})
+
+    assert_equal MultiJSON::Adapters::JsonGem, result
+  end
+
+  def test_current_adapter_instance_method_accepts_no_arguments
     MultiJSON.use :json_gem
 
     assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.current_adapter

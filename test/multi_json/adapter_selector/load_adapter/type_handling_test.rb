@@ -91,6 +91,8 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
 
   def clear_default_adapter_state
     MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_parse_adapter) if MultiJSON.instance_variable_defined?(:@default_parse_adapter)
+    MultiJSON.remove_instance_variable(:@default_generate_adapter) if MultiJSON.instance_variable_defined?(:@default_generate_adapter)
   end
 
   def valid_custom_adapter

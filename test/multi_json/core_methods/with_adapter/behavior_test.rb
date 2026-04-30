@@ -70,6 +70,18 @@ class WithAdapterBehaviorTest < Minitest::Test
     assert_equal MultiJSON::Adapters::Oj, observed[:after_inner]
   end
 
+  def test_with_adapter_can_override_only_generate_side
+    MultiJSON.use :json_gem
+    skip unless defined?(::Oj)
+
+    MultiJSON.with_adapter(generate: :oj) do
+      assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.parse_adapter
+      assert_equal MultiJSON::Adapters::Oj, MultiJSON.generate_adapter
+    end
+
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.generate_adapter
+  end
+
   def test_with_adapter_body_executes_all_statements
     MultiJSON.use :json_gem
     block_executed = false

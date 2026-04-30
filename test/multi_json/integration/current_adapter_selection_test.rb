@@ -35,6 +35,15 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     MultiJSON.use original
   end
 
+  def test_current_generate_adapter_defaults_to_generate_adapter
+    original = MultiJSON.generate_adapter
+    MultiJSON.generate_adapter = :json_gem
+
+    assert_equal MultiJSON.generate_adapter, MultiJSON.current_generate_adapter
+  ensure
+    MultiJSON.generate_adapter = original
+  end
+
   def test_settable_via_symbol
     MultiJSON.use :json_gem
 

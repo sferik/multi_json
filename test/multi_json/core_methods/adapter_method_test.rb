@@ -16,9 +16,8 @@ class AdapterMethodTest < Minitest::Test
   end
 
   def test_adapter_loads_default_when_not_set
-    MultiJSON.send(:remove_instance_variable, :@adapter) if MultiJSON.instance_variable_defined?(:@adapter)
-    # Ensure default_adapter is set to a known available adapter
-    MultiJSON.instance_variable_set(:@default_adapter, :json_gem)
+    MultiJSON.send(:remove_instance_variable, :@parse_adapter) if MultiJSON.instance_variable_defined?(:@parse_adapter)
+    MultiJSON.instance_variable_set(:@default_parse_adapter, :json_gem)
 
     refute_nil MultiJSON.adapter
   ensure
@@ -40,18 +39,18 @@ class AdapterMethodTest < Minitest::Test
   end
 
   def test_adapter_short_circuits_when_already_set
-    # If adapter is already set, it should return immediately without calling use(nil)
+    # If adapter is already set, it should return immediately without reloading defaults.
     MultiJSON.use :json_gem
-    use_called = false
-    original_use = MultiJSON.method(:use)
+    load_called = false
+    original_load_adapter = MultiJSON.method(:load_adapter)
     silence_warnings do
-      MultiJSON.define_singleton_method(:use) { |arg| (use_called = true if arg.nil?) || original_use.call(arg) }
+      MultiJSON.define_singleton_method(:load_adapter) { |arg| (load_called = true if arg == :json_gem) || original_load_adapter.call(arg) }
     end
     MultiJSON.adapter
 
-    refute use_called
+    refute load_called
   ensure
-    silence_warnings { MultiJSON.define_singleton_method(:use, original_use) } if original_use
+    silence_warnings { MultiJSON.define_singleton_method(:load_adapter, original_load_adapter) } if original_load_adapter
   end
 
   def test_adapter_returns_the_adapter_instance_not_nil
@@ -84,31 +83,31 @@ class AdapterUndefinedTest < Minitest::Test
   end
 
   def test_adapter_when_undefined_calls_use_nil
-    MultiJSON.send(:remove_instance_variable, :@adapter) if MultiJSON.instance_variable_defined?(:@adapter)
+    MultiJSON.send(:remove_instance_variable, :@parse_adapter) if MultiJSON.instance_variable_defined?(:@parse_adapter)
 
-    use_nil_called = with_stub(MultiJSON, :default_adapter, -> { :json_gem }) do
-      with_use_tracking { |called| capture_stderr { MultiJSON.adapter } && called[:nil] }
+    load_called = with_stub(MultiJSON, :default_parse_adapter, -> { :json_gem }) do
+      with_load_tracking { |called| capture_stderr { MultiJSON.adapter } && called[:json_gem] }
     end
 
-    assert use_nil_called, "use(nil) should be called when @adapter is undefined"
+    assert load_called, "load_adapter should be called when @parse_adapter is undefined"
   end
 
   def test_adapter_checks_both_defined_and_truthiness
-    MultiJSON.instance_variable_set(:@adapter, nil)
+    MultiJSON.instance_variable_set(:@parse_adapter, nil)
 
-    use_nil_called = with_stub(MultiJSON, :default_adapter, -> { :json_gem }) do
-      with_use_tracking { |called| capture_stderr { MultiJSON.adapter } && called[:nil] }
+    load_called = with_stub(MultiJSON, :default_parse_adapter, -> { :json_gem }) do
+      with_load_tracking { |called| capture_stderr { MultiJSON.adapter } && called[:json_gem] }
     end
 
-    assert use_nil_called, "use(nil) should be called when @adapter is nil"
+    assert load_called, "load_adapter should be called when @parse_adapter is nil"
   ensure
     MultiJSON.use :json_gem
   end
 
   def test_adapter_returns_valid_adapter_when_ivar_is_nil
-    MultiJSON.instance_variable_set(:@adapter, nil)
+    MultiJSON.instance_variable_set(:@parse_adapter, nil)
 
-    result = with_stub(MultiJSON, :default_adapter, -> { :json_gem }) do
+    result = with_stub(MultiJSON, :default_parse_adapter, -> { :json_gem }) do
       capture_stderr { MultiJSON.adapter }
     end
 
@@ -119,20 +118,20 @@ class AdapterUndefinedTest < Minitest::Test
   end
 
   def test_adapter_with_nil_ivar_loads_default
-    MultiJSON.instance_variable_set(:@adapter, nil)
-    MultiJSON.instance_variable_set(:@default_adapter, :json_gem)
+    MultiJSON.instance_variable_set(:@parse_adapter, nil)
+    MultiJSON.instance_variable_set(:@default_parse_adapter, :json_gem)
 
     result = capture_stderr { MultiJSON.adapter }
 
     assert_equal MultiJSON::Adapters::JsonGem, result
   ensure
     MultiJSON.use :json_gem
-    MultiJSON.remove_instance_variable(:@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
+    MultiJSON.remove_instance_variable(:@default_parse_adapter) if MultiJSON.instance_variable_defined?(:@default_parse_adapter)
   end
 
   def test_adapter_method_returns_value_from_instance_variable
     MultiJSON.use :json_gem
-    expected = MultiJSON.instance_variable_get(:@adapter)
+    expected = MultiJSON.instance_variable_get(:@parse_adapter)
 
     result = MultiJSON.adapter
 
@@ -141,9 +140,9 @@ class AdapterUndefinedTest < Minitest::Test
 
   private
 
-  def with_use_tracking
-    called = {nil: false}
-    stub = ->(arg) { called[:nil] = true if arg.nil? }
-    with_stub(MultiJSON, :use, stub, call_original: true) { yield called }
+  def with_load_tracking
+    called = {json_gem: false}
+    stub = ->(arg) { called[:json_gem] = true if arg == :json_gem }
+    with_stub(MultiJSON, :load_adapter, stub, call_original: true) { yield called }
   end
 end

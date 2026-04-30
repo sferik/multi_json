@@ -12,39 +12,37 @@ module MultiJSON
   module AdapterSelector
     extend self
 
-    # Per-adapter metadata, in preference order (fastest first). Each
-    # entry maps the adapter symbol to its ``require`` path and the
-    # constant whose presence indicates the backing library is already
-    # loaded. ``loaded`` is a ``::``-separated path so we can walk it
-    # without an explicit ``defined?`` check.
-    #
-    # The hash order is split per platform: on MRI/TruffleRuby the
-    # bundled benchmark suite ranks json_gem ahead of fast_jsonparser/
-    # oj/yajl on Ruby 3.4+; on JRuby the FFI-vs-pure-Ruby tradeoff
-    # hasn't been re-benchmarked yet, so jr_jackson stays first there.
-    # CI re-runs the benchmark with ``--verify-preference`` to fail
-    # if the observed ranking diverges.
+    # Parse adapter preference order (fastest first), used for
+    # auto-detection on the parse path. JRuby's available adapter set
+    # differs from MRI's, and the bundled benchmark suite ranks
+    # json_gem ahead of fast_jsonparser/oj/yajl on Ruby 3.4+ — so the
+    # list is split per platform to keep the "fastest first" promise
+    # honest on each runtime. CI re-runs the benchmark with
+    # ``--verify-preference`` to fail if the observed ranking diverges.
     # :nocov:
-    ADAPTERS = if RUBY_ENGINE == "jruby"
-      {
-        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
-        json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
-        gson: {require: "gson", loaded: "Gson"},
-        fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
-        oj: {require: "oj", loaded: "Oj"},
-        yajl: {require: "yajl", loaded: "Yajl"}
-      }.freeze
+    PARSE_ADAPTERS = if RUBY_ENGINE == "jruby"
+      %i[jr_jackson json_gem gson fast_jsonparser oj yajl].freeze
     else
-      {
-        json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
-        fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
-        oj: {require: "oj", loaded: "Oj"},
-        yajl: {require: "yajl", loaded: "Yajl"},
-        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
-        gson: {require: "gson", loaded: "Gson"}
-      }.freeze
+      %i[json_gem fast_jsonparser oj yajl jr_jackson gson].freeze
     end
     # :nocov:
+    GENERATE_ADAPTERS = %i[json_gem oj yajl jr_jackson gson].freeze
+    private_constant :PARSE_ADAPTERS, :GENERATE_ADAPTERS
+
+    # Per-adapter metadata. Each entry maps the adapter symbol to its
+    # ``require`` path and the constant whose presence indicates the
+    # backing library is already loaded. ``loaded`` is a ``::``-separated
+    # path so we can walk it without an explicit ``defined?`` check.
+    # PARSE_ADAPTERS / GENERATE_ADAPTERS drive the preference order, so
+    # this hash's iteration order doesn't matter at runtime.
+    ADAPTERS = {
+      fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
+      oj: {require: "oj", loaded: "Oj"},
+      yajl: {require: "yajl", loaded: "Yajl"},
+      jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
+      json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
+      gson: {require: "gson", loaded: "Gson"}
+    }.freeze
     private_constant :ADAPTERS
 
     # Backwards-compatible view of {ADAPTERS} that exposes only the
@@ -52,54 +50,29 @@ module MultiJSON
     # the require step.
     REQUIREMENT_MAP = ADAPTERS.transform_values { |meta| meta[:require] }.freeze
 
-    # Returns the default adapter to use
-    #
-    # @api private
-    # @return [Symbol] adapter name
-    # @example
-    #   AdapterSelector.default_adapter  #=> :oj
-    def default_adapter
-      Concurrency.synchronize(:default_adapter) { @default_adapter ||= detect_best_adapter }
-    end
-
-    # Returns the default adapter class, excluding the given adapter name
-    #
-    # Used by adapters that only implement one direction (e.g.
-    # FastJsonparser only parses) so the other direction can be delegated
-    # to whichever library MultiJSON would otherwise pick.
-    #
-    # @api private
-    # @param excluded [Symbol] adapter name to skip during detection
-    # @return [Class] the adapter class
-    # @example
-    #   AdapterSelector.default_adapter_excluding(:fast_jsonparser)  #=> MultiJSON::Adapters::Oj
-    def default_adapter_excluding(excluded)
-      Concurrency.synchronize(:default_adapter) do
-        name = loaded_adapter(excluding: excluded)
-        name ||= installable_adapter(excluding: excluded)
-        name ||= fallback_adapter
-        load_adapter_by_name(name.to_s)
-      end
-    end
-
     private
 
-    # Detects the best available JSON adapter
+    # Detects the best available JSON adapter for an operation
     #
     # @api private
+    # @param operation [Symbol] :parse or :generate
     # @return [Symbol] adapter name
-    def detect_best_adapter
-      loaded_adapter || installable_adapter || fallback_adapter
+    def detect_best_adapter(operation)
+      preferences = adapter_preferences(operation)
+      installable_adapter(preferences) || loaded_adapter(preferences) || fallback_adapter
     end
 
     # Finds an already-loaded JSON library
     #
     # @api private
+    # @param preferences [Array<Symbol>] adapter preference order
     # @param excluding [Symbol, nil] adapter name to skip during detection
     # @return [Symbol, nil] adapter name if found
-    def loaded_adapter(excluding: nil)
-      ADAPTERS.each do |name, meta|
+    def loaded_adapter(preferences = PARSE_ADAPTERS, excluding: nil)
+      preferences.each do |name|
         next if name == excluding
+
+        meta = ADAPTERS.fetch(name)
         return name if Object.const_defined?(meta.fetch(:loaded))
       end
       nil
@@ -108,11 +81,13 @@ module MultiJSON
     # Tries to require and use an installable adapter
     #
     # @api private
+    # @param preferences [Array<Symbol>] adapter preference order
     # @param excluding [Symbol, nil] adapter name to skip during detection
     # @return [Symbol, nil] adapter name if successfully required
-    def installable_adapter(excluding: nil)
-      REQUIREMENT_MAP.each_key do |adapter_name|
+    def installable_adapter(preferences = PARSE_ADAPTERS, excluding: nil)
+      preferences.each do |adapter_name|
         next if adapter_name == excluding
+
         return adapter_name if try_require(adapter_name)
       end
       nil
@@ -143,6 +118,19 @@ module MultiJSON
       warn_about_fallback unless @default_adapter_warning_shown
       @default_adapter_warning_shown = true
       :json_gem
+    end
+
+    # Returns the preference order for an operation
+    #
+    # @api private
+    # @param operation [Symbol] :parse or :generate
+    # @return [Array<Symbol>] adapter preference order
+    def adapter_preferences(operation)
+      case operation
+      when :parse then PARSE_ADAPTERS
+      when :generate then GENERATE_ADAPTERS
+      else raise ArgumentError, "expected operation to be :parse or :generate, got #{operation.inspect}"
+      end
     end
 
     # Warns the user about reaching the last-resort fallback
@@ -211,3 +199,5 @@ module MultiJSON
     end
   end
 end
+
+require_relative "adapter_selector/defaults"

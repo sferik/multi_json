@@ -7,9 +7,9 @@ module IntegrationTestSetup
   def setup
     skip "java based implementations" if TestHelpers.java?
     MultiJSON.use :oj
-    return unless MultiJSON.instance_variable_defined?(:@default_adapter)
-
-    MultiJSON.remove_instance_variable(:@default_adapter)
+    %i[@default_adapter @default_parse_adapter @default_generate_adapter].each do |ivar|
+      MultiJSON.remove_instance_variable(ivar) if MultiJSON.instance_variable_defined?(ivar)
+    end
   end
 end
 
@@ -19,32 +19,29 @@ class AdapterSelectionIntegrationTest < Minitest::Test
   include IntegrationTestSetup
 
   def test_defaults_to_best_available_gem
-    MultiJSON.send(:remove_instance_variable, :@adapter) if MultiJSON.instance_variable_defined?(:@adapter)
+    MultiJSON.send(:remove_instance_variable, :@parse_adapter) if MultiJSON.instance_variable_defined?(:@parse_adapter)
+    MultiJSON.send(:remove_instance_variable, :@generate_adapter) if MultiJSON.instance_variable_defined?(:@generate_adapter)
 
-    assert_equal expected_default_adapter, MultiJSON.adapter.to_s
+    assert_equal expected_default_parse_adapter, MultiJSON.parse_adapter.to_s
+    assert_equal expected_default_generate_adapter, MultiJSON.generate_adapter.to_s
   end
 
   def test_adapter_loads_default_when_not_set
     original = MultiJSON.adapter
     clear_adapter_state
-    calls = []
-    result = with_use_calls(calls) { MultiJSON.adapter }
+    result = MultiJSON.adapter
 
     assert_kind_of Module, result
-    assert_equal [nil], calls
   ensure
     MultiJSON.use original
   end
 
   def test_adapter_reloads_when_adapter_is_defined_as_nil
     original = MultiJSON.adapter
-    MultiJSON.instance_variable_set(:@adapter, nil)
-
-    calls = []
-    result = with_use_calls(calls) { MultiJSON.adapter }
+    MultiJSON.instance_variable_set(:@parse_adapter, nil)
+    result = MultiJSON.adapter
 
     assert_kind_of Module, result
-    assert_equal [nil], calls
   ensure
     MultiJSON.use original
   end
@@ -54,10 +51,10 @@ class AdapterSelectionIntegrationTest < Minitest::Test
     clear_adapter_state
 
     assert_raises(StandardError) do
-      with_stub(MultiJSON, :use, ->(*) { raise StandardError, "boom" }) { MultiJSON.adapter }
+      with_stub(MultiJSON, :load_adapter, ->(*) { raise StandardError, "boom" }) { MultiJSON.adapter }
     end
 
-    refute MultiJSON.instance_variable_defined?(:@adapter)
+    refute MultiJSON.instance_variable_defined?(:@parse_adapter)
   ensure
     MultiJSON.use original
   end
@@ -76,19 +73,17 @@ class AdapterSelectionIntegrationTest < Minitest::Test
     original = MultiJSON.adapter
     MultiJSON.use :json_gem
 
-    calls = []
-    result = with_use_calls(calls) { MultiJSON.adapter }
+    result = MultiJSON.adapter
 
     assert_equal MultiJSON::Adapters::JsonGem, result
-    assert_empty calls
   ensure
     MultiJSON.use original
   end
 
   def test_looks_for_adapter_even_if_adapter_variable_is_nil
-    MultiJSON.send(:remove_instance_variable, :@adapter) if MultiJSON.instance_variable_defined?(:@adapter)
+    MultiJSON.send(:remove_instance_variable, :@parse_adapter) if MultiJSON.instance_variable_defined?(:@parse_adapter)
 
-    result = with_stub(MultiJSON, :default_adapter, -> { :json_gem }) { MultiJSON.adapter }
+    result = with_stub(MultiJSON, :default_parse_adapter, -> { :json_gem }) { MultiJSON.adapter }
 
     assert_equal MultiJSON::Adapters::JsonGem, result
   end
@@ -96,14 +91,9 @@ class AdapterSelectionIntegrationTest < Minitest::Test
   private
 
   def clear_adapter_state
-    MultiJSON.send(:remove_instance_variable, :@adapter) if MultiJSON.instance_variable_defined?(:@adapter)
-    MultiJSON.send(:remove_instance_variable, :@default_adapter) if MultiJSON.instance_variable_defined?(:@default_adapter)
-  end
-
-  def with_use_calls(calls, &block)
-    result = nil
-    with_stub(MultiJSON, :use, ->(value) { calls << value }, call_original: true) { result = block.call }
-    result
+    %i[@adapter @parse_adapter @generate_adapter @default_adapter @default_parse_adapter @default_generate_adapter].each do |ivar|
+      MultiJSON.send(:remove_instance_variable, ivar) if MultiJSON.instance_variable_defined?(ivar)
+    end
   end
 
   def adapter_result_with_nil_recursion
@@ -112,10 +102,10 @@ class AdapterSelectionIntegrationTest < Minitest::Test
     result = nil
     stub = lambda do |*|
       use_calls += 1
-      MultiJSON.instance_variable_set(:@adapter, nil)
+      MultiJSON.instance_variable_set(:@parse_adapter, nil)
     end
 
-    with_stub(MultiJSON, :use, stub) { result = MultiJSON.adapter }
+    with_stub(MultiJSON, :load_adapter, stub) { result = MultiJSON.adapter }
 
     [result, use_calls]
   end

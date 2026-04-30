@@ -64,4 +64,15 @@ class DumpMethodTest < Minitest::Test
 
     assert_kind_of String, result
   end
+
+  def test_dump_uses_generate_adapter_not_parse_adapter
+    MultiJSON.parse_adapter = :json_gem
+    MultiJSON.generate_adapter = TestHelpers::StrictAdapter
+    TestHelpers::StrictAdapter.reset_calls
+
+    assert_equal '{"a":1}', MultiJSON.generate({a: 1})
+    assert_equal 1, TestHelpers::StrictAdapter.generate_calls.size
+  ensure
+    MultiJSON.use :json_gem
+  end
 end

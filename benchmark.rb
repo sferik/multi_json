@@ -390,8 +390,8 @@ class MultiJSONBenchmark
     end
 
     def prime_adapter!(adapter, payload)
-      adapter.load(payload.json)
-      adapter.dump(payload.object)
+      adapter.parse(payload.json)
+      adapter.generate(payload.object)
     end
   end
 end
@@ -415,9 +415,9 @@ class MultiJSONBenchmark
     attr_reader :options
 
     def work_for(adapter, payload, operation)
-      return -> { adapter.load(payload.json) } if operation == :parse
+      return -> { adapter.parse(payload.json) } if operation == :parse
 
-      -> { adapter.dump(payload.object) }
+      -> { adapter.generate(payload.object) }
     end
 
     def warmup(work, iterations)
@@ -516,18 +516,20 @@ class MultiJSONBenchmark
 end
 
 class MultiJSONBenchmark
-  # Asserts MultiJSON::AdapterSelector::ADAPTERS matches the overall
-  # benchmark throughput ranking.
+  # Asserts MultiJSON's PARSE_ADAPTERS and GENERATE_ADAPTERS preference
+  # constants match the benchmark throughput ranking.
   #
-  # Compares only the adapters that both appear in ADAPTERS and were
-  # benchmarked on this run, so missing native adapters (e.g.
-  # fast_jsonparser on JRuby) are tolerated rather than treated as
-  # failures. Adjacent adapters whose observed scores fall within
-  # TOLERANCE of each other are treated as tied so noisy benchmark
-  # runs that flip close pairs don't trigger a failure.
+  # Compares only the adapters that both appear in the relevant
+  # preference list and were benchmarked on this run, so missing native
+  # adapters (e.g. fast_jsonparser on JRuby) are tolerated rather than
+  # treated as failures. Adjacent adapters whose observed scores fall
+  # within TOLERANCE of each other are treated as tied so noisy
+  # benchmark runs that flip close pairs don't trigger a failure.
   class PreferenceVerifier
     TOLERANCE = 0.10
-    private_constant :TOLERANCE
+    OPERATIONS = %i[parse generate].freeze
+    CONSTANT_NAMES = {parse: "PARSE_ADAPTERS", generate: "GENERATE_ADAPTERS"}.freeze
+    private_constant :TOLERANCE, :OPERATIONS, :CONSTANT_NAMES
 
     def initialize(adapters:, measurements:)
       @adapters = adapters
@@ -535,49 +537,61 @@ class MultiJSONBenchmark
     end
 
     def valid?
-      violations.empty?
+      OPERATIONS.all? { |operation| violations_for(operation).empty? }
     end
 
     def report
-      puts
-      if valid?
-        puts "ADAPTERS matches benchmark ranking within #{tolerance_pct}% tolerance: #{relevant_adapters.join(", ")}"
-      else
-        puts "ADAPTERS does not match benchmark ranking (>#{tolerance_pct}% tolerance):"
-        violations.each { |violation| puts "  #{format_violation(violation)}" }
-      end
+      OPERATIONS.each { |operation| report_operation(operation) }
     end
 
     private
 
     attr_reader :adapters, :measurements
 
-    def preference_order
-      MultiJSON::AdapterSelector::REQUIREMENT_MAP.keys
+    def report_operation(operation)
+      puts
+      if violations_for(operation).empty?
+        adapters_list = relevant_adapters(operation).join(", ")
+        puts "#{constant_name(operation)} matches #{operation} ranking within #{tolerance_pct}% tolerance: #{adapters_list}"
+      else
+        puts "#{constant_name(operation)} does not match #{operation} ranking (>#{tolerance_pct}% tolerance):"
+        violations_for(operation).each { |violation| puts "  #{format_violation(violation)}" }
+      end
     end
 
-    def scores
-      @scores ||= measurements
+    def preference_order(operation)
+      MultiJSON::AdapterSelector.send(:adapter_preferences, operation)
+    end
+
+    def constant_name(operation)
+      CONSTANT_NAMES.fetch(operation)
+    end
+
+    def scores(operation)
+      @scores ||= {}
+      @scores[operation] ||= measurements
+        .select { |measurement| measurement.operation == operation }
         .group_by(&:adapter)
         .transform_values { |entries| MultiJSONBenchmark::Formatter.geometric_mean(entries.map(&:ips)) }
     end
 
-    def relevant_adapters
-      @relevant_adapters ||= preference_order.select { |adapter| scores.key?(adapter) }
+    def relevant_adapters(operation)
+      preference_order(operation).select { |adapter| scores(operation).key?(adapter) }
     end
 
-    def violations
-      @violations ||= relevant_adapters.each_cons(2).filter_map do |earlier, later|
-        violation_for(earlier, later)
+    def violations_for(operation)
+      @violations ||= {}
+      @violations[operation] ||= relevant_adapters(operation).each_cons(2).filter_map do |earlier, later|
+        violation_for(operation, earlier, later)
       end
     end
 
-    def violation_for(earlier, later)
-      earlier_score = scores.fetch(earlier)
-      later_score = scores.fetch(later)
+    def violation_for(operation, earlier, later)
+      earlier_score = scores(operation).fetch(earlier)
+      later_score = scores(operation).fetch(later)
       return nil if later_score <= earlier_score * (1 + TOLERANCE)
 
-      {earlier: earlier, later: later, earlier_score: earlier_score, later_score: later_score}
+      {operation: operation, earlier: earlier, later: later, earlier_score: earlier_score, later_score: later_score}
     end
 
     def format_violation(violation)

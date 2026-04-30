@@ -20,6 +20,13 @@ MultiJSON.parse('{"abc":"def"}')                        #=> {"abc" => "def"}
 MultiJSON.parse('{"abc":"def"}', symbolize_names: true) #=> {abc: "def"}
 MultiJSON.generate({abc: "def"})                       # convert Ruby back to JSON
 MultiJSON.generate({abc: "def"}, pretty: true)         # encoded in a pretty form (if supported by the coder)
+
+# Override both directions
+MultiJSON.use(:json_gem)
+
+# Override one direction only
+MultiJSON.parse_adapter = :jr_jackson
+MultiJSON.generate_adapter = :json_gem
 ```
 
 `MultiJSON.parse` raises `MultiJSON::ParseError` on `nil`, empty, and
@@ -127,14 +134,15 @@ class methods `self._parse` and `self._generate`. You'll pick up shared
 option merging, the `defaults :parse, ...` / `defaults :generate, ...`
 DSL, the IO-read step, and the blank-input guard. The built-in adapters
 in `lib/multi_json/adapters/` are working examples.
-MultiJSON tries to have intelligent defaulting. If any supported library is
-already loaded, MultiJSON uses it before attempting to load others. When no
-backend is preloaded, MultiJSON walks its preference list and uses the first
-one that loads successfully. The list is split per platform — JRuby's
-available adapter set differs from MRI's, and the bundled benchmark suite
-ranks `json_gem` ahead of `fast_jsonparser`/`oj`/`yajl` on Ruby 3.4+. CI
-re-runs the benchmark and fails if the observed ranking diverges from the
-table below.
+
+MultiJSON auto-detects parse and generate adapters independently so the
+default can favor the fastest backend for each direction on the current Ruby.
+The preference order is split per platform — JRuby's available adapter set
+differs from MRI's, and the bundled benchmark suite ranks `json_gem` ahead
+of `fast_jsonparser`/`oj`/`yajl` on Ruby 3.4+. CI re-runs the benchmark and
+fails if the observed ranking diverges from the table below.
+
+Parse:
 
 | rank | MRI / TruffleRuby | JRuby           |
 | ---- | ----------------- | --------------- |
@@ -143,12 +151,20 @@ table below.
 | 3    | `oj`              | `gson`          |
 | 4    | `yajl-ruby`       | —               |
 
+Generate:
+
+| rank | MRI / TruffleRuby | JRuby           |
+| ---- | ----------------- | --------------- |
+| 1    | The JSON gem      | The JSON gem    |
+| 2    | `oj`              | `jrjackson`     |
+| 3    | `yajl-ruby`       | `gson`          |
+
 A dash means the adapter isn't usable on that runtime: `fast_jsonparser`,
 `oj`, and `yajl-ruby` are MRI/TruffleRuby C extensions with no JRuby builds;
-`jrjackson` and `gson` are JRuby-only. The JSON gem is a Ruby default gem,
-so it's always available as a last-resort fallback on any supported Ruby.
-If you have a workload where a different backend is faster, set it
-explicitly with `MultiJSON.use(:your_adapter)`.
+`jrjackson` and `gson` are JRuby-only. If your workload prefers a different
+backend, set both directions with `MultiJSON.use(:your_adapter)` or override
+one side with `MultiJSON.parse_adapter = ...` /
+`MultiJSON.generate_adapter = ...`.
 
 ## Gem Variants
 
