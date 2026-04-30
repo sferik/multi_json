@@ -43,6 +43,14 @@ task :mutant do
   sh "bundle", "exec", "mutant", "run"
 end
 
+desc "Run adapter benchmark (pass options after --, e.g. rake benchmark -- --quick)"
+task :benchmark do
+  separator = ARGV.index("--")
+  args = separator ? ARGV[(separator + 1)..] : []
+  ruby "benchmark.rb", *args
+  exit
+end
+
 desc "Run the default task"
 default_tasks = %i[test lint mutant yardstick]
 default_tasks << :steep if Rake::Task.task_defined?(:steep)
