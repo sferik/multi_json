@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0]
+
+Every deprecation introduced here will be **removed in `2.0.0`**. Upgrade to `1.21.0`, run your app or test suite with `ruby -W:deprecated` to surface the warnings, migrate each call site to the new canonical names, then pin `~> 2.0` once `2.0.0` ships.
+
+### Added
+
+- Rename the `MultiJson` constant to `MultiJSON` (all-caps) to match the project name, Ruby stdlib `JSON`, and the all-caps treatment of the JSON acronym across other languages. The legacy `MultiJson` constant continues to work as a thin delegator via `method_missing` and `const_missing`, so `MultiJson.parse(...)`, `MultiJson::Adapters::Oj`, and `rescue MultiJson::ParseError` all resolve to their `MultiJSON` counterparts.
+- Add `MultiJSON.parse` and `MultiJSON.generate` as the new canonical names for the primary parse and generate methods, matching Ruby stdlib `JSON.parse` / `JSON.generate`, the JSON spec (RFC 8259), and sister library [MultiXml](https://github.com/sferik/multi_xml).
+- Add `MultiJSON.parse_options` / `MultiJSON.parse_options=` and `MultiJSON.generate_options` / `MultiJSON.generate_options=` as the new canonical option setters.
+- Accept `symbolize_names:` as the canonical option name matching Ruby stdlib's `JSON.parse(str, symbolize_names: true)`. The deprecated `symbolize_keys:` option continues to work and emits a one-time warning when passed at any of the three option layers (call-site, `MultiJSON.parse_options=`, adapter `defaults :load`).
+- Replace the two-adapter `Benchmark.ips` smoke test in `benchmark.rb` with a full adapter comparison matrix (`parse` + `dump` across nine workloads) and promote it to a top-level `rake benchmark` task. A new `--verify-preference` flag asserts that `MultiJSON::AdapterSelector::ADAPTERS` matches the observed throughput ranking, with a 10% tolerance for adjacent ties; CI runs it on every push so the ordering can't silently drift.
+
+### Changed
+
+- Reorder `MultiJSON::AdapterSelector::ADAPTERS` so the JSON gem is tried before `fast_jsonparser`/`oj`/`yajl` on MRI and TruffleRuby, matching the throughput ranking in the bundled benchmark suite on Ruby 3.4+. The hash is split per platform so JRuby still prefers `jr_jackson`. Affects auto-detection only when more than one of those adapters is loaded; explicitly selecting an adapter with `MultiJSON.use(:adapter)` is unchanged.
+
+### Deprecated
+
+- The `MultiJson` constant in favor of `MultiJSON`.
+- `MultiJSON.load` in favor of `MultiJSON.parse`.
+- `MultiJSON.dump` in favor of `MultiJSON.generate`.
+- `MultiJSON.load_options` / `MultiJSON.load_options=` in favor of `MultiJSON.parse_options` / `MultiJSON.parse_options=`.
+- `MultiJSON.dump_options` / `MultiJSON.dump_options=` in favor of `MultiJSON.generate_options` / `MultiJSON.generate_options=`.
+- The `:symbolize_keys` parse option in favor of `:symbolize_names`.
+
+All deprecated names continue to work and emit a one-time warning on first use. Warnings are tagged with Ruby's `:deprecated` category, so noisy apps can silence the whole set with `Warning[:deprecated] = false` and deprecation-aware tooling (`ruby -W:deprecated`, CI linters) picks them up. The old names will be removed in 2.0.
+
 ## [1.20.1]
 
 ### Fixed
@@ -513,6 +540,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `default_engine` check for json gem.
 - Make requirement mapper an Array to preserve order in Ruby versions < 1.9.
 
+[1.21.0]: https://github.com/sferik/multi_json/compare/v1.20.1...v1.21.0
 [1.20.1]: https://github.com/sferik/multi_json/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/sferik/multi_json/compare/v1.19.1...v1.20.0
 [1.19.1]: https://github.com/sferik/multi_json/compare/v1.19.0...v1.19.1

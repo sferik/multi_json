@@ -8,9 +8,9 @@ module MultiJSON
     # Major version number
     MAJOR = 1 unless defined? MultiJSON::Version::MAJOR
     # Minor version number
-    MINOR = 20 unless defined? MultiJSON::Version::MINOR
+    MINOR = 21 unless defined? MultiJSON::Version::MINOR
     # Patch version number
-    PATCH = 1 unless defined? MultiJSON::Version::PATCH
+    PATCH = 0 unless defined? MultiJSON::Version::PATCH
     # Pre-release version suffix
     PRE = nil unless defined? MultiJSON::Version::PRE
 
