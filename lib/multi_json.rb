@@ -272,52 +272,34 @@ require_relative "multi_json/deprecated"
 #
 # Downstream code that still writes ``MultiJson.parse(...)`` or
 # ``rescue MultiJson::ParseError`` continues to work, but emits a
-# one-time deprecation warning pointing at ``MultiJSON``. The module
-# forwards every method call to {MultiJSON} via {.method_missing} and
-# resolves constant access via {.const_missing}, so both dotted calls
-# and ``::`` constant lookups (including rescue clauses) route through
-# the canonical module.
+# one-time deprecation warning pointing at ``MultiJSON``. Each public
+# method on {MultiJSON} gets an explicit forwarder defined on this
+# module, and constant access resolves via {.const_missing}, so both
+# dotted calls and ``::`` constant lookups (including rescue clauses)
+# route through the canonical module.
 #
 # @api public
 # @deprecated Use {MultiJSON} (all-caps) instead. Will be removed in v2.0.
 module MultiJson
-  class << self
-    # Forward method calls to {MultiJSON}, emitting a one-time warning
-    #
-    # Uses explicit ``*args, **kwargs, &block`` forwarding because
-    # mutant's AST structure table on the current parser version does
-    # not yet recognize ``...`` forwarding nodes, so the module would
-    # crash mutation analysis. The rubocop exclusions below document
-    # that intent.
-    #
-    # @api public
-    # @return [Object] the delegated call's return value
-    # @example
-    #   MultiJson.parse('{"a":1}')   # delegates to MultiJSON.parse
-    # rubocop:disable Naming/BlockForwarding, Style/ArgumentsForwarding
-    def method_missing(name, *args, **kwargs, &block)
+  # Forward every public method MultiJSON exposes through an explicit
+  # singleton method on the legacy MultiJson module, so callers that
+  # capture the method as a Method object (``MultiJson.method(:load)``)
+  # find this forwarder instead of falling back to inherited methods like
+  # ``Kernel#load``. The earlier ``method_missing``-based shim left
+  # ``MultiJson.method(:load)`` resolving to ``Kernel#load`` (because
+  # ``Module#method`` doesn't consult ``method_missing``) and broke
+  # libraries (Sawyer, Octokit, Danger) that capture decoders as Method
+  # objects. Forwarding eagerly fixes the capture path while preserving
+  # the one-time deprecation warning each call emits.
+  (::MultiJSON.public_methods - ::Module.public_methods).each do |forwarded|
+    define_singleton_method(forwarded) do |*args, **kwargs, &block|
       ::MultiJSON.warn_deprecation_once(:multi_json_constant,
         "The MultiJson constant is deprecated and will be removed in v2.0. Use MultiJSON instead.")
-      if ::MultiJSON.respond_to?(name)
-        ::MultiJSON.public_send(name, *args, **kwargs, &block)
-      else
-        super
-      end
+      ::MultiJSON.public_send(forwarded, *args, **kwargs, &block)
     end
-    # rubocop:enable Naming/BlockForwarding, Style/ArgumentsForwarding
+  end
 
-    # Respond to any method {MultiJSON} responds to
-    #
-    # @api public
-    # @param name [Symbol] method name
-    # @param include_private [Boolean] include private methods
-    # @return [Boolean] true if {MultiJSON} responds to the method
-    # @example
-    #   MultiJson.respond_to?(:parse)  #=> true
-    def respond_to_missing?(name, include_private)
-      ::MultiJSON.respond_to?(name, include_private)
-    end
-
+  class << self
     # Resolve missing constants to their {MultiJSON} counterparts
     #
     # Enables ``rescue MultiJson::ParseError`` and

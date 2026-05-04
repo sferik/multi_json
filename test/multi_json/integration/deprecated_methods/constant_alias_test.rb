@@ -82,6 +82,26 @@ class DeprecatedConstantAliasMethodTest < Minitest::Test
     refute_respond_to MultiJson, :definitely_not_a_real_method
   end
 
+  # Regression: `MultiJson.method(:load)` used to resolve to `Kernel#load`
+  # because `method_missing` doesn't participate in `Module#method` lookup,
+  # so libraries that capture `MultiJson.method(:load)` (e.g. Sawyer, used
+  # by Octokit and Danger) crashed with `LoadError` when the captured
+  # method tried to interpret the JSON string as a file path. See #66.
+  def test_method_object_resolves_to_multijson_forwarder
+    @registry.add(:multi_json_constant)
+
+    refute_equal Kernel, MultiJson.method(:load).owner
+    assert_equal({"a" => 1}, MultiJson.method(:load).call('{"a":1}'))
+  end
+
+  def test_method_object_resolves_for_canonical_verbs
+    @registry.add(:multi_json_constant)
+
+    refute_equal Kernel, MultiJson.method(:parse).owner
+    assert_equal({"a" => 1}, MultiJson.method(:parse).call('{"a":1}'))
+    assert_equal '{"a":1}', MultiJson.method(:generate).call({a: 1})
+  end
+
   private
 
   def capture_warn(&block)
