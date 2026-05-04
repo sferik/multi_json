@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.1]
+
+### Fixed
+
+- Fix `MultiJson.method(:load)` resolving to `Kernel#load` instead of the legacy-constant forwarder ([#66](https://github.com/sferik/multi_json/issues/66)). The 1.21.0 shim forwarded calls via `method_missing`, but `Module#method` doesn't consult `method_missing`, so libraries that capture decoders as `Method` objects (Sawyer, used by Octokit and Danger) crashed with `LoadError` when the captured method tried to interpret the JSON string as a file path. Define an explicit singleton method on `MultiJson` for every public method `MultiJSON` exposes so `Module#method` finds the forwarder directly.
+
 ## [1.21.0]
 
 Every deprecation introduced here will be **removed in `2.0.0`**. Upgrade to `1.21.0`, run your app or test suite with `ruby -W:deprecated` to surface the warnings, migrate each call site to the new canonical names, then pin `~> 2.0` once `2.0.0` ships.
@@ -540,6 +546,7 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Fix `default_engine` check for json gem.
 - Make requirement mapper an Array to preserve order in Ruby versions < 1.9.
 
+[1.21.1]: https://github.com/sferik/multi_json/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/sferik/multi_json/compare/v1.20.1...v1.21.0
 [1.20.1]: https://github.com/sferik/multi_json/compare/v1.20.0...v1.20.1
 [1.20.0]: https://github.com/sferik/multi_json/compare/v1.19.1...v1.20.0
