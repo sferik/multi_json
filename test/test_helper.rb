@@ -5,9 +5,9 @@ require "bundler/setup"
 unless ENV["MUTANT"]
   require "simplecov"
   SimpleCov.start do
-    add_filter "/test/"
+    skip "/test/"
     # Oj v2 compatibility code - cannot be tested with Oj v3
-    add_filter "lib/multi_json/adapters/oj_common.rb"
+    skip "lib/multi_json/adapters/oj_common.rb"
 
     case RUBY_ENGINE
     when "ruby"

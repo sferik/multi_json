@@ -24,7 +24,7 @@ module MultiJSON
     # hasn't been re-benchmarked yet, so jr_jackson stays first there.
     # CI re-runs the benchmark with ``--verify-preference`` to fail
     # if the observed ranking diverges.
-    # :nocov:
+    # simplecov:disable
     ADAPTERS = if RUBY_ENGINE == "jruby"
       {
         jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
@@ -44,7 +44,7 @@ module MultiJSON
         gson: {require: "gson", loaded: "Gson"}
       }.freeze
     end
-    # :nocov:
+    # simplecov:enable
     private_constant :ADAPTERS
 
     # Backwards-compatible view of {ADAPTERS} that exposes only the
