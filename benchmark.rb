@@ -45,9 +45,7 @@ class MultiJSONBenchmark
       verifier.valid? ? 0 : 1
     end
   end
-end
 
-class MultiJSONBenchmark
   # Command-line option parsing for the benchmark script.
   class CLI
     QUICK_OPTIONS = {
@@ -139,9 +137,7 @@ class MultiJSONBenchmark
       raise OptionParser::InvalidArgument, "--samples must be > 0" unless value.positive?
     end
   end
-end
 
-class MultiJSONBenchmark
   # Resolves benchmarkable adapters from the current Ruby environment.
   class AdapterLoader
     def load(selected = nil)
@@ -162,9 +158,7 @@ class MultiJSONBenchmark
       nil
     end
   end
-end
 
-class MultiJSONBenchmark
   # Builds the benchmark payload matrix across shapes and sizes.
   class PayloadCatalog
     CASES = [
@@ -206,9 +200,7 @@ class MultiJSONBenchmark
       )
     end
   end
-end
 
-class MultiJSONBenchmark
   # Builds flat scalar and array-heavy payloads.
   class ScalarPayloadFactory
     def flat_scalars(count)
@@ -256,9 +248,7 @@ class MultiJSONBenchmark
       "#{prefix}_#{index.to_s(36).rjust(width, "0")}"
     end
   end
-end
 
-class MultiJSONBenchmark
   # Builds nested object-heavy record payloads.
   class RecordPayloadFactory
     COUNTRIES = %w[US DE BR JP IN AU GB CA].freeze
@@ -341,9 +331,7 @@ class MultiJSONBenchmark
       "#{prefix}_#{index.to_s(36).rjust(width, "0")}"
     end
   end
-end
 
-class MultiJSONBenchmark
   # Runs the benchmark matrix across adapters, payloads, and operations.
   class Runner
     OPERATIONS = %i[parse generate].freeze
@@ -394,9 +382,7 @@ class MultiJSONBenchmark
       adapter.dump(payload.object)
     end
   end
-end
 
-class MultiJSONBenchmark
   # Measures throughput for a single adapter/payload/operation combination.
   class Sampler
     def initialize(options)
@@ -462,9 +448,7 @@ class MultiJSONBenchmark
       GC.enable unless already_disabled
     end
   end
-end
 
-class MultiJSONBenchmark
   # Prints the benchmark summary and detailed result tables.
   class Reporter
     SUMMARY_HEADERS = ["adapter", "parse score", "generate score", "overall score", "wins"].freeze
@@ -513,9 +497,7 @@ class MultiJSONBenchmark
       )
     end
   end
-end
 
-class MultiJSONBenchmark
   # Asserts MultiJSON::AdapterSelector::ADAPTERS matches the overall
   # benchmark throughput ranking.
   #
@@ -597,9 +579,7 @@ class MultiJSONBenchmark
       (TOLERANCE * 100).to_i
     end
   end
-end
 
-class MultiJSONBenchmark
   # Computes overall adapter scores and benchmark wins.
   class Summary
     def initialize(adapters, measurements)
@@ -668,9 +648,7 @@ class MultiJSONBenchmark
       value / [peak, MultiJSONBenchmark::EPSILON].max
     end
   end
-end
 
-class MultiJSONBenchmark
   # Builds the per-benchmark detail table rows.
   class Details
     def initialize(adapters, measurements)
@@ -734,9 +712,7 @@ class MultiJSONBenchmark
       @grouped_measurements ||= measurements.group_by { |measurement| [measurement.payload.label, measurement.operation] }
     end
   end
-end
 
-class MultiJSONBenchmark
   # Renders plain-text and markdown tables for benchmark output.
   class TableRenderer
     def initialize(format:)
@@ -792,9 +768,7 @@ class MultiJSONBenchmark
       (alignment == :right) ? text.rjust(width) : text.ljust(width)
     end
   end
-end
 
-class MultiJSONBenchmark
   # Shared numeric and display formatting helpers for benchmark output.
   class Formatter
     class << self

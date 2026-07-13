@@ -17,6 +17,13 @@ module MultiJSON
     # via {.max_cache_size=}.
     DEFAULT_MAX_CACHE_SIZE = 1000
 
+    # Dynamic require path so MRI (mutex_store) and JRuby
+    # (concurrent_store) execute the same physical line, avoiding a
+    # dead-branch ``require_relative`` that would otherwise drop
+    # JRuby's line coverage below 100%.
+    BACKENDS = {"jruby" => "concurrent_store"}.freeze
+    private_constant :BACKENDS
+
     class << self
       # Get the dump options cache
       #
@@ -68,17 +75,6 @@ module MultiJSON
     end
 
     self.max_cache_size = DEFAULT_MAX_CACHE_SIZE
-  end
-end
-
-module MultiJSON
-  module OptionsCache
-    # Dynamic require path so MRI (mutex_store) and JRuby
-    # (concurrent_store) execute the same physical line, avoiding a
-    # dead-branch ``require_relative`` that would otherwise drop
-    # JRuby's line coverage below 100%.
-    BACKENDS = {"jruby" => "concurrent_store"}.freeze
-    private_constant :BACKENDS
   end
 end
 
