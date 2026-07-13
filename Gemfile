@@ -9,7 +9,12 @@ gem "json", "~> 2.0", require: false
 gem "minitest", ">= 5.20"
 gem "mutant-minitest", ">= 0.12"
 gem "rake", ">= 13.1"
-gem "rdoc", ">= 7.0.3"
+if RUBY_ENGINE == "jruby"
+  # rdoc 8 depends on rbs, whose native extension does not build on JRuby
+  gem "rdoc", ">= 7.0.3", "< 8"
+else
+  gem "rdoc", ">= 7.0.3"
+end
 gem "rubocop", ">= 1.62.1"
 gem "rubocop-minitest", ">= 0.35"
 gem "rubocop-performance", ">= 1.20.2"
