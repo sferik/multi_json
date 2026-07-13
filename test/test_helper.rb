@@ -146,11 +146,11 @@ module TestHelpers
   end
 
   EXPECTED_DEFAULT_ADAPTER_PROBES = [
-    [:JrJackson, "MultiJSON::Adapters::JrJackson"],
     ["JSON::Ext::Parser", "MultiJSON::Adapters::JsonGem"],
     [:FastJsonparser, "MultiJSON::Adapters::FastJsonparser"],
     [:Oj, "MultiJSON::Adapters::Oj"],
     [:Yajl, "MultiJSON::Adapters::Yajl"],
+    [:JrJackson, "MultiJSON::Adapters::JrJackson"],
     [:Gson, "MultiJSON::Adapters::Gson"]
   ].freeze
 
@@ -158,10 +158,9 @@ module TestHelpers
   # preference order and returns the first whose backing constant is
   # currently defined. Using ``defined?`` rather than gem-availability
   # checks keeps this in lockstep with the live constant state, which
-  # other tests temporarily mutate.
+  # other tests temporarily mutate. json_gem leads on every engine,
+  # including JRuby, so a single probe order suffices.
   def expected_default_adapter
-    return "MultiJSON::Adapters::JrJackson" if java? && Object.const_defined?(:JrJackson)
-
     EXPECTED_DEFAULT_ADAPTER_PROBES.each do |constant_path, adapter_class|
       return adapter_class if Object.const_defined?(constant_path)
     end

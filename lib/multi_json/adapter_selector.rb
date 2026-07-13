@@ -20,15 +20,15 @@ module MultiJSON
     #
     # The hash order is split per platform: on MRI/TruffleRuby the
     # bundled benchmark suite ranks json_gem ahead of fast_jsonparser/
-    # oj/yajl on Ruby 3.4+; on JRuby the FFI-vs-pure-Ruby tradeoff
-    # hasn't been re-benchmarked yet, so jr_jackson stays first there.
-    # CI re-runs the benchmark with ``--verify-preference`` to fail
-    # if the observed ranking diverges.
+    # oj/yajl on Ruby 3.4+; on JRuby 10 the json gem's Java extension
+    # outperforms JrJackson across the benchmark matrix, so json_gem
+    # leads there too. CI re-runs the benchmark with
+    # ``--verify-preference`` to fail if the observed ranking diverges.
     # simplecov:disable
     ADAPTERS = if RUBY_ENGINE == "jruby"
       {
-        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
         json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
+        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
         gson: {require: "gson", loaded: "Gson"},
         fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
         oj: {require: "oj", loaded: "Oj"},
