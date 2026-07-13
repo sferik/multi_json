@@ -9,9 +9,9 @@ require "multi_json"
 
 # Benchmark harness for comparing MultiJSON adapters across parse and generate workloads.
 class MultiJSONBenchmark
-  AdapterEntry = Struct.new(:name, :klass, keyword_init: true)
-  PayloadCase = Struct.new(:shape, :bucket, :label, :object, :json, :bytes, keyword_init: true)
-  Measurement = Struct.new(:payload, :operation, :adapter, :ips, :mbps, keyword_init: true)
+  AdapterEntry = Struct.new(:name, :klass)
+  PayloadCase = Struct.new(:shape, :bucket, :label, :object, :json, :bytes)
+  Measurement = Struct.new(:payload, :operation, :adapter, :ips, :mbps)
 
   ADAPTER_NAMES = %i[fast_jsonparser oj yajl jr_jackson json_gem gson].freeze
   BYTES_PER_MEGABYTE = 1024.0 * 1024.0
