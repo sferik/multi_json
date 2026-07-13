@@ -713,7 +713,7 @@ class MultiJSONBenchmark
     end
 
     def index_entries(entries)
-      entries.each_with_object({}) { |entry, hash| hash[entry.adapter] = entry }
+      entries.to_h { |entry| [entry.adapter, entry] }
     end
 
     def adapter_rates(indexed)
