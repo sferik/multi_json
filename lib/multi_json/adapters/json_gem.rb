@@ -10,7 +10,7 @@ module MultiJSON
       # Exception raised when JSON parsing fails
       ParseError = ::JSON::ParserError
 
-      defaults :load, create_additions: false, quirks_mode: true
+      defaults :load, create_additions: false, quirks_mode: true if JSON::VERSION.to_i < 3 # simplecov:disable
 
       PRETTY_STATE_PROTOTYPE = {
         indent: "  ",
@@ -44,7 +44,7 @@ module MultiJSON
           raise ::JSON::ParserError, "Invalid UTF-8 byte sequence in JSON input" unless string.valid_encoding?
         end
 
-        ::JSON.parse(string, options)
+        ::JSON.parse(string, **options)
       end
 
       # Serialize a Ruby object to JSON
