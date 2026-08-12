@@ -22,6 +22,15 @@ if TestHelpers.oj?
       end
     end
 
+    # Regression test for https://github.com/sferik/multi_json/issues/70.
+    # A falsy :pretty is dropped without merging the pretty state, so the
+    # other options a caller passes alongside it still apply.
+    def test_dump_with_falsy_pretty_option_keeps_other_options
+      with_default_options do
+        assert_equal '{"abc":"def"}', MultiJSON.dump({"abc" => "def"}, pretty: false, mode: :strict)
+      end
+    end
+
     def test_oj_does_not_create_symbols_on_parse
       MultiJSON.load('{"json_class":"ZOMG"}')
       original_count = Symbol.all_symbols.count

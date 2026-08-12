@@ -61,11 +61,43 @@ module MultiJSON
         return ::JSON.dump(json_object) if options.empty?
         return ::JSON.generate(json_object, options) unless options.key?(:pretty)
 
+        # ``:pretty`` is MultiJSON's own option, not one the JSON gem's
+        # generator understands, so it's stripped rather than passed
+        # through. A falsy value asks for compact output, which is what
+        # the generator produces with no pretty state at all.
+        rest = options.except(:pretty)
+        return generate_compact(json_object, rest) unless options[:pretty]
+
         # Common case: ``pretty: true`` is the only option, so the merge
         # would just produce a copy of PRETTY_STATE_PROTOTYPE.
-        return ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE) if options.size == 1
+        return ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE) if rest.empty?
 
-        ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE.merge(options.except(:pretty)))
+        ::JSON.pretty_generate(json_object, PRETTY_STATE_PROTOTYPE.merge(rest))
+      end
+
+      private
+
+      # Serialize a Ruby object to compact JSON
+      #
+      # Routes through ``::JSON.dump`` when no options remain so that
+      # ``pretty: false`` behaves exactly like passing no options at
+      # all. ``dump`` applies the permissive ``max_nesting: false`` /
+      # ``allow_nan: true`` defaults that ``generate`` does not, so
+      # sending the empty-options case to ``generate`` would make
+      # ``pretty: false`` raise on deeply nested input that
+      # ``MultiJSON.dump(object)`` serializes without complaint.
+      #
+      # @api private
+      # @param json_object [Object] object to serialize
+      # @param options [Hash] serialization options, without ``:pretty``
+      # @return [String] JSON string
+      #
+      # @example Serialize without pretty state
+      #   adapter.send(:generate_compact, {key: "value"}, {}) #=> '{"key":"value"}'
+      def generate_compact(json_object, options)
+        return ::JSON.dump(json_object) if options.empty?
+
+        ::JSON.generate(json_object, options)
       end
     end
   end

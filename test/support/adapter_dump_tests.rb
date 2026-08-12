@@ -51,4 +51,14 @@ module AdapterDumpTests
   def test_dump_json_with_utf8
     assert_equal '{"color":"żółć"}', MultiJSON.dump("color" => "żółć")
   end
+
+  # Regression test for https://github.com/sferik/multi_json/issues/70,
+  # where the json_gem and Oj adapters tested for the presence of the
+  # :pretty key instead of its value and pretty-printed either way.
+  def test_dump_with_falsy_pretty_option_is_compact
+    with_default_options do
+      assert_equal '{"abc":"def"}', MultiJSON.dump({"abc" => "def"}, pretty: false)
+      assert_equal '{"abc":"def"}', MultiJSON.dump({"abc" => "def"}, pretty: nil)
+    end
+  end
 end

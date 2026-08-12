@@ -37,7 +37,13 @@ module MultiJSON
       def prepare_dump_options(options)
         return options unless options.key?(:pretty)
 
-        options.except(:pretty).merge(PRETTY_STATE_PROTOTYPE)
+        # ``:pretty`` is MultiJSON's own option, so it's dropped either
+        # way. A falsy value asks for compact output, which is Oj's
+        # behavior without the pretty state merged in.
+        rest = options.except(:pretty)
+        return rest unless options[:pretty]
+
+        rest.merge(PRETTY_STATE_PROTOTYPE)
       end
     end
   end
