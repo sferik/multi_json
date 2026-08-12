@@ -21,7 +21,7 @@ module AdapterTests
   end
 
   def test_does_not_modify_argument_hashes_when_loading
-    options = {symbolize_names: true, pretty: false, adapter: :json_gem}
+    options = {symbolize_names: true, adapter: :json_gem}
     original = options.dup
     MultiJSON.load("{}", options)
 
@@ -29,7 +29,7 @@ module AdapterTests
   end
 
   def test_does_not_modify_argument_hashes_when_dumping
-    options = {symbolize_names: true, pretty: false, adapter: :json_gem}
+    options = {pretty: false, adapter: :json_gem}
     original = options.dup
     MultiJSON.dump([42], options)
 
