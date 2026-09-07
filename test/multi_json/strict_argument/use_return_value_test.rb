@@ -28,14 +28,14 @@ class UseReturnValueAndCacheResetTest < Minitest::Test
 
   private
 
-  def track_load_adapter_calls(&)
+  def track_load_adapter_calls(&block)
     load_adapter_called = false
     original = MultiJSON.method(:load_adapter)
     stub = lambda do |arg|
       load_adapter_called = true
       original.call(arg)
     end
-    with_stub(MultiJSON, :load_adapter, stub, &)
+    with_stub(MultiJSON, :load_adapter, stub, &block)
     load_adapter_called
   end
 

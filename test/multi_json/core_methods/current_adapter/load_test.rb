@@ -38,17 +38,17 @@ class CurrentAdapterLoadTest < Minitest::Test
 
   private
 
-  def with_load_adapter_tracking(&)
+  def with_load_adapter_tracking(&block)
     arg_received = nil
     stub = ->(arg) { arg_received = arg }
-    with_stub(MultiJSON, :load_adapter, stub, call_original: true, &)
+    with_stub(MultiJSON, :load_adapter, stub, call_original: true, &block)
     arg_received
   end
 
-  def with_adapter_tracking(&)
+  def with_adapter_tracking(&block)
     adapter_called = false
     stub = -> { adapter_called = true }
-    with_stub(MultiJSON, :adapter, stub, call_original: true, &)
+    with_stub(MultiJSON, :adapter, stub, call_original: true, &block)
     adapter_called
   end
 end

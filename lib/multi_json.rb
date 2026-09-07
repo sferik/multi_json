@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "set"
 require_relative "multi_json/concurrency"
 require_relative "multi_json/options"
 require_relative "multi_json/version"
@@ -119,13 +120,16 @@ module MultiJSON
   # Honors a fiber-local override set by {.with_adapter} so concurrent
   # blocks observe their own adapter without clobbering the process-wide
   # default. Falls back to the process default when no override is set.
+  # The override lives in ``Thread.current[]`` (which is fiber-local
+  # despite the name) rather than ``Fiber[]`` so the library loads on
+  # Ruby 3.0 and 3.1, where fiber storage does not exist.
   #
   # @api public
   # @return [Class] the current adapter class
   # @example
   #   MultiJSON.adapter  #=> MultiJSON::Adapters::Oj
   def adapter
-    override = Fiber[:multi_json_adapter]
+    override = Thread.current[:multi_json_adapter]
     return override if override
 
     @adapter ||= use(nil)
@@ -227,10 +231,12 @@ module MultiJSON
   # Executes a block using the specified adapter
   #
   # Defined as a singleton method so mutation testing has exactly one
-  # definition to target. The override is stored in fiber-local storage
-  # so concurrent fibers and threads each see their own adapter without
-  # racing on a shared module variable; nested calls save and restore
-  # the previous fiber-local value.
+  # definition to target. The override is stored in ``Thread.current[]``
+  # (fiber-local storage, available since Ruby 1.9) so concurrent fibers
+  # and threads each see their own adapter without racing on a shared
+  # module variable; nested calls save and restore the previous value.
+  # Unlike Ruby 3.2's ``Fiber[]`` storage, this value is not inherited by
+  # fibers or threads spawned inside the block.
   #
   # @api public
   # @param new_adapter [Symbol, String, Module] adapter to use
@@ -239,11 +245,11 @@ module MultiJSON
   # @example
   #   MultiJSON.with_adapter(:json_gem) { MultiJSON.dump({}) }
   def self.with_adapter(new_adapter)
-    previous_override = Fiber[:multi_json_adapter]
-    Fiber[:multi_json_adapter] = load_adapter(new_adapter)
+    previous_override = Thread.current[:multi_json_adapter]
+    Thread.current[:multi_json_adapter] = load_adapter(new_adapter)
     yield
   ensure
-    Fiber[:multi_json_adapter] = previous_override
+    Thread.current[:multi_json_adapter] = previous_override
   end
 
   # ===========================================================================
@@ -261,8 +267,8 @@ module MultiJSON
   # @example
   #   class Foo; include MultiJSON; end
   #   Foo.new.send(:with_adapter, :json_gem) { ... }
-  def with_adapter(new_adapter, &)
-    MultiJSON.with_adapter(new_adapter, &)
+  def with_adapter(new_adapter, &block)
+    MultiJSON.with_adapter(new_adapter, &block)
   end
 end
 

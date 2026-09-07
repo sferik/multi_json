@@ -24,7 +24,7 @@ module MultiJSON
     # outperforms JrJackson across the benchmark matrix, so json_gem
     # leads there too. CI re-runs the benchmark with
     # ``--verify-preference`` to fail if the observed ranking diverges.
-    # simplecov:disable
+    # :nocov:
     ADAPTERS = if RUBY_ENGINE == "jruby"
       {
         json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
@@ -44,7 +44,7 @@ module MultiJSON
         gson: {require: "gson", loaded: "Gson"}
       }.freeze
     end
-    # simplecov:enable
+    # :nocov:
     private_constant :ADAPTERS
 
     # Backwards-compatible view of {ADAPTERS} that exposes only the

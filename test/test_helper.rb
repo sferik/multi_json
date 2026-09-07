@@ -4,11 +4,13 @@ require "bundler/setup"
 
 unless ENV["MUTANT"]
   require "simplecov"
+  # simplecov 1.x renamed `add_filter` to `skip`; 0.22 (the newest release
+  # that installs on Ruby < 3.2) only has `add_filter`.
+  simplecov_filter = SimpleCov.respond_to?(:skip) ? :skip : :add_filter
+  SimpleCov.public_send(simplecov_filter, "/test/")
+  # Oj v2 compatibility code - cannot be tested with Oj v3
+  SimpleCov.public_send(simplecov_filter, "lib/multi_json/adapters/oj_common.rb")
   SimpleCov.start do
-    skip "/test/"
-    # Oj v2 compatibility code - cannot be tested with Oj v3
-    skip "lib/multi_json/adapters/oj_common.rb"
-
     case RUBY_ENGINE
     when "ruby"
       enable_coverage :branch
@@ -87,10 +89,10 @@ module TestHelpers
   def gson? = adapter_available?(:gson)
   def jrjackson? = adapter_available?(:jrjackson)
 
-  def capture_stderr(&)
+  def capture_stderr(&block)
     original_stderr = $stderr
     $stderr = StringIO.new
-    silence_warnings(&)
+    silence_warnings(&block)
   ensure
     $stderr = original_stderr
   end
@@ -105,9 +107,9 @@ module TestHelpers
     original_values.each { |const, value| Object.const_set(const, value) unless Object.const_defined?(const) }
   end
 
-  def break_requirements(&)
+  def break_requirements(&block)
     replacements = MultiJSON::AdapterSelector::REQUIREMENT_MAP.transform_values { |library| "foo/#{library}" }
-    stub_constant(MultiJSON::AdapterSelector, :REQUIREMENT_MAP, replacements, &)
+    stub_constant(MultiJSON::AdapterSelector, :REQUIREMENT_MAP, replacements, &block)
   end
 
   def stub_constant(mod, const_name, value)
@@ -120,8 +122,8 @@ module TestHelpers
     mod.const_set(const_name, original)
   end
 
-  def simulate_no_adapters(&)
-    break_requirements { undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &) }
+  def simulate_no_adapters(&block)
+    break_requirements { undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &block) }
   end
 
   def get_exception(exception_class = StandardError)
@@ -167,10 +169,10 @@ module TestHelpers
     "MultiJSON::Adapters::JsonGem"
   end
 
-  def track_current_adapter_options(&)
+  def track_current_adapter_options(&block)
     adapter = nil
     stub = ->(opts = {}) { adapter = opts[:adapter] if opts.is_a?(Hash) }
-    with_stub(MultiJSON, :current_adapter, stub, call_original: true, &)
+    with_stub(MultiJSON, :current_adapter, stub, call_original: true, &block)
     adapter
   end
 end

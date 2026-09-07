@@ -100,6 +100,7 @@ class JsonGemAdapterTest < Minitest::Test
       $LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
       require "multi_json"
       require "multi_json/adapters/json_gem"
+      require "active_support"
       require "active_support/json"
 
       #{code}
@@ -157,6 +158,7 @@ class JsonGemWithActiveSupportTest < Minitest::Test
       $LOAD_PATH.unshift File.expand_path("../../../lib", __dir__)
       require "multi_json"
       require "multi_json/adapters/json_gem"
+      require "active_support"
       require "active_support/json"
 
       #{code}

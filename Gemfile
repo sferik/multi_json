@@ -2,7 +2,15 @@
 
 source "https://rubygems.org"
 
-gem "activesupport", "~> 8.0", require: false
+# activesupport 8.x requires Ruby >= 3.2 and 7.2.x requires Ruby >= 3.1.
+activesupport_version = if RUBY_VERSION >= "3.2"
+  "~> 8.0"
+elsif RUBY_VERSION >= "3.1"
+  "~> 7.2.0"
+else
+  "~> 7.1.0"
+end
+gem "activesupport", activesupport_version, require: false
 gem "concurrent-ruby", "~> 1.2", require: false
 gem "json", "~> 2.0", require: false
 
@@ -19,9 +27,11 @@ gem "rubocop", ">= 1.62.1"
 gem "rubocop-minitest", ">= 0.35"
 gem "rubocop-performance", ">= 1.20.2"
 gem "rubocop-rake", ">= 0.6.0"
-gem "simplecov", ">= 1"
+# simplecov 1.x requires Ruby >= 3.2.
+gem "simplecov", (RUBY_VERSION >= "3.2") ? ">= 1" : "~> 0.22"
 gem "standard", ">= 1.35.1"
-gem "steep", ">= 1.10", platforms: %i[ruby windows]
+# steep 1.10+ and rbs 4.x require Ruby >= 3.2; the typecheck job only runs on the latest Ruby.
+gem "steep", ">= 1.10", platforms: %i[ruby windows] if RUBY_VERSION >= "3.2"
 gem "yard", ">= 0.9.38"
 gem "yardstick", ">= 0.9.9"
 

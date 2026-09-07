@@ -32,8 +32,8 @@ class MultiJSONBenchmark
       adapters = AdapterLoader.new.load(options[:adapters])
       raise "No supported adapters are available for benchmarking" if adapters.empty?
 
-      measurements = Runner.new(adapters:, payloads: PayloadCatalog.new.build, options:).run
-      Reporter.new(adapters:, measurements:, options:).print
+      measurements = Runner.new(adapters: adapters, payloads: PayloadCatalog.new.build, options: options).run
+      Reporter.new(adapters: adapters, measurements: measurements, options: options).print
       options[:verify_preference] ? verify_preference(adapters, measurements) : 0
     end
 

@@ -63,18 +63,18 @@ class InstanceAdapterSelectionIntegrationTest < Minitest::Test
     object.instance_variable_set(:@adapter, MultiJSON::Adapters::JsonGem)
     stub_override = Object.new
     begin
-      Fiber[:multi_json_adapter] = stub_override
+      Thread.current[:multi_json_adapter] = stub_override
 
       assert_same stub_override, object.send(:adapter)
     ensure
-      Fiber[:multi_json_adapter] = nil
+      Thread.current[:multi_json_adapter] = nil
     end
   end
 
   def test_instance_adapter_ignores_nil_fiber_local
     object = Class.new { include MultiJSON }.new
     object.instance_variable_set(:@adapter, MultiJSON::Adapters::JsonGem)
-    Fiber[:multi_json_adapter] = nil
+    Thread.current[:multi_json_adapter] = nil
 
     assert_equal MultiJSON::Adapters::JsonGem, object.send(:adapter)
   end

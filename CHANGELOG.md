@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Restore support for Ruby 3.0 and 3.1 on the `1.19-lts` branch. `required_ruby_version` is back to `>= 3.0` (it was raised to `>= 3.2` in 1.20.0), and CI tests 3.0, 3.1, and JRuby 9.4 again.
+
+### Changed
+
+- Store the `with_adapter` override in `Thread.current[]` (fiber-local storage) instead of Ruby 3.2's `Fiber[]` storage. Behavior is the same within the block, with one difference: fibers and threads spawned inside a `with_adapter` block no longer inherit the override. They see the process-wide adapter instead.
+
 ## [1.21.2]
 
 ### Added

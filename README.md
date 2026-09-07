@@ -219,10 +219,13 @@ automatically select the correct variant for your Ruby implementation:
 This library aims to support and is [tested against](https://github.com/sferik/multi_json/actions/workflows/tests.yml) the following Ruby
 implementations:
 
+- Ruby 3.0
+- Ruby 3.1
 - Ruby 3.2
 - Ruby 3.3
 - Ruby 3.4
 - Ruby 4.0
+- [JRuby][jruby] 9.4 (targets Ruby 3.1 compatibility)
 - [JRuby][jruby] 10.0 (targets Ruby 3.4 compatibility)
 - [TruffleRuby][truffleruby] 33.0 (native and JVM)
 

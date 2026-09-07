@@ -10,7 +10,9 @@ module MultiJSON
       # Exception raised when JSON parsing fails
       ParseError = ::JSON::ParserError
 
-      defaults :load, create_additions: false, quirks_mode: true if JSON::VERSION.to_i < 3 # simplecov:disable
+      # :nocov:
+      defaults :load, create_additions: false, quirks_mode: true if JSON::VERSION.to_i < 3
+      # :nocov:
 
       PRETTY_STATE_PROTOTYPE = {
         indent: "  ",

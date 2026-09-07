@@ -50,8 +50,8 @@ module MultiJSON
     # @raise [KeyError] when ``name`` does not match a known mutex
     # @example
     #   MultiJSON::Concurrency.synchronize(:adapter) { ... }
-    def self.synchronize(name, &)
-      MUTEXES.fetch(name).synchronize(&)
+    def self.synchronize(name, &block)
+      MUTEXES.fetch(name).synchronize(&block)
     end
   end
 end
