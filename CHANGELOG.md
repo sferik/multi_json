@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.1]
+
+### Added
+
+- Restore support for Ruby 2.7 on the `1.15-lts` branch. `required_ruby_version` is back to `>= 2.7`, and CI tests 2.7 again. On 2.7, deprecation warnings are emitted only when `Warning[:deprecated]` is enabled (for example via `ruby -W:deprecated`), matching how Ruby 3.0+ treats warnings tagged `category: :deprecated`.
+
+### Changed
+
+- The deprecated forwarders (`MultiJSON.load`, `MultiJSON.dump`, the `MultiJson` constant, and friends) delegate with `ruby2_keywords` instead of an explicit `**kwargs` splat, so calling them on Ruby 2.7 no longer prints keyword-argument separation warnings.
+
 ## [1.19.2]
 
 ### Added
@@ -570,6 +580,7 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Fix `default_engine` check for json gem.
 - Make requirement mapper an Array to preserve order in Ruby versions < 1.9.
 
+[1.15.1]: https://github.com/sferik/multi_json/compare/v1.19.2...v1.15.1
 [1.19.2]: https://github.com/sferik/multi_json/compare/v1.21.1...v1.19.2
 [1.21.1]: https://github.com/sferik/multi_json/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/sferik/multi_json/compare/v1.20.1...v1.21.0
