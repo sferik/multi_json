@@ -14,6 +14,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         ruby-version: ['3.2', '3.3', '3.4', '4.0', 'jruby-10.0', 'truffleruby', 'truffleruby+graalvm']
         platform: [ubuntu-latest, macos-latest, windows-latest]
