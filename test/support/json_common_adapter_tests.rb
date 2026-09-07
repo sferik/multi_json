@@ -24,7 +24,7 @@ module JsonCommonAdapterTests
 
     outputs = 2.times.map { MultiJSON.dump(object, pretty: true) }
 
-    assert(outputs.all? { |o| o == pretty_output })
+    outputs.each { |output| assert_equal pretty_output, output }
   end
 
   # Regression test for https://github.com/sferik/multi_json/issues/70.

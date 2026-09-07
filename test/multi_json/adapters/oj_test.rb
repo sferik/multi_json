@@ -17,8 +17,7 @@ if TestHelpers.oj?
 
     def test_dump_ensures_indent_is_fixnum
       with_default_options do
-        # Should not raise an error
-        MultiJSON.dump(42, indent: "")
+        assert_equal "42", MultiJSON.dump(42, indent: "")
       end
     end
 

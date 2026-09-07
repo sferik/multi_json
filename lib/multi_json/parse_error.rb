@@ -87,14 +87,19 @@ module MultiJSON
     # match can proceed. Strings in binary (ASCII-8BIT) or any valid
     # encoding pass through scrub untouched.
     #
+    # The parameter is deliberately not named ``message``: that would
+    # shadow ``Exception#message``, which holds the same string once
+    # ``super`` has run, and mutation testing could not tell the two
+    # apart.
+    #
     # @api private
-    # @param message [String, nil] the adapter's error message
+    # @param text [String, nil] the adapter's error message
     # @return [MatchData, nil] the regex match, or nil if no message or
     #   no location fragment was found
-    def location_match(message)
-      return unless message
+    def location_match(text)
+      return unless text
 
-      LOCATION_PATTERN.match(message.scrub)
+      LOCATION_PATTERN.match(text.scrub)
     end
   end
 

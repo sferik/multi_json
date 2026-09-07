@@ -2,11 +2,11 @@ name: tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, "*-lts"]
     paths-ignore:
       - "**/*.md"
   pull_request:
-    branches: [main]
+    branches: [main, "*-lts"]
     paths-ignore:
       - "**/*.md"
   workflow_dispatch:
