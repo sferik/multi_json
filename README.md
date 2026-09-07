@@ -179,15 +179,15 @@ MultiJSON tries to have intelligent defaulting. If any supported library is
 already loaded, MultiJSON uses it before attempting to load others. When no
 backend is preloaded, MultiJSON walks its preference list and uses the first
 one that loads successfully. The list is split per platform — JRuby's
-available adapter set differs from MRI's, and the bundled benchmark suite
-ranks `json_gem` ahead of `fast_jsonparser`/`oj`/`yajl` on Ruby 3.4+. CI
-re-runs the benchmark and fails if the observed ranking diverges from the
-table below.
+available adapter set differs from MRI's — but the bundled benchmark suite
+ranks `json_gem` first on every engine: ahead of `fast_jsonparser`/`oj`/`yajl`
+on Ruby 3.4+, and ahead of `jrjackson`/`gson` on JRuby 10. CI re-runs the
+benchmark and fails if the observed ranking diverges from the table below.
 
 | rank | MRI / TruffleRuby | JRuby           |
 | ---- | ----------------- | --------------- |
-| 1    | The JSON gem      | `jrjackson`     |
-| 2    | `fast_jsonparser` | The JSON gem    |
+| 1    | The JSON gem      | The JSON gem    |
+| 2    | `fast_jsonparser` | `jrjackson`     |
 | 3    | `oj`              | `gson`          |
 | 4    | `yajl-ruby`       | —               |
 

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.2]
+
+### Added
+
+- Support json 3.x in the `json_gem` adapter (thanks [@byroot](https://github.com/byroot), [#67](https://github.com/sferik/multi_json/pull/67)). json 3.0 raises `ArgumentError` on unknown keyword arguments, so the adapter now passes parse options as keywords and only sets the `create_additions: false` / `quirks_mode: true` defaults on json 2.x, where they still exist. Note that the `oj` adapter can still fail to dump `Time` values when json 3.x is installed: Oj forwards its own options hash to `Time#to_json` in compat mode, and json 3 rejects them. That is an upstream Oj issue and does not affect the `json_gem` adapter.
+
+### Changed
+
+- Prefer the JSON gem over `jrjackson` in the JRuby adapter preference list, so `json_gem` now leads on every engine. The json gem's Java extension outperforms JrJackson across the bundled benchmark matrix on JRuby 10. Affects auto-detection only when neither adapter is preloaded; explicitly selecting an adapter with `MultiJSON.use(:jr_jackson)` is unchanged.
+
+### Fixed
+
+- Honor a falsy `:pretty` option in the `json_gem` and `oj` adapters ([#70](https://github.com/sferik/multi_json/issues/70)). Both adapters branched on the presence of the key rather than its value, so `MultiJSON.generate(object, pretty: false)` returned pretty-printed JSON. This regressed in 1.20.0.
+
 ## [1.21.1]
 
 ### Fixed
