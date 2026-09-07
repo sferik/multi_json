@@ -22,7 +22,7 @@ module JsonCommonAdapterTests
     object = {foo: "bar"}
     pretty_output = JSON.pretty_generate(object)
 
-    outputs = 2.times.map { MultiJSON.dump(object, pretty: true) }
+    outputs = Array.new(2) { MultiJSON.dump(object, pretty: true) }
 
     outputs.each { |output| assert_equal pretty_output, output }
   end

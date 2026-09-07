@@ -34,14 +34,14 @@ Yardstick::Rake::Verify.new(:yardstick) do |verify|
   verify.path = Rake::FileList.new("lib/**/*.rb")
 end
 
-desc "Run linters"
-task lint: %i[rubocop standard]
-
 desc "Run mutation testing"
 task :mutant do
   ENV["MUTANT"] = "1"
   sh "bundle", "exec", "mutant", "run"
 end
+
+desc "Run linters"
+task lint: %i[rubocop standard]
 
 desc "Run adapter benchmark (pass options after --, e.g. rake benchmark -- --quick)"
 task :benchmark do
@@ -52,6 +52,9 @@ task :benchmark do
 end
 
 desc "Run the default task"
-default_tasks = %i[test lint mutant yardstick]
+default_tasks = %i[test lint]
+# mutant is not bundled on Ruby 2.7 (see the Gemfile)
+default_tasks << :mutant if Gem.loaded_specs.key?("mutant-minitest")
+default_tasks << :yardstick
 default_tasks << :steep if Rake::Task.task_defined?(:steep)
 task default: default_tasks

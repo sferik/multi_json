@@ -53,6 +53,25 @@ module MultiJSON
   DEPRECATION_WARNINGS_SHOWN = Set.new
   private_constant :DEPRECATION_WARNINGS_SHOWN
 
+  # Emits one deprecation warning, honoring ``Warning[:deprecated]``
+  #
+  # Ruby 3.0 added the ``category:`` keyword to ``Kernel#warn``: a
+  # warning tagged ``category: :deprecated`` is hidden unless
+  # ``Warning[:deprecated]`` is on (``ruby -W:deprecated``). Ruby 2.7
+  # raises ``ArgumentError`` on that keyword, so its variant checks the
+  # flag by hand to keep the same visibility rules. The lambda is
+  # chosen once at load time so the per-call path has no version
+  # branch; both bodies still go through ``Kernel.warn`` so tests can
+  # stub it.
+  # :nocov:
+  DEPRECATION_WARNING = if RUBY_VERSION >= "3.0"
+    ->(message) { Kernel.warn(message, category: :deprecated) }
+  else
+    ->(message) { Kernel.warn(message) if Warning[:deprecated] }
+  end
+  # :nocov:
+  private_constant :DEPRECATION_WARNING
+
   # Emit a deprecation warning at most once per process for the given key
   #
   # Defined as a singleton method (rather than via module_function) so
@@ -61,10 +80,9 @@ module MultiJSON
   # aliases on the {Options} mixin can invoke it without routing
   # through ``MultiJSON.send(...)``.
   #
-  # The warning is tagged with the ``:deprecated`` category so callers
-  # can silence the whole set with ``Warning[:deprecated] = false`` or
-  # surface it via ``ruby -W:deprecated`` — the standard Ruby idiom for
-  # library deprecations since 2.7.
+  # The warning is emitted through {DEPRECATION_WARNING}, so it is only
+  # visible when ``Warning[:deprecated]`` is on (``ruby -W:deprecated``)
+  # — the standard Ruby idiom for library deprecations since 2.7.
   #
   # @api private
   # @param key [Symbol] identifier for the deprecation (typically the method name)
@@ -76,7 +94,7 @@ module MultiJSON
     Concurrency.synchronize(:deprecation_warnings) do
       return if DEPRECATION_WARNINGS_SHOWN.include?(key)
 
-      Kernel.warn(message, category: :deprecated)
+      DEPRECATION_WARNING.call(message)
       DEPRECATION_WARNINGS_SHOWN.add(key)
     end
   end
@@ -85,7 +103,9 @@ module MultiJSON
   #
   # The result is memoized on the adapter class itself in a
   # ``@_multi_json_parse_error`` ivar so subsequent ``MultiJSON.load``
-  # calls skip the constant lookup entirely. The lookup is performed
+  # calls skip the constant lookup entirely. The cache check goes
+  # through ``instance_variable_defined?`` because reading an unset
+  # ivar warns under ``-w`` on Ruby 2.7. The lookup is performed
   # with ``inherit: false`` so a stray top-level ``::ParseError``
   # constant in the host process is correctly ignored on every
   # supported Ruby implementation — TruffleRuby's ``::`` operator
@@ -99,8 +119,9 @@ module MultiJSON
   # @return [Class] the adapter's ParseError class
   # @raise [AdapterError] when the adapter doesn't define ParseError
   def self.parse_error_class_for(adapter_class)
-    cached = adapter_class.instance_variable_get(:@_multi_json_parse_error)
-    return cached if cached
+    if adapter_class.instance_variable_defined?(:@_multi_json_parse_error)
+      return adapter_class.instance_variable_get(:@_multi_json_parse_error)
+    end
 
     resolved = adapter_class.const_get(:ParseError, false)
     adapter_class.instance_variable_set(:@_multi_json_parse_error, resolved)

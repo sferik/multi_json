@@ -58,6 +58,7 @@ class DefaultAdapterExcludingTest < Minitest::Test
     # rules out the fallback path AND verifies that ``excluding:``
     # actually skipped :json_gem during installable detection.
     skip "JRuby's ADAPTERS hash leads with jr_jackson" if TestHelpers.java?
+    skip "fast_jsonparser is not installed" unless fast_jsonparser?
     undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser) do
       result = MultiJSON::AdapterSelector.default_adapter_excluding(:json_gem)
 

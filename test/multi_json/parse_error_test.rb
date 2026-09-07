@@ -138,8 +138,13 @@ class ParseErrorTest < Minitest::Test
   def build_custom_exception
     # Create an exception where the message method returns something different than the exception itself
     custom_exception = Class.new(StandardError) do
-      def message = "custom message from method"
-      def to_s = "custom_exception_to_s"
+      def message
+        "custom message from method"
+      end
+
+      def to_s
+        "custom_exception_to_s"
+      end
     end
     custom_exception.new
   end

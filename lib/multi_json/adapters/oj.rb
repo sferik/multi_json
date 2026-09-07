@@ -82,7 +82,7 @@ module MultiJSON
       # @param options [Hash] merged load options
       # @return [Hash] options with ``:symbolize_names`` translated
       def translate_load_options(options)
-        options.except(:symbolize_names).merge(symbol_keys: options[:symbolize_names] == true)
+        options.reject { |key, _value| key == :symbolize_names }.merge(symbol_keys: options[:symbolize_names] == true)
       end
     end
   end

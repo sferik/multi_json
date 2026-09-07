@@ -39,7 +39,11 @@ module AdapterDumpTests
 
   def test_dump_custom_objects_with_to_json
     skip "not supported" if adapter_class.name == "MultiJSON::Adapters::Gson"
-    klass = Class.new { def to_json(*) = '"foobar"' }
+    klass = Class.new do
+      def to_json(*)
+        '"foobar"'
+      end
+    end
 
     assert_equal '"foobar"', MultiJSON.dump(klass.new)
   end

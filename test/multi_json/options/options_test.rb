@@ -95,7 +95,9 @@ class OptionsTest < Minitest::Test
 
   def test_load_options_with_to_hash_object
     options_obj = Object.new
-    def options_obj.to_hash = {symbolize_names: true}
+    def options_obj.to_hash
+      {symbolize_names: true}
+    end
 
     @test_class.load_options = options_obj
 
@@ -104,7 +106,9 @@ class OptionsTest < Minitest::Test
 
   def test_dump_options_with_to_hash_object
     options_obj = Object.new
-    def options_obj.to_hash = {pretty: true}
+    def options_obj.to_hash
+      {pretty: true}
+    end
 
     @test_class.dump_options = options_obj
 

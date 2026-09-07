@@ -40,7 +40,7 @@ module MultiJSON
         # ``:pretty`` is MultiJSON's own option, so it's dropped either
         # way. A falsy value asks for compact output, which is Oj's
         # behavior without the pretty state merged in.
-        rest = options.except(:pretty)
+        rest = options.reject { |key, _value| key == :pretty }
         return rest unless options[:pretty]
 
         rest.merge(PRETTY_STATE_PROTOTYPE)

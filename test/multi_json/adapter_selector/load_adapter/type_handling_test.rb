@@ -103,8 +103,8 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      define_singleton_method(:load) { |_string, _options| nil }
+      define_singleton_method(:dump) { |_object, _options| "{}" }
     end
   end
 
@@ -112,7 +112,7 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.dump(_object, _options) = "{}"
+      define_singleton_method(:dump) { |_object, _options| "{}" }
     end
   end
 
@@ -120,14 +120,14 @@ class LoadAdapterTypeHandlingTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
+      define_singleton_method(:load) { |_string, _options| nil }
     end
   end
 
   def adapter_without_parse_error
     Module.new do
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      define_singleton_method(:load) { |_string, _options| nil }
+      define_singleton_method(:dump) { |_object, _options| "{}" }
     end
   end
 end

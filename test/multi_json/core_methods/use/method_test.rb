@@ -193,7 +193,9 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.dump(_object, _options) = "{}"
+      def self.dump(_object, _options)
+        "{}"
+      end
     end
   end
 
@@ -201,7 +203,9 @@ class UseMethodTest < Minitest::Test # rubocop:disable Metrics/ClassLength
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
+      def self.load(_string, _options)
+        nil
+      end
     end
   end
 end

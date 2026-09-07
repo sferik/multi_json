@@ -219,6 +219,7 @@ automatically select the correct variant for your Ruby implementation:
 This library aims to support and is [tested against](https://github.com/sferik/multi_json/actions/workflows/tests.yml) the following Ruby
 implementations:
 
+- Ruby 2.7
 - Ruby 3.0
 - Ruby 3.1
 - Ruby 3.2

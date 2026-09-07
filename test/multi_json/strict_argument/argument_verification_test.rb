@@ -21,8 +21,8 @@ class ArgumentVerificationTest < Minitest::Test
       class << self
         attr_accessor :load_args, :dump_args
 
-        def load(*args) = (@load_args = args) && {"result" => "parsed"}
-        def dump(*args) = (@dump_args = args) && '{"result":"dumped"}'
+        define_method(:load) { |*args| (@load_args = args) && {"result" => "parsed"} }
+        define_method(:dump) { |*args| (@dump_args = args) && '{"result":"dumped"}' }
       end
     end
     mock.const_set(:ParseError, Class.new(StandardError))

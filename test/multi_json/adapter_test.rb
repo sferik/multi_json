@@ -141,7 +141,9 @@ class AdapterDumpTest < Minitest::Test
   def test_dump_with_object_responding_to_to_h
     # Test that any object responding to #to_h works as options
     options_like = Struct.new(:indent).new("  ")
-    def options_like.to_h = {indent: indent}
+    def options_like.to_h
+      {indent: indent}
+    end
 
     result = MultiJSON::Adapters::JsonGem.dump({key: "value"}, options_like)
 

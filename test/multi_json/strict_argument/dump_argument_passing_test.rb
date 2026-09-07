@@ -80,8 +80,8 @@ class DumpArgumentPassingTest < Minitest::Test
     result = dump_result
     adapter = Module.new do
       class << self; attr_accessor :parse_error_class; end
-      define_method(:load) { |*, **| {} }
-      define_method(:dump) { |*, **| result }
+      define_method(:load) { |*| {} }
+      define_method(:dump) { |*| result }
       module_function :load, :dump
     end
     adapter.const_set(:ParseError, Class.new(StandardError))

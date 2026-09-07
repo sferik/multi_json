@@ -75,8 +75,13 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     Class.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.load(_string, _options)
+        nil
+      end
+
+      def self.dump(_object, _options)
+        "{}"
+      end
     end
   end
 
@@ -84,8 +89,13 @@ class CurrentAdapterSelectionIntegrationTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.load(_string, _options)
+        nil
+      end
+
+      def self.dump(_object, _options)
+        "{}"
+      end
     end
   end
 end

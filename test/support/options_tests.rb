@@ -21,7 +21,9 @@ module OptionsTests
 
   def test_dump_options_allows_objects_with_to_hash
     value = Object.new
-    def value.to_hash = {foo: "bar"}
+    def value.to_hash
+      {foo: "bar"}
+    end
     subject.dump_options = value
 
     assert_equal({foo: "bar"}, subject.dump_options)
@@ -75,7 +77,9 @@ module OptionsTests
 
   def test_load_options_allows_objects_with_to_hash
     value = Object.new
-    def value.to_hash = {foo: "bar"}
+    def value.to_hash
+      {foo: "bar"}
+    end
     subject.load_options = value
 
     assert_equal({foo: "bar"}, subject.load_options)

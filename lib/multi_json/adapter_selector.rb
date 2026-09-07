@@ -140,8 +140,12 @@ module MultiJSON
     # @api private
     # @return [Symbol] the json_gem adapter name
     def fallback_adapter
-      warn_about_fallback unless @default_adapter_warning_shown
-      @default_adapter_warning_shown = true
+      # ``instance_variable_defined?`` rather than a truthiness check: reading an unset ivar
+      # warns under ``-w`` on Ruby 2.7.
+      unless instance_variable_defined?(:@default_adapter_warning_shown)
+        warn_about_fallback
+        @default_adapter_warning_shown = true
+      end
       :json_gem
     end
 

@@ -16,14 +16,22 @@ module StubHelpers
   def define_stub_method(metaclass, method_name, replacement, original, call_original)
     silence_warnings do
       if call_original
-        metaclass.define_method(method_name) do |*a, **k, &b|
-          replacement.call(*a, **k, &b)
-          original.call(*a, **k, &b)
-        end
+        define_forwarding_stub(metaclass, method_name, replacement, original)
       else
         metaclass.define_method(method_name, replacement)
       end
     end
+  end
+
+  # Calls the replacement, then the original. Marked ruby2_keywords so
+  # keywords are forwarded without a **k splat, which Ruby 2.7 warns
+  # about whenever the stubbed method is called with a positional hash.
+  def define_forwarding_stub(metaclass, method_name, replacement, original)
+    metaclass.define_method(method_name) do |*a, &b|
+      replacement.call(*a, &b)
+      original.call(*a, &b)
+    end
+    metaclass.send(:ruby2_keywords, method_name)
   end
 
   def silence_warnings

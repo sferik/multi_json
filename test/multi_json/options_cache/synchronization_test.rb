@@ -46,7 +46,7 @@ class OptionsCacheSynchronizationTest < Minitest::Test
   def test_concurrent_fetches_do_not_raise
     store = MultiJSON::OptionsCache::Store.new
 
-    threads = 10.times.map do |i|
+    threads = Array.new(10) do |i|
       Thread.new { 100.times { store.fetch(:"k#{i}") { i } } }
     end
 

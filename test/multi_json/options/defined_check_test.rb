@@ -50,20 +50,22 @@ class OptionsDefinedCheckTest < Minitest::Test
     refute_equal @test_class.default_dump_options, result
   end
 
-  def test_load_options_checks_defined_before_get_options
-    @test_class.remove_instance_variable(:@load_options) if @test_class.instance_variable_defined?(:@load_options)
+  def test_parse_options_skips_resolver_before_options_are_set
+    refute @test_class.instance_variable_defined?(:@parse_options)
+    resolver = ->(*) { raise "resolve_options must not run before parse_options is set" }
 
-    result = @test_class.load_options
-
-    assert_equal @test_class.default_load_options, result
+    with_stub(@test_class, :resolve_options, resolver) do
+      assert_equal @test_class.default_parse_options, @test_class.parse_options
+    end
   end
 
-  def test_dump_options_checks_defined_before_get_options
-    @test_class.remove_instance_variable(:@dump_options) if @test_class.instance_variable_defined?(:@dump_options)
+  def test_generate_options_skips_resolver_before_options_are_set
+    refute @test_class.instance_variable_defined?(:@generate_options)
+    resolver = ->(*) { raise "resolve_options must not run before generate_options is set" }
 
-    result = @test_class.dump_options
-
-    assert_equal @test_class.default_dump_options, result
+    with_stub(@test_class, :resolve_options, resolver) do
+      assert_equal @test_class.default_generate_options, @test_class.generate_options
+    end
   end
 
   def test_handle_hashable_returns_nil_for_non_hashable
@@ -109,8 +111,8 @@ class OptionsDefinedCheckTest < Minitest::Test
 
   def test_handle_hashable_calls_to_hash_method
     hashable = Object.new
-    def hashable.respond_to?(method, *) = method == :to_hash || super
-    def hashable.to_hash = {from_to_hash_method: true}
+    hashable.define_singleton_method(:respond_to?) { |method, *rest| method == :to_hash || super(method, *rest) }
+    hashable.define_singleton_method(:to_hash) { {from_to_hash_method: true} }
 
     @test_class.load_options = hashable
 
@@ -122,8 +124,8 @@ class OptionsDefinedCheckTest < Minitest::Test
 
   def test_handle_hashable_returns_to_hash_result_not_nil
     hashable = Object.new
-    def hashable.respond_to?(method, *) = method == :to_hash || super
-    def hashable.to_hash = {specific_key: "specific_value"}
+    hashable.define_singleton_method(:respond_to?) { |method, *rest| method == :to_hash || super(method, *rest) }
+    hashable.define_singleton_method(:to_hash) { {specific_key: "specific_value"} }
 
     @test_class.load_options = hashable
 

@@ -53,8 +53,8 @@ class LoadAdapterTest < Minitest::Test
 
   def test_load_adapter_raises_for_invalid_type
     custom = Object.new
-    def custom.inspect = "<custom-inspect>"
-    def custom.to_s = "<custom-to-s>"
+    custom.define_singleton_method(:inspect) { "<custom-inspect>" }
+    custom.define_singleton_method(:to_s) { "<custom-to-s>" }
 
     error = assert_raises(MultiJSON::AdapterError) do
       MultiJSON.send(:load_adapter, custom)
@@ -88,8 +88,13 @@ class LoadAdapterTest < Minitest::Test
     Class.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.load(_string, _options)
+        nil
+      end
+
+      def self.dump(_object, _options)
+        "{}"
+      end
     end
   end
 
@@ -97,8 +102,13 @@ class LoadAdapterTest < Minitest::Test
     Module.new do
       const_set(:ParseError, Class.new(StandardError))
 
-      def self.load(_string, _options) = nil
-      def self.dump(_object, _options) = "{}"
+      def self.load(_string, _options)
+        nil
+      end
+
+      def self.dump(_object, _options)
+        "{}"
+      end
     end
   end
 end

@@ -121,16 +121,12 @@ class DeprecatedWarningBehaviorTest < Minitest::Test
   end
 
   def test_warn_deprecation_once_tags_category_as_deprecated
+    skip "Kernel#warn has no category: keyword before Ruby 3.0" if RUBY_VERSION < "3.0"
     captured_category = :missing
-    original_warn = Kernel.method(:warn)
-    silence_warnings do
-      Kernel.define_singleton_method(:warn) { |_msg, category: nil, **| captured_category = category }
+    with_stub(Kernel, :warn, ->(_msg, category: nil, **) { captured_category = category }) do
+      MultiJSON.warn_deprecation_once(:category_probe, "probe message")
     end
 
-    MultiJSON.warn_deprecation_once(:category_probe, "probe message")
-
     assert_equal :deprecated, captured_category
-  ensure
-    silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
   end
 end

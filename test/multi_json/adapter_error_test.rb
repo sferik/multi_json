@@ -77,9 +77,9 @@ class AdapterErrorTest < Minitest::Test
 
   def test_build_calls_message_on_exception
     custom_exception = Class.new(StandardError) do
-      def message = "the message"
-      def to_s = "to_s_output"
-      def inspect = "#<CustomException>"
+      define_method(:message) { "the message" }
+      define_method(:to_s) { "to_s_output" }
+      define_method(:inspect) { "#<CustomException>" }
     end
 
     cause = custom_exception.new

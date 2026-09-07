@@ -93,8 +93,8 @@ class LoadArgumentPassingTest < Minitest::Test
   def build_custom_adapter(load_result: {})
     result = load_result
     adapter = Module.new do
-      define_method(:load) { |*, **| result }
-      define_method(:dump) { |*, **| "{}" }
+      define_method(:load) { |*| result }
+      define_method(:dump) { |*| "{}" }
       module_function :load, :dump
     end
     adapter.const_set(:ParseError, Class.new(StandardError))

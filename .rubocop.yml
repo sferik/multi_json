@@ -1,3 +1,17 @@
+# RuboCop runs this file through ERB before parsing it as YAML. Ruby 2.7
+# can only install rubocop 1.64 (the newest standard that supports 2.7 pins
+# it), which predates the `plugins:` key, while rubocop 1.72+ warns when a
+# plugin-capable extension is listed under `require:`. Pick the key that
+# matches the running rubocop so both parse this file without noise.
+<% legacy_rubocop = Gem::Version.new(RuboCop::Version::STRING) < Gem::Version.new("1.72") %>
+<% if legacy_rubocop %>
+require:
+ - standard
+ - rubocop-minitest
+ - rubocop-performance
+ - rubocop-rake
+ - standard-performance
+<% else %>
 require:
  - standard
 
@@ -6,6 +20,7 @@ plugins:
  - rubocop-performance
  - rubocop-rake
  - standard-performance
+<% end %>
 
 AllCops:
   Exclude:
@@ -13,7 +28,7 @@ AllCops:
     - "tmp/**/*"
     - "vendor/**/*"
   NewCops: enable
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 2.7
 
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
@@ -47,10 +62,6 @@ Layout/SpaceInsideHashLiteralBraces:
 
 Metrics/ParameterLists:
   CountKeywordArgs: false
-
-Layout/LeadingCommentSpace:
-  AllowRBSInlineAnnotation: true
-  AllowSteepAnnotation: true
 
 Style/Alias:
   EnforcedStyle: prefer_alias_method
@@ -89,3 +100,18 @@ Style/StringLiteralsInInterpolation:
 
 Style/TernaryParentheses:
   EnforcedStyle: require_parentheses_when_complex
+
+<% if legacy_rubocop %>
+# The cop versions that ship with rubocop 1.64 misfire on this code base
+# in ways later releases fixed: Performance/RedundantBlockCall flags
+# `block.call` inside define_method bodies, where `yield` is impossible;
+# Minitest/NoTestCases does not see tests pulled in from shared modules;
+# and Style/AccessModifierDeclarations rejects `public :a, :b` with more
+# than one symbol. Turn those off on the legacy rubocop only.
+Performance/RedundantBlockCall:
+  Enabled: false
+Minitest/NoTestCases:
+  Enabled: false
+Style/AccessModifierDeclarations:
+  Enabled: false
+<% end %>

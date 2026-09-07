@@ -78,8 +78,13 @@ class OptionsCallableAndHashableTest < Minitest::Test
 
   def test_options_callable_check_uses_respond_to_call
     callable = Object.new
-    def callable.call = {from_callable: true}
-    def callable.arity = 0
+    def callable.call
+      {from_callable: true}
+    end
+
+    def callable.arity
+      0
+    end
 
     @test_class.load_options = callable
 
@@ -88,7 +93,9 @@ class OptionsCallableAndHashableTest < Minitest::Test
 
   def test_hashable_options_uses_to_hash
     hashable = Object.new
-    def hashable.to_hash = {from_to_hash: true}
+    def hashable.to_hash
+      {from_to_hash: true}
+    end
 
     @test_class.load_options = hashable
 

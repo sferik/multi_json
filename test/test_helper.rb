@@ -28,10 +28,22 @@ unless ENV["MUTANT"]
   end
 end
 
+# Ruby 2.7's Kernel#warn has no category: keyword, so MultiJSON gates its
+# deprecation warnings on Warning[:deprecated] there (Ruby 3.0+ hides
+# category: :deprecated warnings natively). Turn the flag on so the tests
+# that stub Kernel.warn see the calls.
+Warning[:deprecated] = true if RUBY_VERSION < "3.0"
+
 require "delegate"
 require "multi_json"
 require "minitest/autorun"
-require "mutant/minitest/coverage"
+begin
+  require "mutant/minitest/coverage"
+rescue LoadError
+  # mutant is not bundled on Ruby 2.7 (see the Gemfile). Stub the `cover`
+  # declaration every test file makes so the suite still loads there.
+  Minitest::Test.define_singleton_method(:cover) { |*| nil }
+end
 require_relative "support/strict_adapter"
 require_relative "support/stub_helpers"
 
@@ -41,7 +53,7 @@ require_relative "support/stub_helpers"
 # override `Kernel.warn` directly (via {StubHelpers#with_stub} or
 # `define_singleton_method`) rather than reading from `$stderr`.
 class FilteredStderr < SimpleDelegator
-  DEPRECATION_PATTERN = /\A(MultiJSON|The MultiJson constant|The :symbolize_keys).*\bdeprecated\b/
+  DEPRECATION_PATTERN = /\A(MultiJSON|The MultiJson constant|The :symbolize_keys).*\bdeprecated\b/.freeze
 
   def write(*messages)
     filtered = messages.reject { |msg| msg.is_a?(String) && DEPRECATION_PATTERN.match?(msg) }
@@ -81,13 +93,30 @@ module TestHelpers
     RUBY_ENGINE == "jruby"
   end
 
-  def oj? = adapter_available?(:oj)
+  def oj?
+    adapter_available?(:oj)
+  end
+
   # The backing gem is named ``yajl-ruby``, not ``yajl``.
-  def yajl? = adapter_available?("yajl-ruby")
-  def json? = adapter_available?(:json)
-  def fast_jsonparser? = adapter_available?(:fast_jsonparser)
-  def gson? = adapter_available?(:gson)
-  def jrjackson? = adapter_available?(:jrjackson)
+  def yajl?
+    adapter_available?("yajl-ruby")
+  end
+
+  def json?
+    adapter_available?(:json)
+  end
+
+  def fast_jsonparser?
+    adapter_available?(:fast_jsonparser)
+  end
+
+  def gson?
+    adapter_available?(:gson)
+  end
+
+  def jrjackson?
+    adapter_available?(:jrjackson)
+  end
 
   def capture_stderr(&block)
     original_stderr = $stderr

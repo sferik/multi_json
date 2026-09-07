@@ -67,7 +67,7 @@ module MultiJSON
         # generator understands, so it's stripped rather than passed
         # through. A falsy value asks for compact output, which is what
         # the generator produces with no pretty state at all.
-        rest = options.except(:pretty)
+        rest = options.reject { |key, _value| key == :pretty }
         return generate_compact(json_object, rest) unless options[:pretty]
 
         # Common case: ``pretty: true`` is the only option, so the merge

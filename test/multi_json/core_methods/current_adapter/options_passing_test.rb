@@ -88,8 +88,8 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
       class << self
         attr_accessor :load_called
 
-        def load(string, _options = {}) = (@load_called = true) && JSON.parse(string)
-        def dump(object, _options = {}) = JSON.generate(object)
+        define_method(:load) { |string, _options = {}| (@load_called = true) && JSON.parse(string) }
+        define_method(:dump) { |object, _options = {}| JSON.generate(object) }
       end
     end
     adapter.const_set(:ParseError, Class.new(StandardError))
@@ -102,8 +102,8 @@ class CurrentAdapterOptionsPassingTest < Minitest::Test
       class << self
         attr_accessor :dump_called
 
-        def load(string, _options = {}) = JSON.parse(string)
-        def dump(object, _options = {}) = (@dump_called = true) && JSON.generate(object)
+        define_method(:load) { |string, _options = {}| JSON.parse(string) }
+        define_method(:dump) { |object, _options = {}| (@dump_called = true) && JSON.generate(object) }
       end
     end
     adapter.const_set(:ParseError, Class.new(StandardError))

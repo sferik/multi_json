@@ -24,15 +24,21 @@ module MultiJSON
     # @api private
     # @param name [Symbol] deprecated method name
     # @param replacement [Symbol] current-API method to delegate to
-    # @return [Symbol] the defined method name
+    # The forwarder is marked ``ruby2_keywords`` so keyword arguments
+    # reach the replacement as keywords on every supported Ruby without
+    # an explicit ``**kwargs`` splat, which prints keyword-separation
+    # warnings on 2.7 when the target takes a positional options hash.
+    #
+    # @return [void]
     # @example
     #   deprecate_alias :load, :parse
     def deprecate_alias(name, replacement)
       message = "MultiJSON.#{name} is deprecated and will be removed in v2.0. Use MultiJSON.#{replacement} instead."
-      define_singleton_method(name) do |*args, **kwargs, &block|
+      define_singleton_method(name) do |*args, &block|
         warn_deprecation_once(name, message)
-        public_send(replacement, *args, **kwargs, &block)
+        public_send(replacement, *args, &block)
       end
+      singleton_class.class_eval { ruby2_keywords(name) }
     end
 
     # Define a deprecated method whose body needs custom delegation
@@ -48,14 +54,15 @@ module MultiJSON
     # @param name [Symbol] deprecated method name
     # @param message [String] warning to emit on first call
     # @yield body to evaluate after the warning
-    # @return [Symbol] the defined method name
+    # @return [void]
     # @example
     #   deprecate_method(:cached_options, "...") { nil }
     def deprecate_method(name, message, &body)
-      define_singleton_method(name) do |*args, **kwargs|
+      define_singleton_method(name) do |*args|
         warn_deprecation_once(name, message)
-        body.call(*args, **kwargs)
+        body.call(*args)
       end
+      singleton_class.class_eval { ruby2_keywords(name) }
     end
   end
 

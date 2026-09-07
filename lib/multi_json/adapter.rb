@@ -20,7 +20,7 @@ module MultiJSON
     include Singleton
 
     class << self
-      BLANK_PATTERN = /\A\s*\z/
+      BLANK_PATTERN = /\A\s*\z/.freeze
       VALID_DEFAULTS_ACTIONS = %i[load dump].freeze
       private_constant :BLANK_PATTERN, :VALID_DEFAULTS_ACTIONS
 
@@ -210,7 +210,7 @@ module MultiJSON
         MultiJSON.warn_deprecation_once(:symbolize_keys_option,
           "The :symbolize_keys option is deprecated and will be removed in v2.0. Use :symbolize_names instead.")
 
-        new_opts = options.except(:symbolize_keys)
+        new_opts = options.reject { |key, _value| key == :symbolize_keys }
         new_opts[:symbolize_names] = options[:symbolize_keys] unless new_opts.key?(:symbolize_names)
         new_opts
       end
@@ -227,7 +227,7 @@ module MultiJSON
         options = options.to_h unless options.is_a?(Hash)
         return Options::EMPTY_OPTIONS if options.empty? || (options.size == 1 && options.key?(:adapter))
 
-        options.except(:adapter).freeze
+        options.reject { |key, _value| key == :adapter }.freeze
       end
     end
   end

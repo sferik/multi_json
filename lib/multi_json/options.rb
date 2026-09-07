@@ -13,7 +13,7 @@ module MultiJSON
     # `UnannotatedEmptyCollection`. The annotation requires
     # `Hash.new.freeze` (not the `{}.freeze` rubocop would prefer)
     # because the `#:` cast only applies to method-call results.
-    EMPTY_OPTIONS = Hash.new.freeze #: options # rubocop:disable Style/EmptyLiteral
+    EMPTY_OPTIONS = Hash.new.freeze # rubocop:disable Style/EmptyLiteral
 
     # Set options for parse operations
     #
@@ -49,9 +49,15 @@ module MultiJSON
     # @api public
     # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
+    # Before any options are set the default is returned without
+    # consulting the resolver (reading an unset ivar warns under ``-w``
+    # on Ruby 2.7).
+    #
     # @example
     #   MultiJSON.parse_options  #=> {}
     def parse_options(*args)
+      return default_parse_options unless instance_variable_defined?(:@parse_options)
+
       resolve_options(@parse_options, *args) || default_parse_options
     end
 
@@ -60,9 +66,15 @@ module MultiJSON
     # @api public
     # @param args [Array<Object>] forwarded to the callable, ignored otherwise
     # @return [Hash] resolved options hash
+    # Before any options are set the default is returned without
+    # consulting the resolver (reading an unset ivar warns under ``-w``
+    # on Ruby 2.7).
+    #
     # @example
     #   MultiJSON.generate_options  #=> {}
     def generate_options(*args)
+      return default_generate_options unless instance_variable_defined?(:@generate_options)
+
       resolve_options(@generate_options, *args) || default_generate_options
     end
 

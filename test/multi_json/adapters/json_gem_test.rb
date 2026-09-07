@@ -126,7 +126,9 @@ class JsonGemWithActiveSupportTest < Minitest::Test
   end
 
   def test_serializes_objects_that_define_to_hash
-    script = activesupport_script('Class.new { def to_hash = {abc: "def"} }.then { puts MultiJSON.generate(_1.new, adapter: :json_gem) }')
+    script = activesupport_script(
+      'Class.new { def to_hash; {abc: "def"}; end }.then { puts MultiJSON.generate(_1.new, adapter: :json_gem) }'
+    )
     output, status = run_script(script)
 
     assert_predicate status, :success?

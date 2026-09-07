@@ -16,7 +16,7 @@ module MultiJSON
     # permissive — Oj emits ``"line 1, column 3"`` while the json gem
     # emits ``"line 1 column 2"`` — so ``[,\s]+`` covers both. Column
     # is optional so messages like ``"at line 5"`` still yield a line.
-    LOCATION_PATTERN = /line\s+(\d+)(?:[,\s]+column\s+(\d+))?/i
+    LOCATION_PATTERN = /line\s+(\d+)(?:[,\s]+column\s+(\d+))?/i.freeze
     private_constant :LOCATION_PATTERN
 
     # The input string that failed to parse

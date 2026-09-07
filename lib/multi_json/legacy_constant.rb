@@ -28,11 +28,14 @@ module MultiJson
   # objects. Forwarding eagerly fixes the capture path while preserving
   # the one-time deprecation warning each call emits.
   (::MultiJSON.public_methods - ::Module.public_methods).each do |forwarded|
-    define_singleton_method(forwarded) do |*args, **kwargs, &block|
+    define_singleton_method(forwarded) do |*args, &block|
       ::MultiJSON.warn_deprecation_once(:multi_json_constant,
         "The MultiJson constant is deprecated and will be removed in v2.0. Use MultiJSON instead.")
-      ::MultiJSON.public_send(forwarded, *args, **kwargs, &block)
+      ::MultiJSON.public_send(forwarded, *args, &block)
     end
+    # Forward keywords as keywords without a ``**kwargs`` splat, which
+    # warns on Ruby 2.7 when the target takes a positional options hash.
+    singleton_class.class_eval { ruby2_keywords(forwarded) }
   end
 
   class << self

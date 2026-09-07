@@ -26,7 +26,9 @@ class OptionsGetOptionsTest < Minitest::Test
 
   def test_get_options_returns_hashable_result
     hashable = Object.new
-    def hashable.to_hash = {from_hash: true}
+    def hashable.to_hash
+      {from_hash: true}
+    end
 
     @test_class.load_options = hashable
 
@@ -35,8 +37,13 @@ class OptionsGetOptionsTest < Minitest::Test
 
   def test_options_custom_callable_object_uses_respond_to_call
     callable = Object.new
-    def callable.call = {custom_call: true}
-    def callable.arity = 0
+    def callable.call
+      {custom_call: true}
+    end
+
+    def callable.arity
+      0
+    end
 
     @test_class.load_options = callable
 
@@ -63,7 +70,9 @@ class OptionsGetOptionsTest < Minitest::Test
 
   def test_handle_hashable_options_returns_to_hash
     hashable = Object.new
-    def hashable.to_hash = {converted: true}
+    def hashable.to_hash
+      {converted: true}
+    end
 
     @test_class.load_options = hashable
 

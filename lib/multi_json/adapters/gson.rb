@@ -65,7 +65,7 @@ module MultiJSON
       def translate_load_options(options)
         return options unless options.key?(:symbolize_names)
 
-        options.except(:symbolize_names).merge(symbolize_keys: options[:symbolize_names])
+        options.reject { |key, _value| key == :symbolize_names }.merge(symbolize_keys: options[:symbolize_names])
       end
     end
   end
