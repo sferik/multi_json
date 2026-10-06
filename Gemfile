@@ -2,9 +2,9 @@
 
 source "https://rubygems.org"
 
-gem "activesupport", "~> 8.0", require: false
-gem "concurrent-ruby", "~> 1.2", require: false
-gem "json", "~> 2.0", require: false
+gem "activesupport", ">= 8", require: false
+gem "concurrent-ruby", ">= 1.2", require: false
+gem "json", ">= 2", require: false
 
 gem "minitest", ">= 5.20"
 gem "mutant-minitest", ">= 0.12"
@@ -25,10 +25,10 @@ gem "steep", ">= 1.10", platforms: %i[ruby windows]
 gem "yard", ">= 0.9.38"
 gem "yardstick", ">= 0.9.9"
 
-gem "fast_jsonparser", "~> 0.6", platforms: %i[ruby windows], require: false
+gem "fast_jsonparser", ">= 0.6", platforms: %i[ruby windows], require: false
 gem "gson", ">= 0.6", platforms: [:jruby], require: false
 gem "jrjackson", ">= 0.4.18", platforms: [:jruby], require: false
-gem "oj", "~> 3.0", platforms: %i[ruby windows], require: false
-gem "yajl-ruby", "~> 1.3", platforms: %i[ruby windows], require: false
+gem "oj", ">= 3", platforms: %i[ruby windows], require: false
+gem "yajl-ruby", ">= 1.3", platforms: %i[ruby windows], require: false
 
 gemspec
