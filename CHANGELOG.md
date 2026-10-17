@@ -2,14 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.21.2]
+## [Unreleased]
+
+## [1.21.2] - 2026-09-07
 
 ### Added
 
-- Support json 3.x in the `json_gem` adapter (thanks [@byroot](https://github.com/byroot), [#67](https://github.com/sferik/multi_json/pull/67)). json 3.0 raises `ArgumentError` on unknown keyword arguments, so the adapter now passes parse options as keywords and only sets the `create_additions: false` / `quirks_mode: true` defaults on json 2.x, where they still exist. Note that the `oj` adapter can still fail to dump `Time` values when json 3.x is installed: Oj forwards its own options hash to `Time#to_json` in compat mode, and json 3 rejects them. That is an upstream Oj issue and does not affect the `json_gem` adapter.
+- Support json 3.x in the `json_gem` adapter (thanks [@byroot], [#67]). json 3.0 raises `ArgumentError` on unknown keyword arguments, so the adapter now passes parse options as keywords and only sets the `create_additions: false` / `quirks_mode: true` defaults on json 2.x, where they still exist. Note that the `oj` adapter can still fail to dump `Time` values when json 3.x is installed: Oj forwards its own options hash to `Time#to_json` in compat mode, and json 3 rejects them. That is an upstream Oj issue and does not affect the `json_gem` adapter.
 
 ### Changed
 
@@ -17,15 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Honor a falsy `:pretty` option in the `json_gem` and `oj` adapters ([#70](https://github.com/sferik/multi_json/issues/70)). Both adapters branched on the presence of the key rather than its value, so `MultiJSON.generate(object, pretty: false)` returned pretty-printed JSON. This regressed in 1.20.0.
+- Honor a falsy `:pretty` option in the `json_gem` and `oj` adapters ([#70]). Both adapters branched on the presence of the key rather than its value, so `MultiJSON.generate(object, pretty: false)` returned pretty-printed JSON. This regressed in 1.20.0.
 
-## [1.21.1]
+## [1.21.1] - 2026-05-04
 
 ### Fixed
 
-- Fix `MultiJson.method(:load)` resolving to `Kernel#load` instead of the legacy-constant forwarder ([#66](https://github.com/sferik/multi_json/issues/66)). The 1.21.0 shim forwarded calls via `method_missing`, but `Module#method` doesn't consult `method_missing`, so libraries that capture decoders as `Method` objects (Sawyer, used by Octokit and Danger) crashed with `LoadError` when the captured method tried to interpret the JSON string as a file path. Define an explicit singleton method on `MultiJson` for every public method `MultiJSON` exposes so `Module#method` finds the forwarder directly.
+- Fix `MultiJson.method(:load)` resolving to `Kernel#load` instead of the legacy-constant forwarder ([#66]). The 1.21.0 shim forwarded calls via `method_missing`, but `Module#method` doesn't consult `method_missing`, so libraries that capture decoders as `Method` objects (Sawyer, used by Octokit and Danger) crashed with `LoadError` when the captured method tried to interpret the JSON string as a file path. Define an explicit singleton method on `MultiJson` for every public method `MultiJSON` exposes so `Module#method` finds the forwarder directly.
 
-## [1.21.0]
+## [1.21.0] - 2026-05-02
 
 Every deprecation introduced here will be **removed in `2.0.0`**. Upgrade to `1.21.0`, run your app or test suite with `ruby -W:deprecated` to surface the warnings, migrate each call site to the new canonical names, then pin `~> 2.0` once `2.0.0` ships.
 
@@ -52,11 +54,7 @@ Every deprecation introduced here will be **removed in `2.0.0`**. Upgrade to `1.
 
 All deprecated names continue to work and emit a one-time warning on first use. Warnings are tagged with Ruby's `:deprecated` category, so noisy apps can silence the whole set with `Warning[:deprecated] = false` and deprecation-aware tooling (`ruby -W:deprecated`, CI linters) picks them up. The old names will be removed in 2.0.
 
-## [1.20.1]
-
-### Fixed
-
-- Fix `JsonGem#load` raising `ParseError` on ASCII-8BIT strings that contain valid UTF-8 bytes ([#64](https://github.com/sferik/multi_json/issues/64)). Ruby HTTP clients tag response bodies as ASCII-8BIT by default; the 1.20.0 change from `force_encoding` to `encode` broke the dominant real-world case by trying to transcode each byte individually. Switch back to `force_encoding` followed by a `valid_encoding?` guard so genuinely invalid byte sequences still surface as `ParseError`.
+## [1.20.1] - 2026-04-12
 
 ### Added
 
@@ -64,7 +62,11 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Validate `OptionsCache.max_cache_size=` to reject `nil`, zero, negative, and non-integer values with a clear `ArgumentError`.
 - Expand the benchmark suite (`benchmark.rb`) into a full adapter comparison matrix covering load, dump, and round-trip across small, medium, and large payloads in both object-heavy and array-heavy shapes.
 
-## [1.20.0]
+### Fixed
+
+- Fix `JsonGem#load` raising `ParseError` on ASCII-8BIT strings that contain valid UTF-8 bytes ([#64]). Ruby HTTP clients tag response bodies as ASCII-8BIT by default; the 1.20.0 change from `force_encoding` to `encode` broke the dominant real-world case by trying to transcode each byte individually. Switch back to `force_encoding` followed by a `valid_encoding?` guard so genuinely invalid byte sequences still surface as `ParseError`.
+
+## [1.20.0] - 2026-04-10
 
 ### Added
 
@@ -99,6 +101,26 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Move `Oj#load`'s `:symbolize_keys` translation into a private `translate_load_options` helper.
 - Drop the `ALIASES` constant in `AdapterSelector` in favor of an inline `jrjackson` → `jr_jackson` check.
 - Drop the `UnannotatedEmptyCollection` Steep diagnostic override.
+- Avoid allocating an options hash on the `dump`/`load` hot path by reusing a shared frozen empty hash.
+- Short-circuit empty input in `Adapter.blank?` before falling back to the regex match.
+- Short-circuit `Adapter.blank?` on inputs that start with `{` or `[`.
+- Skip `String#scrub` in `Adapter.blank?` when the input is already valid UTF-8.
+- Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option.
+- Hoist the `block_given?` check in `MutexStore#fetch` outside the critical section.
+- Walk the superclass chain manually in `Adapter.walk_default_options` instead of allocating an `ancestors` array.
+- Hoist a shared `Gson::Decoder` and `Gson::Encoder` for the empty-options case.
+- Forward all merged options through `Yajl#load` instead of honoring only `:symbolize_keys`.
+- Validate the `action` and `value` arguments in `Adapter.defaults` at definition time.
+
+### Removed
+
+- Remove the vendored `ok_json` adapter and the `ConvertibleHashKeys` helper module.
+- Remove the `MultiJson::REQUIREMENT_MAP` legacy alias.
+- Drop the dead `JrJackson` dump arity branch.
+- Drop the duplicate `Adapter::EMPTY_OPTIONS` constant.
+- Drop the redundant `options.except(:adapter)` allocation in `JsonGem#dump`.
+- Drop Oj 2.x compatibility branch: the Oj adapter now requires Oj `~> 3.0`.
+- Drop support for Ruby 3.0, Ruby 3.1, and JRuby 9.4.
 
 ### Fixed
 
@@ -119,57 +141,34 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Call `to_h` on options to properly handle `JSON::State` objects.
 - Fix `TestHelpers.yajl?` to check the actual `yajl-ruby` gem name.
 - Fix Bundler 4.0 permission error in CI.
-- Stop requiring the `oj` gem from the `fast_jsonparser` adapter ([#63](https://github.com/sferik/multi_json/issues/63)).
+- Stop requiring the `oj` gem from the `fast_jsonparser` adapter ([#63]).
 - Stop relying on `Oj::ParseError`'s `::SyntaxError` ancestor when matching exceptions.
 
-### Removed
-
-- Remove the vendored `ok_json` adapter and the `ConvertibleHashKeys` helper module.
-- Remove the `MultiJson::REQUIREMENT_MAP` legacy alias.
-- Drop the dead `JrJackson` dump arity branch.
-- Drop the duplicate `Adapter::EMPTY_OPTIONS` constant.
-- Drop the redundant `options.except(:adapter)` allocation in `JsonGem#dump`.
-- Drop Oj 2.x compatibility branch: the Oj adapter now requires Oj `~> 3.0`.
-- Drop support for Ruby 3.0, Ruby 3.1, and JRuby 9.4.
-
-### Performance
-
-- Avoid allocating an options hash on the `dump`/`load` hot path by reusing a shared frozen empty hash.
-- Short-circuit empty input in `Adapter.blank?` before falling back to the regex match.
-- Short-circuit `Adapter.blank?` on inputs that start with `{` or `[`.
-- Skip `String#scrub` in `Adapter.blank?` when the input is already valid UTF-8.
-- Skip the per-call hash merge in `JsonGem#dump` when `pretty: true` is the only option.
-- Hoist the `block_given?` check in `MutexStore#fetch` outside the critical section.
-- Walk the superclass chain manually in `Adapter.walk_default_options` instead of allocating an `ancestors` array.
-- Hoist a shared `Gson::Decoder` and `Gson::Encoder` for the empty-options case.
-- Forward all merged options through `Yajl#load` instead of honoring only `:symbolize_keys`.
-- Validate the `action` and `value` arguments in `Adapter.defaults` at definition time.
-
-## [1.19.1]
+## [1.19.1] - 2025-12-26
 
 ### Fixed
 
 - Restore deprecated `encode`/`decode` methods.
 
-## [1.19.0]
+## [1.19.0] - 2025-12-26
 
 ### Fixed
 
 - Fix serialization of ActiveSupport-enhanced objects.
 
-## [1.18.0]
+## [1.18.0] - 2025-12-01
 
 ### Fixed
 
-- Fix conflict between JSON gem and ActiveSupport ([#222](https://github.com/intridea/multi_json/issues/222)).
+- Fix conflict between JSON gem and ActiveSupport ([#222]).
 
-## [1.17.0]
+## [1.17.0] - 2025-07-19
 
 ### Changed
 
 - Revert minimum Ruby version requirement.
 
-## [1.16.0]
+## [1.16.0] - 2025-07-10
 
 ### Added
 
@@ -187,180 +186,180 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Stop referencing `JSON::PRETTY_STATE_PROTOTYPE`.
 - Drop support for Ruby versions < 3.2.
 
-## [1.15.0]
+## [1.15.0] - 2020-07-10
 
 ### Fixed
 
 - Improve detection of `json_gem` adapter.
 
-## [1.14.1]
+## [1.14.1] - 2019-10-15
 
 ### Fixed
 
 - Fix a warning in Ruby 2.7.
 
-## [1.14.0]
+## [1.14.0] - 2019-10-14
 
 ### Added
 
 - Support Oj 3.x gem.
 
-## [1.13.1]
+## [1.13.1] - 2018-01-10
 
 ### Fixed
 
 - Fix missing stdlib `set` dependency in Oj adapter.
 
-## [1.13.0]
+## [1.13.0] - 2018-01-08
 
 ### Fixed
 
 - Make Oj adapter handle `JSON::ParseError` correctly.
 
-## [1.12.2]
+## [1.12.2] - 2017-09-05
 
 ### Changed
 
 - Renew gem certificate.
 
-## [1.12.1]
+## [1.12.1] - 2016-05-18
 
 ### Fixed
 
 - Prevent memory leak in OptionsCache.
 
-## [1.12.0]
+## [1.12.0] - 2016-05-03
 
-### Performance
+### Changed
 
 - Introduce global options cache to improve performance.
 
-## [1.11.2]
+## [1.11.2] - 2015-07-04
 
 ### Fixed
 
 - Only pass one argument to JrJackson when two is not supported.
 
-## [1.11.1]
+## [1.11.1] - 2015-06-11
 
 ### Fixed
 
 - Dump method passes options through for JrJackson adapter.
 
-## [1.11.0]
+## [1.11.0] - 2015-03-04
 
 ### Changed
 
 - Make all adapters read IO object before load.
 
-## [1.10.1]
+## [1.10.1] - 2014-05-20
 
 ### Fixed
 
 - Explicitly require `stringio` for Gson adapter.
 - Do not read StringIO object before passing it to JrJackson.
 
-## [1.10.0]
+## [1.10.0] - 2014-05-06
 
-### Performance
+### Changed
 
 - Performance tweaks.
 
-## [1.9.3]
+## [1.9.3] - 2014-04-27
 
 ### Fixed
 
 - Convert indent option to Fixnum before passing to Oj.
 
-## [1.9.2]
+## [1.9.2] - 2014-03-19
 
 ### Changed
 
 - Enable `use_to_json` option for Oj adapter by default.
 
-## [1.9.1]
+## [1.9.1] - 2014-03-19
 
 ### Removed
 
 - Remove unused LoadError file.
 
-## [1.9.0]
+## [1.9.0] - 2014-03-05
 
 ### Changed
 
 - Rename `LoadError` to `ParseError`.
 - Adapter load failure throws `AdapterError` instead of `ArgumentError`.
 
-## [1.8.4]
+## [1.8.4] - 2014-01-10
 
 ### Fixed
 
 - Make Gson adapter explicitly read StringIO object.
 
-## [1.8.3]
+## [1.8.3] - 2014-01-09
 
 ### Fixed
 
 - Make JrJackson explicitly read StringIO objects.
 - Prevent calling `#downcase` on alias symbols.
 
-## [1.8.2]
+## [1.8.2] - 2013-10-15
 
 ### Fixed
 
 - Downcase adapter string name for OS compatibility.
 
-## [1.8.1]
+## [1.8.1] - 2013-10-04
 
 ### Fixed
 
 - Let the adapter handle strings with invalid encoding.
 
-## [1.8.0]
+## [1.8.0] - 2013-09-08
 
 ### Changed
 
 - Raise `MultiJson::LoadError` on blank input.
 
-## [1.7.9]
+## [1.7.9] - 2013-08-11
 
 ### Fixed
 
 - Explicitly require json gem code even when constant is defined.
 
-## [1.7.8]
+## [1.7.8] - 2013-08-04
 
 ### Changed
 
 - Reorder JrJackson before `json_gem`.
 - Update vendored OkJson to version 43.
 
-## [1.7.7]
+## [1.7.7] - 2013-06-14
 
 ### Fixed
 
 - Fix options caching issues.
 
-## [1.7.6]
+## [1.7.6] - 2013-06-04
 
 ### Fixed
 
 - Bring back `MultiJson::VERSION` constant.
 
-## [1.7.5]
+## [1.7.5] - 2013-06-02
 
 ### Fixed
 
 - Fix warning `*` interpreted as argument prefix.
 - Remove stdlib warning.
 
-## [1.7.4]
+## [1.7.4] - 2013-05-26
 
-### Performance
+### Changed
 
 - Cache options for better performance.
 
-## [1.7.3]
+## [1.7.3] - 2013-05-05
 
 ### Changed
 
@@ -370,7 +369,7 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Print a warning if outdated gem versions are used.
 - Loosen `required_rubygems_version` for compatibility with Ubuntu 10.04.
 
-## [1.7.2]
+## [1.7.2] - 2013-03-22
 
 ### Changed
 
@@ -378,13 +377,13 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Implement `jrjackson` → `jr_jackson` alias for backwards compatibility.
 - Update vendored OkJson module.
 
-## [1.7.1]
+## [1.7.1] - 2013-03-18
 
 ### Fixed
 
 - Fix capitalization of JrJackson class.
 
-## [1.7.0]
+## [1.7.0] - 2013-03-16
 
 ### Added
 
@@ -397,13 +396,13 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Enable `quirks_mode` by default for `json_gem`/`json_pure` adapters.
 - Raise `ArgumentError` on bad adapter input.
 
-## [1.6.1]
+## [1.6.1] - 2013-02-14
 
 ### Fixed
 
 - Revert "Use `JSON.generate` instead of `#to_json`".
 
-## [1.6.0]
+## [1.6.0] - 2013-02-12
 
 ### Added
 
@@ -417,13 +416,13 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Use `JSON.generate` instead of `#to_json`.
 - Alias `MultiJson::DecodeError` to `MultiJson::LoadError`.
 
-## [1.5.1]
+## [1.5.1] - 2013-02-11
 
 ### Fixed
 
 - Do not allow Oj or JSON to create symbols by searching for classes.
 
-## [1.5.0]
+## [1.5.0] - 2012-12-10
 
 ### Added
 
@@ -433,13 +432,13 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 
 - Stringify all possible keys for `ok_json`.
 
-## [1.4.0]
+## [1.4.0] - 2012-11-30
 
 ### Changed
 
 - Allow load/dump of JSON fragments.
 
-## [1.3.7]
+## [1.3.7] - 2012-11-02
 
 ### Fixed
 
@@ -448,63 +447,63 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Explicitly set default adapter when adapter is set to `nil` or `false`.
 - Fix Oj `ParseError` mapping for Oj 1.4.0.
 
-## [1.3.6]
+## [1.3.6] - 2012-05-28
 
 ### Changed
 
 - Allow adapter-specific options to be passed through to Oj.
 
-## [1.3.5]
+## [1.3.5] - 2012-05-12
 
 ### Added
 
 - Add pretty support to Oj adapter.
 
-## [1.3.4]
+## [1.3.4] - 2012-04-29
 
 ### Changed
 
 - Use `class << self` instead of `module_function` to create aliases.
 
-## [1.3.3]
+## [1.3.3] - 2012-04-28
 
 ### Changed
 
 - Remove deprecation warnings.
 
-## [1.3.2]
+## [1.3.2] - 2012-04-17
 
 ### Added
 
 - Add ability to use adapter per call.
 - Add and deprecate `default_engine` method.
 
-## [1.3.1]
+## [1.3.1] - 2012-04-16
 
 ### Fixed
 
 - Only warn once for each instance a deprecated method is called.
 
-## [1.3.0]
+## [1.3.0] - 2012-04-16
 
 ### Changed
 
 - Implement `load`/`dump`; deprecate `decode`/`encode`.
 - Rename engines to adapters.
 
-## [1.2.0]
+## [1.2.0] - 2012-03-27
 
 ### Added
 
 - Add support for Oj.
 
-## [1.1.0]
+## [1.1.0] - 2012-02-18
 
 ### Added
 
 - NSJSONSerialization support for MacRuby.
 
-## [1.0.4]
+## [1.0.4] - 2011-11-28
 
 ### Added
 
@@ -516,26 +515,26 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 - Allow `ok_json` to fall back to `to_json`.
 - Add warning when using `ok_json`.
 
-## [1.0.3]
+## [1.0.3] - 2011-05-23
 
 ### Added
 
 - Array support for `stringify_keys`.
 - Array support for `symbolize_keys`.
 
-## [1.0.2]
+## [1.0.2] - 2011-05-12
 
 ### Fixed
 
 - Allow encoding of rootless JSON when `ok_json` is used.
 
-## [1.0.1]
+## [1.0.1] - 2011-05-04
 
 ### Fixed
 
 - Correct an issue with `ok_json` not being returned as the default engine.
 
-## [1.0.0]
+## [1.0.0] - 2011-04-26
 
 ### Changed
 
@@ -547,19 +546,21 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 
 - Remove ActiveSupport::JSON support.
 
-## [0.0.5]
+## [0.0.5] - 2010-11-04
 
 ### Fixed
 
 - Trap all JSON decoding errors; raise `MultiJson::DecodeError`.
 
-## [0.0.4]
+## [0.0.4] - 2010-06-19
 
 ### Fixed
 
 - Fix `default_engine` check for json gem.
 - Make requirement mapper an Array to preserve order in Ruby versions < 1.9.
 
+[Unreleased]: https://github.com/sferik/multi_json/compare/v1.21.2...HEAD
+[1.21.2]: https://github.com/sferik/multi_json/compare/v1.21.1...v1.21.2
 [1.21.1]: https://github.com/sferik/multi_json/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/sferik/multi_json/compare/v1.20.1...v1.21.0
 [1.20.1]: https://github.com/sferik/multi_json/compare/v1.20.0...v1.20.1
@@ -623,3 +624,12 @@ All deprecated names continue to work and emit a one-time warning on first use. 
 [1.0.0]: https://github.com/sferik/multi_json/compare/v0.0.5...v1.0.0
 [0.0.5]: https://github.com/sferik/multi_json/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/sferik/multi_json/releases/tag/v0.0.4
+
+[#63]: https://github.com/sferik/multi_json/issues/63
+[#64]: https://github.com/sferik/multi_json/issues/64
+[#66]: https://github.com/sferik/multi_json/issues/66
+[#67]: https://github.com/sferik/multi_json/pull/67
+[#70]: https://github.com/sferik/multi_json/issues/70
+[#222]: https://github.com/intridea/multi_json/issues/222
+
+[@byroot]: https://github.com/byroot
