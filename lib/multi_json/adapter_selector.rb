@@ -29,7 +29,6 @@ module MultiJSON
       {
         json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
         jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
-        gson: {require: "gson", loaded: "Gson"},
         fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
         oj: {require: "oj", loaded: "Oj"},
         yajl: {require: "yajl", loaded: "Yajl"}
@@ -40,8 +39,7 @@ module MultiJSON
         fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
         oj: {require: "oj", loaded: "Oj"},
         yajl: {require: "yajl", loaded: "Yajl"},
-        jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
-        gson: {require: "gson", loaded: "Gson"}
+        jr_jackson: {require: "jrjackson", loaded: "JrJackson"}
       }.freeze
     end
     # simplecov:enable
@@ -178,7 +176,9 @@ module MultiJSON
     #
     # ``jrjackson`` (the JrJackson gem's name) is normalized to
     # ``jr_jackson`` (the adapter file/class name) for backwards
-    # compatibility with the original gem-name alias.
+    # compatibility with the original gem-name alias. ``gson`` names an
+    # adapter that was removed, so it selects ``json_gem``, which every
+    # supported Ruby ships.
     #
     # @api private
     # @param name [String] adapter name
@@ -186,10 +186,21 @@ module MultiJSON
     def load_adapter_by_name(name)
       normalized = name.downcase
       normalized = "jr_jackson" if normalized == "jrjackson"
+      normalized = removed_gson_adapter if normalized == "gson"
       require_relative "adapters/#{normalized}"
 
       class_name = normalized.split("_").map(&:capitalize).join
       ::MultiJSON::Adapters.const_get(class_name)
+    end
+
+    # Warns that the gson adapter was removed and names its replacement
+    #
+    # @api private
+    # @return [String] the json_gem adapter name
+    def removed_gson_adapter
+      MultiJSON.warn_deprecation_once(:gson_adapter,
+        "MultiJSON's gson adapter was removed, so the json_gem adapter is used instead.")
+      "json_gem"
     end
 
     # Validate that an adapter satisfies the documented contract

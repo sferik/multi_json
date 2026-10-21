@@ -82,10 +82,10 @@ class LoadedAdapterTest < Minitest::Test
     end
   end
 
-  def test_loaded_adapter_detects_gson_when_defined
+  def test_loaded_adapter_ignores_gson_when_defined
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       without_json_ext_parser do
-        with_temporary_constant(:Gson) { assert_equal :gson, MultiJSON.send(:loaded_adapter) }
+        with_temporary_constant(:Gson) { assert_nil MultiJSON.send(:loaded_adapter) }
       end
     end
   end
@@ -124,16 +124,6 @@ class LoadedAdapterPriorityTest < Minitest::Test
     without_json_ext_parser do
       undefine_constants(:FastJsonparser, :Oj) do
         with_temporary_constant(:JrJackson) { assert_equal :yajl, MultiJSON.send(:loaded_adapter) }
-      end
-    end
-  end
-
-  def test_jr_jackson_takes_priority_over_gson
-    without_json_ext_parser do
-      undefine_constants(:FastJsonparser, :Oj, :Yajl) do
-        with_temporary_constant(:JrJackson) do
-          with_temporary_constant(:Gson) { assert_equal :jr_jackson, MultiJSON.send(:loaded_adapter) }
-        end
       end
     end
   end

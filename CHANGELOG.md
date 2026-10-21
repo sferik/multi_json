@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- Remove the `gson` adapter. The gson gem hasn't had a release since 2013, it was the slowest adapter on JRuby, and it raises a Java `NoSuchMethodError` instead of `MultiJSON::ParseError` on invalid JSON under JRuby 10.1. A loaded `Gson` no longer affects adapter detection, and selecting it with `MultiJSON.use(:gson)` or `adapter: :gson` uses the `json_gem` adapter instead, with a one-time deprecation warning. `MultiJSON::Adapters::Gson` still resolves, to the `json_gem` adapter.
+
 ## [1.21.2] - 2026-09-07
 
 ### Added

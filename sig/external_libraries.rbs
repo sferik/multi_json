@@ -26,17 +26,3 @@ module JrJackson
   end
 end
 
-module Gson
-  class Decoder
-    def initialize: (untyped options) -> void
-    def decode: (untyped string) -> untyped
-  end
-
-  class Encoder
-    def initialize: (untyped options) -> void
-    def encode: (untyped object) -> String
-  end
-
-  class DecodeError < StandardError
-  end
-end

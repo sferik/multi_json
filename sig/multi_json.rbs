@@ -221,6 +221,7 @@ module MultiJSON
     def warn_about_fallback: () -> void
     def load_adapter: (adapter_spec new_adapter) -> (_Adapter | Module)
     def load_adapter_by_name: (String name) -> _Adapter
+    def removed_gson_adapter: () -> String
     def validate_adapter!: ((_Adapter | Module) adapter) -> (_Adapter | Module)
   end
 
@@ -272,17 +273,5 @@ module MultiJSON
       def translate_load_options: (options options) -> options
     end
 
-    class Gson < Adapter
-      ParseError: untyped
-      DEFAULT_DECODER: untyped
-      DEFAULT_ENCODER: untyped
-
-      def load: (String string, options options) -> untyped
-      def dump: (json_input object, options options) -> String
-
-      private
-
-      def translate_load_options: (options options) -> options
-    end
   end
 end

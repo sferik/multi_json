@@ -9,7 +9,7 @@ class InstallableAdapterTest < Minitest::Test
   def test_installable_adapter_tries_requirement_map
     result = MultiJSON.send(:installable_adapter)
 
-    assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
+    assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], result
   end
 
   def test_installable_adapter_returns_nil_when_none_installable
@@ -34,7 +34,7 @@ class InstallableAdapterRequirementMapTest < Minitest::Test
     result = MultiJSON.send(:installable_adapter)
 
     refute_nil result
-    assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem gson], result
+    assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], result
   end
 
   def test_installable_adapter_iterates_requirement_map

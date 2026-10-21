@@ -12,7 +12,7 @@ module MultiJSON
     # FastJsonparser only implements parsing, so the ``dump`` side of
     # the adapter is delegated to whichever adapter MultiJSON would
     # pick if FastJsonparser weren't installed (oj → yajl → jr_jackson
-    # → json_gem → gson). The delegate is resolved lazily at the first
+    # → json_gem). The delegate is resolved lazily at the first
     # ``dump`` call, not at file load time, so load order doesn't lock
     # in the wrong delegate. Require any preferred dump backend before
     # the first ``dump`` call (typical applications already have ``oj``

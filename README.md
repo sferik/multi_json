@@ -181,19 +181,19 @@ backend is preloaded, MultiJSON walks its preference list and uses the first
 one that loads successfully. The list is split per platform — JRuby's
 available adapter set differs from MRI's — but the bundled benchmark suite
 ranks `json_gem` first on every engine: ahead of `fast_jsonparser`/`oj`/`yajl`
-on Ruby 3.4+, and ahead of `jrjackson`/`gson` on JRuby 10. CI re-runs the
+on Ruby 3.4+, and ahead of `jrjackson` on JRuby 10. CI re-runs the
 benchmark and fails if the observed ranking diverges from the table below.
 
 | rank | MRI / TruffleRuby | JRuby           |
 | ---- | ----------------- | --------------- |
 | 1    | The JSON gem      | The JSON gem    |
 | 2    | `fast_jsonparser` | `jrjackson`     |
-| 3    | `oj`              | `gson`          |
+| 3    | `oj`              | —               |
 | 4    | `yajl-ruby`       | —               |
 
 A dash means the adapter isn't usable on that runtime: `fast_jsonparser`,
 `oj`, and `yajl-ruby` are MRI/TruffleRuby C extensions with no JRuby builds;
-`jrjackson` and `gson` are JRuby-only. The JSON gem is a Ruby default gem,
+`jrjackson` is JRuby-only. The JSON gem is a Ruby default gem,
 so it's always available as a last-resort fallback on any supported Ruby.
 If you have a workload where a different backend is faster, set it
 explicitly with `MultiJSON.use(:your_adapter)`.
@@ -210,7 +210,6 @@ automatically select the correct variant for your Ruby implementation:
 | [`oj`][oj] adapter                             |   ✓   |       |
 | [`yajl`][yajl] adapter                         |   ✓   |       |
 | [`json_gem`][json-gem] adapter                 |   ✓   |   ✓   |
-| [`gson`][gson] adapter                         |       |   ✓   |
 | [`jr_jackson`][jrjackson] adapter              |       |   ✓   |
 | `OptionsCache` thread-safe store               | `Hash` + `Mutex` | `Concurrent::Map` |
 
@@ -263,7 +262,6 @@ Pravosud. See [LICENSE][license] for details.
 [docs]: https://github.com/sferik/multi_json/actions/workflows/docs.yml
 [fast_jsonparser]: https://github.com/anilmaurya/fast_jsonparser
 [gem]: https://rubygems.org/gems/multi_json
-[gson]: https://github.com/avsej/gson.rb
 [jrjackson]: https://github.com/guyboertje/jrjackson
 [jruby]: http://www.jruby.org/
 [json-gem]: https://github.com/flori/json

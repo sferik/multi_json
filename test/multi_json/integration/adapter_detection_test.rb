@@ -55,14 +55,14 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     end
   end
 
-  def test_loaded_adapter_detects_gson
+  def test_default_adapter_ignores_a_loaded_gson
     undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
       with_json_ext_parser_removed do
         with_temporary_constant(:Gson) do
           clear_default_adapter_warning
           adapter = capture_stderr { MultiJSON.default_adapter }
 
-          assert_equal :gson, adapter
+          assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], adapter
         end
       end
     end

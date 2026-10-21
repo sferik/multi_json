@@ -84,7 +84,6 @@ module TestHelpers
   def yajl? = adapter_available?("yajl-ruby")
   def json? = adapter_available?(:json)
   def fast_jsonparser? = adapter_available?(:fast_jsonparser)
-  def gson? = adapter_available?(:gson)
   def jrjackson? = adapter_available?(:jrjackson)
 
   def capture_stderr(&)
@@ -121,7 +120,7 @@ module TestHelpers
   end
 
   def simulate_no_adapters(&)
-    break_requirements { undefine_constants(:JSON, :Oj, :Yajl, :Gson, :JrJackson, :FastJsonparser, &) }
+    break_requirements { undefine_constants(:JSON, :Oj, :Yajl, :JrJackson, :FastJsonparser, &) }
   end
 
   def get_exception(exception_class = StandardError)
@@ -150,8 +149,7 @@ module TestHelpers
     [:FastJsonparser, "MultiJSON::Adapters::FastJsonparser"],
     [:Oj, "MultiJSON::Adapters::Oj"],
     [:Yajl, "MultiJSON::Adapters::Yajl"],
-    [:JrJackson, "MultiJSON::Adapters::JrJackson"],
-    [:Gson, "MultiJSON::Adapters::Gson"]
+    [:JrJackson, "MultiJSON::Adapters::JrJackson"]
   ].freeze
 
   # Mirrors AdapterSelector#loaded_adapter: walks the probe list in

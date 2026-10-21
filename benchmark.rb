@@ -13,7 +13,7 @@ class MultiJSONBenchmark
   PayloadCase = Struct.new(:shape, :bucket, :label, :object, :json, :bytes)
   Measurement = Struct.new(:payload, :operation, :adapter, :ips, :mbps)
 
-  ADAPTER_NAMES = %i[fast_jsonparser oj yajl jr_jackson json_gem gson].freeze
+  ADAPTER_NAMES = %i[fast_jsonparser oj yajl jr_jackson json_gem].freeze
   BYTES_PER_MEGABYTE = 1024.0 * 1024.0
   CLOCK = Process::CLOCK_MONOTONIC
   EPSILON = 1e-12

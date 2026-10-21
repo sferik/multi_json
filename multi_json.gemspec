@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Michael Bleigh", "Josh Kalderimis", "Erik Berlin", "Pavel Pravosud"]
   spec.description = if ENV["MULTI_JSON_PLATFORM"] == "java"
     "A common interface to multiple JSON libraries, " \
-      "including the JSON gem, gson, and JrJackson."
+      "including the JSON gem and JrJackson."
   else
     "A common interface to multiple JSON libraries, " \
       "including fast_jsonparser, Oj, Yajl, and the JSON gem."
@@ -20,11 +20,10 @@ Gem::Specification.new do |spec|
   spec.summary = "A common interface to multiple JSON libraries."
   spec.version = MultiJSON::Version
 
-  # JRuby-only sources: gson/jr_jackson adapter wrappers and the
+  # JRuby-only sources: the jr_jackson adapter wrapper and the
   # Concurrent::Map-backed options cache store. Only shipped in the
   # java-platform gem.
   jruby_only_files = %w[
-    lib/multi_json/adapters/gson.rb
     lib/multi_json/adapters/jr_jackson.rb
     lib/multi_json/options_cache/concurrent_store.rb
   ]

@@ -32,7 +32,7 @@ module AdapterLoadTests
 
   def test_load_raises_parse_error_on_invalid_json
     invalid_inputs = ['{"abc"}']
-    invalid_inputs << "\x82\xAC\xEF" unless adapter_class.name.include?("Gson")
+    invalid_inputs << "\x82\xAC\xEF"
 
     invalid_inputs.each do |input|
       assert_raises(MultiJSON::ParseError) { MultiJSON.load(input) }

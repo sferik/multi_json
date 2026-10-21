@@ -13,7 +13,6 @@ target :lib do
   # and their wrappers do non-trivial things Steep can't follow.
   check "lib/multi_json/adapters/yajl.rb"
   check "lib/multi_json/adapters/jr_jackson.rb"
-  check "lib/multi_json/adapters/gson.rb"
   # JRuby-only Concurrent::Map backend; Steep runs on MRI, where the
   # MutexStore version defines the ``Store`` class.
   ignore "lib/multi_json/options_cache/concurrent_store.rb"
