@@ -11,7 +11,6 @@ target :lib do
   # are checked. The rest of lib/multi_json/adapters stays ignored
   # because their backing libraries don't ship Steep-friendly types
   # and their wrappers do non-trivial things Steep can't follow.
-  check "lib/multi_json/adapters/yajl.rb"
   check "lib/multi_json/adapters/jr_jackson.rb"
   # JRuby-only Concurrent::Map backend; Steep runs on MRI, where the
   # MutexStore version defines the ``Store`` class.

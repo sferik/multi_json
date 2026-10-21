@@ -32,19 +32,13 @@ class DefaultAdapterExcludingTest < Minitest::Test
     end
   end
 
-  def test_returns_yajl_when_oj_excluded_and_yajl_loaded
-    skip unless defined?(::Yajl)
+  def test_returns_oj_when_fast_jsonparser_excluded_and_oj_loaded
+    skip unless defined?(::Oj)
 
     without_json_ext_parser do
-      undefine_constants(:FastJsonparser) do
-        result = MultiJSON::AdapterSelector.default_adapter_excluding(:oj)
+      result = MultiJSON::AdapterSelector.default_adapter_excluding(:fast_jsonparser)
 
-        assert_equal MultiJSON::Adapters::Yajl, result
-        # Exercise the adapter's instance methods so its source file's
-        # coverage is tracked once it has been loaded by the line above.
-        assert_equal({"a" => 1}, result.load('{"a":1}'))
-        assert_equal '{"a":1}', result.dump({a: 1})
-      end
+      assert_equal MultiJSON::Adapters::Oj, result
     end
   end
 
@@ -58,7 +52,7 @@ class DefaultAdapterExcludingTest < Minitest::Test
     # rules out the fallback path AND verifies that ``excluding:``
     # actually skipped :json_gem during installable detection.
     skip "JRuby's ADAPTERS hash leads with jr_jackson" if TestHelpers.java?
-    undefine_constants(:JSON, :Oj, :Yajl, :JrJackson, :FastJsonparser) do
+    undefine_constants(:JSON, :Oj, :JrJackson, :FastJsonparser) do
       result = MultiJSON::AdapterSelector.default_adapter_excluding(:json_gem)
 
       assert_equal MultiJSON::Adapters::FastJsonparser, result

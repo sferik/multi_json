@@ -28,6 +28,5 @@ gem "yardstick", ">= 0.9.9"
 gem "fast_jsonparser", ">= 0.6", platforms: %i[ruby windows], require: false
 gem "jrjackson", ">= 0.4.18", platforms: [:jruby], require: false
 gem "oj", ">= 3", platforms: %i[ruby windows], require: false
-gem "yajl-ruby", ">= 1.3", platforms: %i[ruby windows], require: false
 
 gemspec

@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
       "including the JSON gem and JrJackson."
   else
     "A common interface to multiple JSON libraries, " \
-      "including fast_jsonparser, Oj, Yajl, and the JSON gem."
+      "including fast_jsonparser, Oj, and the JSON gem."
   end
   spec.email = %w[sferik@gmail.com]
   spec.homepage = "https://github.com/sferik/multi_json"

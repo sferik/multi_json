@@ -20,21 +20,22 @@ class AdapterDetectionIntegrationTest < Minitest::Test
     end
   end
 
-  def test_loaded_adapter_detects_yajl
-    skip unless defined?(::Yajl)
-    with_json_ext_parser_removed do
-      undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
-        clear_default_adapter_warning
-        adapter = capture_stderr { MultiJSON.default_adapter }
+  def test_default_adapter_ignores_a_loaded_yajl
+    undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
+      with_json_ext_parser_removed do
+        with_temporary_constant(:Yajl) do
+          clear_default_adapter_warning
+          adapter = capture_stderr { MultiJSON.default_adapter }
 
-        assert_equal :yajl, adapter
+          assert_includes %i[fast_jsonparser oj jr_jackson json_gem], adapter
+        end
       end
     end
   end
 
   def test_loaded_adapter_detects_json_gem
     skip unless defined?(::JSON::Ext::Parser)
-    undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
+    undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
       clear_default_adapter_warning
       adapter = capture_stderr { MultiJSON.default_adapter }
 
@@ -44,7 +45,7 @@ class AdapterDetectionIntegrationTest < Minitest::Test
 
   def test_loaded_adapter_detects_jr_jackson
     with_json_ext_parser_removed do
-      undefine_constants(:FastJsonparser, :Oj, :Yajl) do
+      undefine_constants(:FastJsonparser, :Oj) do
         with_temporary_constant(:JrJackson) do
           clear_default_adapter_warning
           adapter = capture_stderr { MultiJSON.default_adapter }
@@ -56,13 +57,13 @@ class AdapterDetectionIntegrationTest < Minitest::Test
   end
 
   def test_default_adapter_ignores_a_loaded_gson
-    undefine_constants(:FastJsonparser, :Oj, :Yajl, :JrJackson) do
+    undefine_constants(:FastJsonparser, :Oj, :JrJackson) do
       with_json_ext_parser_removed do
         with_temporary_constant(:Gson) do
           clear_default_adapter_warning
           adapter = capture_stderr { MultiJSON.default_adapter }
 
-          assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], adapter
+          assert_includes %i[fast_jsonparser oj jr_jackson json_gem], adapter
         end
       end
     end

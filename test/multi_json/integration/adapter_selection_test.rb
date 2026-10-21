@@ -7,6 +7,16 @@ module IntegrationTestSetup
   def setup
     skip "java based implementations" if TestHelpers.java?
     MultiJSON.use :oj
+    forget_default_adapter
+  end
+
+  # A test that detects the default while faking a library's constant
+  # would otherwise leave that adapter cached for every later test.
+  def teardown
+    forget_default_adapter
+  end
+
+  def forget_default_adapter
     return unless MultiJSON.instance_variable_defined?(:@default_adapter)
 
     MultiJSON.remove_instance_variable(:@default_adapter)

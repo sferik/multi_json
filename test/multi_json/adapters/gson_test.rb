@@ -12,7 +12,7 @@ class GsonRemovalTest < Minitest::Test
   end
 
   def teardown
-    MultiJSON.use(nil)
+    MultiJSON.use :json_gem
   end
 
   def test_use_gson_symbol_selects_json_gem

@@ -203,6 +203,7 @@ module MultiJSON
     extend AdapterSelector
 
     ADAPTERS: Hash[Symbol, Hash[Symbol, String]]
+    REMOVED_ADAPTERS: Array[String]
     REQUIREMENT_MAP: Hash[Symbol, String]
 
     def default_adapter: () -> Symbol
@@ -221,7 +222,7 @@ module MultiJSON
     def warn_about_fallback: () -> void
     def load_adapter: (adapter_spec new_adapter) -> (_Adapter | Module)
     def load_adapter_by_name: (String name) -> _Adapter
-    def removed_gson_adapter: () -> String
+    def removed_adapter: (String name) -> String
     def validate_adapter!: ((_Adapter | Module) adapter) -> (_Adapter | Module)
   end
 
@@ -255,13 +256,6 @@ module MultiJSON
   end
 
   module Adapters
-    class Yajl < Adapter
-      ParseError: untyped
-
-      def load: (String string, options options) -> untyped
-      def dump: (json_input object, options options) -> String
-    end
-
     class JrJackson < Adapter
       ParseError: untyped
 

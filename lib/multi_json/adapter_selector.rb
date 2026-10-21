@@ -20,7 +20,7 @@ module MultiJSON
     #
     # The hash order is split per platform: on MRI/TruffleRuby the
     # bundled benchmark suite ranks json_gem ahead of fast_jsonparser/
-    # oj/yajl on Ruby 3.4+; on JRuby 10 the json gem's Java extension
+    # oj on Ruby 3.4+; on JRuby 10 the json gem's Java extension
     # outperforms JrJackson across the benchmark matrix, so json_gem
     # leads there too. CI re-runs the benchmark with
     # ``--verify-preference`` to fail if the observed ranking diverges.
@@ -30,20 +30,23 @@ module MultiJSON
         json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
         jr_jackson: {require: "jrjackson", loaded: "JrJackson"},
         fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
-        oj: {require: "oj", loaded: "Oj"},
-        yajl: {require: "yajl", loaded: "Yajl"}
+        oj: {require: "oj", loaded: "Oj"}
       }.freeze
     else
       {
         json_gem: {require: "json", loaded: "JSON::Ext::Parser"},
         fast_jsonparser: {require: "fast_jsonparser", loaded: "FastJsonparser"},
         oj: {require: "oj", loaded: "Oj"},
-        yajl: {require: "yajl", loaded: "Yajl"},
         jr_jackson: {require: "jrjackson", loaded: "JrJackson"}
       }.freeze
     end
     # simplecov:enable
     private_constant :ADAPTERS
+
+    # Adapters that were removed. Each name selects ``json_gem``, which
+    # every supported Ruby ships, so code that names one keeps working.
+    REMOVED_ADAPTERS = %w[gson yajl].freeze
+    private_constant :REMOVED_ADAPTERS
 
     # Backwards-compatible view of {ADAPTERS} that exposes only the
     # require paths. Tests still poke at this constant to stub or break
@@ -176,9 +179,8 @@ module MultiJSON
     #
     # ``jrjackson`` (the JrJackson gem's name) is normalized to
     # ``jr_jackson`` (the adapter file/class name) for backwards
-    # compatibility with the original gem-name alias. ``gson`` names an
-    # adapter that was removed, so it selects ``json_gem``, which every
-    # supported Ruby ships.
+    # compatibility with the original gem-name alias. A removed adapter's
+    # name selects ``json_gem`` instead.
     #
     # @api private
     # @param name [String] adapter name
@@ -186,20 +188,21 @@ module MultiJSON
     def load_adapter_by_name(name)
       normalized = name.downcase
       normalized = "jr_jackson" if normalized == "jrjackson"
-      normalized = removed_gson_adapter if normalized == "gson"
+      normalized = removed_adapter(normalized) if REMOVED_ADAPTERS.include?(normalized)
       require_relative "adapters/#{normalized}"
 
       class_name = normalized.split("_").map(&:capitalize).join
       ::MultiJSON::Adapters.const_get(class_name)
     end
 
-    # Warns that the gson adapter was removed and names its replacement
+    # Warns that an adapter was removed and names its replacement
     #
     # @api private
+    # @param name [String] the removed adapter's name
     # @return [String] the json_gem adapter name
-    def removed_gson_adapter
-      MultiJSON.warn_deprecation_once(:gson_adapter,
-        "MultiJSON's gson adapter was removed, so the json_gem adapter is used instead.")
+    def removed_adapter(name)
+      message = "MultiJSON's #{name} adapter was removed, so the json_gem adapter is used instead."
+      MultiJSON.warn_deprecation_once(:"#{name}_adapter", message)
       "json_gem"
     end
 

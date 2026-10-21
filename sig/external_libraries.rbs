@@ -2,20 +2,6 @@
 # untyped stubs so Steep can check the adapter wrappers without
 # needing full sigs for libraries that don't ship them.
 
-module Yajl
-  class Parser
-    def initialize: (untyped options) -> void
-    def parse: (untyped string) -> untyped
-  end
-
-  class Encoder
-    def self.encode: (untyped object, untyped options) -> String
-  end
-
-  class ParseError < StandardError
-  end
-end
-
 module JrJackson
   module Json
     def self.load: (untyped string, untyped options) -> untyped

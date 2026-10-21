@@ -7,7 +7,7 @@ module MultiJSON
   # data, plus best-effort line and column extraction from the adapter's
   # error message. Line/column are populated for adapters that include
   # them in their messages (Oj, the json gem) and remain nil for
-  # adapters that don't (Yajl, fast_jsonparser).
+  # adapters that don't (fast_jsonparser).
   #
   # @api public
   class ParseError < StandardError

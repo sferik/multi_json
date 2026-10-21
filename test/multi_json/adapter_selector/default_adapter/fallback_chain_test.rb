@@ -12,7 +12,7 @@ class DefaultAdapterFallbackChainTest < Minitest::Test
 
     result = capture_stderr { MultiJSON.default_adapter }
 
-    assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], result
+    assert_includes %i[fast_jsonparser oj jr_jackson json_gem], result
   end
 
   def test_default_adapter_falls_back_to_installable_when_none_loaded

@@ -19,14 +19,14 @@ class BehaviorIntegrationTest < Minitest::Test
   def test_finds_installable_adapter_when_none_preloaded
     # Undefine adapter constants so loaded_adapter returns nil,
     # but keep REQUIREMENT_MAP intact so installable_adapter can require them
-    undefine_constants(:JSON, :Oj, :Yajl, :JrJackson, :FastJsonparser) do
+    undefine_constants(:JSON, :Oj, :JrJackson, :FastJsonparser) do
       clear_default_adapter_warning
 
       # This will trigger installable_adapter since no constants are defined
       adapter = capture_stderr { MultiJSON.default_adapter }
 
       # Should find the first installable adapter from REQUIREMENT_MAP
-      assert_includes %i[fast_jsonparser oj yajl jr_jackson json_gem], adapter
+      assert_includes %i[fast_jsonparser oj jr_jackson json_gem], adapter
     end
   end
 

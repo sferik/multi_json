@@ -108,7 +108,7 @@ routes through `MultiJSON` transparently.
 `ParseError` instance has `cause` reader which contains the original exception.
 It also has `data` reader with the input that caused the problem, and `line`/`column`
 readers populated for adapters whose error messages include a location (Oj and the
-json gem). Adapters that don't include one (Yajl, fast_jsonparser) leave both nil.
+json gem). Adapters that don't include one (fast_jsonparser) leave both nil.
 
 ### Tuning the options cache
 
@@ -180,7 +180,7 @@ already loaded, MultiJSON uses it before attempting to load others. When no
 backend is preloaded, MultiJSON walks its preference list and uses the first
 one that loads successfully. The list is split per platform — JRuby's
 available adapter set differs from MRI's — but the bundled benchmark suite
-ranks `json_gem` first on every engine: ahead of `fast_jsonparser`/`oj`/`yajl`
+ranks `json_gem` first on every engine: ahead of `fast_jsonparser`/`oj`
 on Ruby 3.4+, and ahead of `jrjackson` on JRuby 10. CI re-runs the
 benchmark and fails if the observed ranking diverges from the table below.
 
@@ -189,10 +189,9 @@ benchmark and fails if the observed ranking diverges from the table below.
 | 1    | The JSON gem      | The JSON gem    |
 | 2    | `fast_jsonparser` | `jrjackson`     |
 | 3    | `oj`              | —               |
-| 4    | `yajl-ruby`       | —               |
 
-A dash means the adapter isn't usable on that runtime: `fast_jsonparser`,
-`oj`, and `yajl-ruby` are MRI/TruffleRuby C extensions with no JRuby builds;
+A dash means the adapter isn't usable on that runtime: `fast_jsonparser`
+and `oj` are MRI/TruffleRuby C extensions with no JRuby builds;
 `jrjackson` is JRuby-only. The JSON gem is a Ruby default gem,
 so it's always available as a last-resort fallback on any supported Ruby.
 If you have a workload where a different backend is faster, set it
@@ -208,7 +207,6 @@ automatically select the correct variant for your Ruby implementation:
 | Runtime dependency                             | none  | [concurrent-ruby][concurrent-ruby] `~> 1.2` |
 | [`fast_jsonparser`][fast_jsonparser] adapter   |   ✓   |       |
 | [`oj`][oj] adapter                             |   ✓   |       |
-| [`yajl`][yajl] adapter                         |   ✓   |       |
 | [`json_gem`][json-gem] adapter                 |   ✓   |   ✓   |
 | [`jr_jackson`][jrjackson] adapter              |       |   ✓   |
 | `OptionsCache` thread-safe store               | `Hash` + `Mutex` | `Concurrent::Map` |
@@ -276,4 +274,3 @@ Pravosud. See [LICENSE][license] for details.
 [tests]: https://github.com/sferik/multi_json/actions/workflows/tests.yml
 [truffleruby]: https://www.graalvm.org/ruby/
 [typecheck]: https://github.com/sferik/multi_json/actions/workflows/typecheck.yml
-[yajl]: https://github.com/brianmario/yajl-ruby

@@ -1,18 +1,76 @@
 # frozen_string_literal: true
 
 require_relative "../../test_helper"
-require_relative "../../support/adapter_tests"
 
-if TestHelpers.yajl?
-  require "multi_json/adapters/yajl"
+# The yajl adapter was removed. Selecting it by name or constant falls
+# back to the json_gem adapter, which every supported Ruby ships.
+class YajlRemovalTest < Minitest::Test
+  cover "MultiJSON::AdapterSelector*"
 
-  class YajlAdapterTest < Minitest::Test
-    cover "MultiJSON::Adapters::Yajl*"
+  def setup
+    MultiJSON.send(:const_get, :DEPRECATION_WARNINGS_SHOWN).clear
+  end
 
-    include AdapterTests
+  def teardown
+    MultiJSON.use :json_gem
+  end
 
-    def adapter_class
-      MultiJSON::Adapters::Yajl
+  def test_use_yajl_symbol_selects_json_gem
+    capture_warnings { MultiJSON.use(:yajl) }
+
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
+  end
+
+  def test_use_yajl_string_selects_json_gem
+    capture_warnings { MultiJSON.use("Yajl") }
+
+    assert_equal MultiJSON::Adapters::JsonGem, MultiJSON.adapter
+  end
+
+  def test_per_call_yajl_adapter_parses_with_json_gem
+    result = nil
+    capture_warnings { result = MultiJSON.load('{"a":1}', adapter: :yajl) }
+
+    assert_equal({"a" => 1}, result)
+  end
+
+  def test_selecting_yajl_warns_once_as_a_deprecation
+    warnings = capture_warnings do
+      MultiJSON.use(:yajl)
+      MultiJSON.use(:yajl)
     end
+
+    assert_equal [["MultiJSON's yajl adapter was removed, so the json_gem adapter is used instead.", :deprecated]], warnings
+  end
+
+  def test_selecting_yajl_records_its_deprecation_once
+    capture_warnings { MultiJSON.use(:yajl) }
+
+    assert_includes MultiJSON.send(:const_get, :DEPRECATION_WARNINGS_SHOWN), :yajl_adapter
+  end
+
+  def test_adapter_selector_maps_yajl_on_its_own
+    adapter = nil
+    capture_warnings { adapter = MultiJSON::AdapterSelector.send(:load_adapter_by_name, "yajl") }
+
+    assert_equal MultiJSON::Adapters::JsonGem, adapter
+  end
+
+  def test_yajl_constant_is_the_json_gem_adapter
+    require "multi_json/adapters/yajl"
+
+    assert_same MultiJSON::Adapters::JsonGem, MultiJSON::Adapters::Yajl
+  end
+
+  private
+
+  def capture_warnings
+    warnings = []
+    original_warn = Kernel.method(:warn)
+    silence_warnings { Kernel.define_singleton_method(:warn) { |message, category: nil| warnings << [message, category] } }
+    yield
+    warnings
+  ensure
+    silence_warnings { Kernel.define_singleton_method(:warn, original_warn) }
   end
 end
