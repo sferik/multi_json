@@ -7,7 +7,15 @@ plugins:
  - rubocop-rake
  - standard-performance
 
+# Merge AllCops/Include with RuboCop's defaults, so the list below adds
+# to them. Dotfiles are left out unless they're named there.
+inherit_mode:
+  merge:
+    - Include
+
 AllCops:
+  Include:
+    - ".duel.rb"
   Exclude:
     - ".git/**/*"
     - "tmp/**/*"

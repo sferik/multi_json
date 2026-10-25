@@ -6,6 +6,8 @@ gem "activesupport", ">= 8", require: false
 gem "concurrent-ruby", ">= 1.2", require: false
 gem "json", ">= 2", require: false
 
+# Duel requires Ruby 3.4 or later
+gem "duel", ">= 0.1" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
 gem "minitest", ">= 5.20"
 gem "mutant-minitest", ">= 0.12"
 gem "rake", ">= 13.1"
@@ -30,3 +32,6 @@ gem "jrjackson", ">= 0.4.18", platforms: [:jruby], require: false
 gem "oj", ">= 3", platforms: %i[ruby windows], require: false
 
 gemspec
+
+# For profiles of regressions (StackProf runs on CRuby only)
+gem "stackprof", platforms: :mri
