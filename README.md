@@ -5,6 +5,7 @@
 [![Mutant](https://github.com/sferik/multi_json/actions/workflows/mutant.yml/badge.svg)][mutant]
 [![Typecheck](https://github.com/sferik/multi_json/actions/workflows/typecheck.yml/badge.svg)][typecheck]
 [![Docs](https://github.com/sferik/multi_json/actions/workflows/docs.yml/badge.svg)][docs]
+[![Duel](https://raw.githubusercontent.com/sferik/duel-ruby/main/assets/badge.svg)](https://github.com/sferik/duel-ruby)
 [![Maintainability](https://qlty.sh/badges/fde3f4a8-c331-44be-b1e6-45842137def9/maintainability.svg)][qlty]
 [![Gem Version](https://badge.fury.io/rb/multi_json.svg)][gem]
 

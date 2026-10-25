@@ -55,3 +55,10 @@ desc "Run the default task"
 default_tasks = %i[test lint mutant yardstick]
 default_tasks << :steep if Rake::Task.task_defined?(:steep)
 task default: default_tasks
+
+begin
+  require "duel/rake_task"
+  Duel::RakeTask.new
+rescue LoadError
+  # Duel requires Ruby 3.4 or later
+end
