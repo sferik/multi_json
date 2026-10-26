@@ -7,7 +7,7 @@ gem "concurrent-ruby", ">= 1.2", require: false
 gem "json", ">= 2", require: false
 
 # Duel requires Ruby 3.4 or later
-gem "duel", ">= 0.1" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
+gem "duel", ">= 0.1.1" if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
 gem "minitest", ">= 5.20"
 gem "mutant-minitest", ">= 0.12"
 gem "rake", ">= 13.1"
