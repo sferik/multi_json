@@ -24,18 +24,24 @@ jobs:
           - ruby-version: truffleruby+graalvm
             platform: windows-latest
     runs-on: ${{ matrix.platform }}
-    continue-on-error: ${{ endsWith(matrix.ruby-version, '-head') }}
 
     steps:
     - uses: actions/checkout@v7
-    - name: Set up Ruby
+    - id: ruby
+      name: Set up Ruby
+      continue-on-error: ${{ endsWith(matrix.ruby-version, '-head') }}
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: false # Do not bundle install yet, need recent versions for Windows
-    - name: Run tests
+    - id: tests
+      name: Run tests
+      continue-on-error: ${{ endsWith(matrix.ruby-version, '-head') }}
       run: |
         gem install bundler
         bundle config set --local path 'vendor/bundle'
         bundle install
         bundle exec rake test
+    - name: Note an advisory failure
+      if: steps.ruby.outcome == 'failure' || steps.tests.outcome == 'failure'
+      run: echo "::warning title=Advisory failure::A step failed, but this job is allowed to fail, so the build still passes"
